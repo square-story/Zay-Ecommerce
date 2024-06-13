@@ -36,6 +36,10 @@ userRoute.use(
   })
 );
 
+//passport verify
+userRoute.use(passport.initialize()); 
+userRoute.use(passport.session());
+
 userRoute.use(express.json());
 userRoute.use(express.urlencoded({ extended: true }));
 

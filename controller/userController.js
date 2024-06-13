@@ -284,19 +284,11 @@ module.exports.otpLogin = async (req, res) => {
 };
 
 module.exports.successGoogleLogin = async (req,res)=>{
-  try {
-    if(req.user){
-      req.session.user = {
-        email: req.user.email,
-        name: req.user.name,
-      };
-      res.redirect(`/`);
-    }else{
-      res.redirect("/failure")
-    }
-  } catch (error) {
-    console.error(error)
-  }
+  console.log(req.session.passport.user)
+  if(!req.user) res.redirect('/failure'); 
+	req.session.user=req.user.name
+  console.log(req.user)
+  res.redirect('/')
 }
 
 module.exports.failureGoogleLogin = async (req,res)=>{
