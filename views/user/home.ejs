@@ -33,16 +33,15 @@
                 <div class="container">
                     <div class="row p-5">
                         <div class="mx-auto col-md-8 col-lg-6 order-lg-last">
-                            <img class="img-fluid" src="./assets2/img/banner_img_01.jpg" alt="">
+                            <img class="img-fluid" style="border-radius: 20px;" src="./assets2/img/banner_img_01.png" alt="">
                         </div>
                         <div class="col-lg-6 mb-0 d-flex align-items-center">
                             <div class="text-align-left align-self-center">
                                 <h1 class="h1 text-success"><b>Zay</b> eCommerce</h1>
-                                <h3 class="h2">Tiny and Perfect eCommerce Template</h3>
+                                <h3 class="h2">Comfort And Perfect Cloth Store</h3>
                                 <p>
-                                    Zay Shop is an eCommerce HTML5 CSS template with latest version of Bootstrap 5 (beta 1). 
-                                    This template is 100% free provided by <a rel="sponsored" class="text-success" href="https://templatemo.com" target="_blank">TemplateMo</a> website. 
-                                    Image credits go to <a rel="sponsored" class="text-success" href="https://stories.freepik.com/" target="_blank">Freepik Stories</a>,
+                                    Zay is for everybody who loves fashion and wants to explore newer ways of expressing their style. #DoubtisOut - Welcome to the aisle of Style provided by <a rel="sponsored" class="text-success" href="https://templatemo.com" target="_blank">Square.story</a> website. 
+                                    Image credits go to <a rel="sponsored" class="text-success" href="https://stories.freepik.com/" target="_blank">Ajio</a>,
                                     <a rel="sponsored" class="text-success" href="https://unsplash.com/" target="_blank">Unsplash</a> and
                                     <a rel="sponsored" class="text-success" href="https://icons8.com/" target="_blank">Icons 8</a>.
                                 </p>
@@ -55,7 +54,7 @@
                 <div class="container">
                     <div class="row p-5">
                         <div class="mx-auto col-md-8 col-lg-6 order-lg-last">
-                            <img class="img-fluid" src="./assets2/img/banner_img_02.jpg" alt="">
+                            <img class="img-fluid" style="border-radius: 20px;" src="./assets2/img/banner_img_02.png" alt="">
                         </div>
                         <div class="col-lg-6 mb-0 d-flex align-items-center">
                             <div class="text-align-left">
@@ -74,7 +73,7 @@
                 <div class="container">
                     <div class="row p-5">
                         <div class="mx-auto col-md-8 col-lg-6 order-lg-last">
-                            <img class="img-fluid" src="./assets2/img/banner_img_03.jpg" alt="">
+                            <img class="img-fluid" style="border-radius: 20px;" src="./assets2/img/banner_img_03.png" alt="">
                         </div>
                         <div class="col-lg-6 mb-0 d-flex align-items-center">
                             <div class="text-align-left">
@@ -147,8 +146,9 @@
             <div class="row">
                 <div class="col-12 col-md-4 mb-4">
                     <div class="card h-100">
-                        <a href="shop-single.html">
-                            <img src="./assets2/img/feature_prod_01.jpg" class="card-img-top" alt="...">
+                        <%const length = product.length%>
+                        <a href="/productDetails?id=<%= product[length - 2]._id%>&index=0">
+                            <img src="/img/productImage/sharp/<%= product[length - 2].variant[0].images[0]%>" class="card-img-top" alt="...">
                         </a>
                         <div class="card-body">
                             <ul class="list-unstyled d-flex justify-content-between">
@@ -159,11 +159,11 @@
                                     <i class="text-muted fa fa-star"></i>
                                     <i class="text-muted fa fa-star"></i>
                                 </li>
-                                <li class="text-muted text-right">$240.00</li>
+                                <li class="text-muted text-right"><%=product[length - 2].brand%></li>
                             </ul>
-                            <a href="shop-single.html" class="h2 text-decoration-none text-dark">Gym Weight</a>
+                            <a href="/productDetails?id=<%= product[length - 2]._id%>&index=0" class="h2 text-decoration-none text-dark"><%=product[length - 2].name%></a>
                             <p class="card-text">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt in culpa qui officia deserunt.
+                                <%=product[length - 2].description%>
                             </p>
                             <p class="text-muted">Reviews (24)</p>
                         </div>
@@ -171,8 +171,8 @@
                 </div>
                 <div class="col-12 col-md-4 mb-4">
                     <div class="card h-100">
-                        <a href="shop-single.html">
-                            <img src="./assets2/img/feature_prod_02.jpg" class="card-img-top" alt="...">
+                        <a href="/productDetails?id=<%= product[length - 1]._id%>&index=0">
+                            <img src="/img/productImage/sharp/<%= product[length - 1].variant[0].images[0]%>"  class="card-img-top" alt="...">
                         </a>
                         <div class="card-body">
                             <ul class="list-unstyled d-flex justify-content-between">
@@ -183,11 +183,11 @@
                                     <i class="text-muted fa fa-star"></i>
                                     <i class="text-muted fa fa-star"></i>
                                 </li>
-                                <li class="text-muted text-right">$480.00</li>
+                                <li class="text-muted text-right"><%=product[length - 1].brand%></li>
                             </ul>
-                            <a href="shop-single.html" class="h2 text-decoration-none text-dark">Cloud Nike Shoes</a>
+                            <a href="shop-single.html" class="h2 text-decoration-none text-dark"><%=product[length - 1].name%></a>
                             <p class="card-text">
-                                Aenean gravida dignissim finibus. Nullam ipsum diam, posuere vitae pharetra sed, commodo ullamcorper.
+                                <%=product[length - 1].description%>
                             </p>
                             <p class="text-muted">Reviews (48)</p>
                         </div>
@@ -195,8 +195,8 @@
                 </div>
                 <div class="col-12 col-md-4 mb-4">
                     <div class="card h-100">
-                        <a href="shop-single.html">
-                            <img src="./assets2/img/feature_prod_03.jpg" class="card-img-top" alt="...">
+                        <a href="/productDetails?id=<%= product[length - 3]._id%>&index=0">
+                            <img src="/img/productImage/sharp/<%= product[length - 3].variant[0].images[0]%>"class="card-img-top" alt="...">
                         </a>
                         <div class="card-body">
                             <ul class="list-unstyled d-flex justify-content-between">
@@ -207,11 +207,11 @@
                                     <i class="text-warning fa fa-star"></i>
                                     <i class="text-warning fa fa-star"></i>
                                 </li>
-                                <li class="text-muted text-right">$360.00</li>
+                                <li class="text-muted text-right"><%=product[length - 3].brand%></li>
                             </ul>
-                            <a href="shop-single.html" class="h2 text-decoration-none text-dark">Summer Addides Shoes</a>
+                            <a href="/productDetails?id=<%= product[length - 3]._id%>&index=0" class="h2 text-decoration-none text-dark"><%=product[length - 3].name%></a>
                             <p class="card-text">
-                                Curabitur ac mi sit amet diam luctus porta. Phasellus pulvinar sagittis diam, et scelerisque ipsum lobortis nec.
+                                <%=product[length - 3].description%>
                             </p>
                             <p class="text-muted">Reviews (74)</p>
                         </div>
