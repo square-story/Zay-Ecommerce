@@ -1,3 +1,0 @@
-
-                                       
-onclick="remove_from_cart('<%= item.productId._id%>','<%= item.product%>', '<%= item.size%>')"

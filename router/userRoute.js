@@ -14,8 +14,9 @@ const userMiddleware = require("../middleware/userAuth");
 const couponController = require("../controller/couponController");
 const { loadData } = require("../middleware/userMiddilware");
 const wishlistController = require("../controller/wishlistController");
-
+const passport = require('passport'); 
 const nocache = require("nocache");
+require('../passport');
 
 userRoute.use(nocache());
 
@@ -70,6 +71,7 @@ userRoute.get("/", userController.loadHome);
 // load login
 userRoute.get("/login", userMiddleware.isLogined, userController.loadLogin);
 
+//post for login details to check
 userRoute.post("/login", userController.userLogin);
 
 // load register
@@ -94,7 +96,27 @@ userRoute.get("/otpLogin", userMiddleware.isLogined, userController.OTPlogin);
 // Logout the user
 userRoute.post("/logout", userController.userLogout);
 
+//the resend the otp again for create another request to generate the new otp
 userRoute.post("/resend", userController.resend);
+
+//Google Auth 
+userRoute.get('/auth/google',
+  passport.authenticate('google', { scope: 
+	[ 'email', 'profile' ] 
+}))
+
+// Google Auth Callback
+userRoute.get( '/auth/google/callback', 
+	passport.authenticate( 'google', { 
+		successRedirect: '/success', 
+		failureRedirect: '/failure'
+}));
+
+// Success 
+userRoute.get('/success' , userController.successGoogleLogin); 
+
+// failure 
+userRoute.get('/failure' , userController.failureGoogleLogin);
 
 userRoute.get("/productDetails", productController.productdetiles);
 

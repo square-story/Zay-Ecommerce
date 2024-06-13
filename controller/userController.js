@@ -282,6 +282,26 @@ module.exports.otpLogin = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.successGoogleLogin = async (req,res)=>{
+  try {
+    if(req.user){
+      req.session.user = {
+        email: req.user.email,
+        name: req.user.name,
+      };
+      res.redirect(`/`);
+    }else{
+      res.redirect("/failure")
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+module.exports.failureGoogleLogin = async (req,res)=>{
+  res.send("Error"); 
+}
 // ============================================ User sign up ends =============================================\\
 
 // user logout
@@ -324,7 +344,7 @@ module.exports.checkSession = (req, res) => {
     console.log(error);
   }
 };
-
+//week 8 completed
 module.exports.loadMyAccount = async (req, res) => {
   try {
     const userId = req.session.user?._id;
