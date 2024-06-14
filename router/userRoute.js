@@ -7,13 +7,7 @@ userRoute.set("view engine", "ejs");
 userRoute.set("views", "./views/user");
 const shopController = require("../controller/shop");
 const User = require("../models/userModel");
-const cartController = require("../controller/cartCotroller");
-const orderController = require("../controller/orderController");
-const review_Controller = require("../controller/reviewContoller");
 const userMiddleware = require("../middleware/userAuth");
-const couponController = require("../controller/couponController");
-const { loadData } = require("../middleware/userMiddilware");
-const wishlistController = require("../controller/wishlistController");
 const passport = require('passport'); 
 const nocache = require("nocache");
 require('../passport');
@@ -66,8 +60,6 @@ userRoute.use((req, res, next) => {
   res.locals.logedIn = req.session.user ? true : false;
   next();
 });
-
-userRoute.use(loadData);
 
 // load home
 userRoute.get("/", userController.loadHome);
@@ -126,82 +118,11 @@ userRoute.get("/productDetails", productController.productdetiles);
 
 userRoute.get("/shop", shopController.loadShop);
 
-userRoute.get("/cart", userMiddleware.userAuth, cartController.loadCart);
-
-userRoute.post("/add-cart", cartController.addToCart);
-
-userRoute.post("/removeFormCart", cartController.removeFromCart);
-
-userRoute.post("/counter", cartController.changeQuantity);
-
 userRoute.post("/checkSession", userController.checkSession);
 
-userRoute.get(
-  "/check-out",
-  userMiddleware.userAuth,
-  cartController.proceedToCheckout
-);
-
-userRoute.get(
-  "/account",
-  userMiddleware.userAuth,
-  userController.loadMyAccount
-);
-userRoute.get(
-  "/my-order",
-  userMiddleware.userAuth,
-  orderController.loadMyOrder
-);
-
-userRoute.get(
-  "/single-product",
-  userMiddleware.userAuth,
-  orderController.loadSingleProduct
-);
-
-userRoute.post("/add-Address", orderController.addAddress);
-
-userRoute.post("/place-order", orderController.placeOrder);
-userRoute.get("/order-success", orderController.loadOrderSucces);
-
-userRoute.post("/search", shopController.filter);
-userRoute.post("/order-cancel", orderController.orderCancelation);
-
-userRoute.get("/single-orderDetails", orderController.singleOrderDetials);
-
-userRoute.get(
-  "/wishlist",
-  userMiddleware.userAuth,
-  wishlistController.loadWhislist
-);
-userRoute.post("/wishlist", wishlistController.addTOWhishlist);
-userRoute.post("/remove-wishlist", wishlistController.removeFromWishlist);
-
-userRoute.get("/manage-address", userController.loadManageAddress);
-
 // ==================================================================== //
-
-userRoute.post("/addReview", review_Controller.addReview);
-
-userRoute.post("/verifyPayment", orderController.verifyPayment);
-
-userRoute.post("/product-return", orderController.productReturn);
-
-userRoute.post("/check-coupon", couponController.checkCoupon);
-
-userRoute.get("/my-coupon", couponController.loadMyCoupon);
-
-userRoute.get("/invoice", orderController.loadInvoice);
-
-userRoute.put("/edit-address", userController.editAddress);
-
-userRoute.delete("/delete-address/:index", userController.deleteAddress);
-
-userRoute.put("/change-password", userController.changePassword);
-
-userRoute.post("/change-details", userController.personalDetails);
-
 userRoute.get("/about", userController.loadAbout);
+
 userRoute.get("/contact", userController.loadContact);
 
 module.exports = userRoute;

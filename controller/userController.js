@@ -3,8 +3,6 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const verifyOtp = require("../models/otpVerification");
 const Product = require("../models/product");
-const Wallect = require("../models/walletModal");
-const Address = require("../models/address");
 
 // load home page
 module.exports.loadHome = async (req, res) => {

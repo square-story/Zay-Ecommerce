@@ -2,7 +2,6 @@ const Product = require("../models/product");
 const Catagery = require("../models/cetagory");
 const path = require("node:path");
 const sharp = require("sharp");
-const Review = require("../models/reviewModal");
 
 // add product
 

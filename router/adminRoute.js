@@ -3,8 +3,6 @@ const adminRoute = express();
 const adminController = require("../controller/adminController");
 const productController = require("../controller/product");
 const cetagoryContorller = require("../controller/cetagoryController");
-const couponController = require("../controller/couponController");
-const helper = require("../middleware/helper");
 const nocache = require("nocache");
 
 adminRoute.use(nocache());
@@ -111,35 +109,5 @@ adminRoute.post("/login", adminController.login);
 
 adminRoute.post("/logout", adminController.logout);
 
-// order
-
-adminRoute.get("/order", adminAuth.islogin, adminController.loadOrder);
-adminRoute.get(
-  "/single-orderDetails",
-  adminAuth.islogin,
-  adminController.loadsingleOrder
-);
-
-adminRoute.post("/change-orderStatus", adminController.changeOrderStatus);
-
-adminRoute.get("/returns", adminAuth.islogin, adminController.loadReturns);
-
-adminRoute.post("/returns", adminController.returns);
-
-// coupon management
-
-adminRoute.get("/load-coupon", adminAuth.islogin, couponController.loadCoupon);
-
-adminRoute.post("/create-coupon", couponController.createCoupon);
-
-adminRoute.put("/edit-coupon", couponController.createCoupon);
-
-adminRoute.post("/order-filter", adminController.filterDashboard);
-
-adminRoute.get(
-  "/sales-report",
-  adminAuth.islogin,
-  adminController.loadSalesReport
-);
 
 module.exports = adminRoute;

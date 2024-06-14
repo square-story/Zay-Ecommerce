@@ -5,7 +5,7 @@ const User = require('./models/userModel')
 
 
 passport.use(new GoogleStrategy({ 
-	clientID:process.env.CLIENT_ID, // Your Credentials here. 
+	clientID:"755677540600-i09tcee8bdig2d34a4pqp3csokbf56i6.apps.googleusercontent.com", // Your Credentials here. 
 	clientSecret:process.env.CLIENT_SECRET, // Your Credentials here. 
 	callbackURL:"http://localhost:3000/auth/google/callback", 
 	passReqToCallback:true
