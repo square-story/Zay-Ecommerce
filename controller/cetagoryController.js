@@ -55,7 +55,7 @@ module.exports.AddCetogory = async (req, res) => {
   }
 };
 
-//
+//listing of category
 module.exports.listCetagory = (req, res) => {
   try {
     console.log("Reiched at list?");

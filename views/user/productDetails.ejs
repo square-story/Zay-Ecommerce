@@ -170,8 +170,8 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="product__details__breadcrumb">
-                                <a href="./index.html">Home</a>
-                                <a href="./shop.html">Shop</a>
+                                <a href="/">Home</a>
+                                <a href="/shop">Shop</a>
                                 <span>Product Details</span>
                             </div>
                         </div>
@@ -335,7 +335,7 @@
                                     
                                     <li class="nav-item">
                                         <a class="nav-link" data-toggle="tab" href="#tabs-6" role="tab">Customer
-                                            reviews(<%= review.length%>)</a>
+                                            reviews(21)</a>
                                     </li>
             
                                 </ul>
@@ -343,50 +343,7 @@
                                     
                                     <div class="tab-pane" id="tabs-6" role="tabpanel">
                                         <div class="product__details__tab__content">
-                                            <div class="product__details__tab__content__item">
-                                                   <%console.log(review)%>
-                                                <%review.forEach((el, i) => {%>
-                                                    <div class="row bg-body-tertiary" style="padding: 25px;  background-color:#f0f8ff; box-shadow: 0 2px 4px 0 rgba(0,0,0,.08); margin-top: 2rem;">
-                                                        <div class="" style="margin-right: 2rem;">
-                                                            <div class="" style="max-width: 100px;"><img
-                                                                    style="height: 70px; width: 70px;" class=""
-                                                                    src="/img/productImage/sharp/<%= image%>">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col">
-                                                            <div class="" style="font-size: 14px;"><%= el.productId.name%></div>
-                                                            <div class="">
-                                                                <div class="" style="display: flex; flex-direction: column;">
-                                                                    <div class="">
-                                                                        <span style="font-weight: 500;"><%= el.rating%></span>
-                                                                        <span><i class="fa-solid fa-star" style="color: #14c859;"></i></span>
-                                                                    </div>
-                                                                    <div>
-                                                                        <p class=""><%= el.review%></p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="">
-                    
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <p><%= el.user.name%></p>
-                                                                </div>
-                                                                <p class=""><%= el.date.toLocaleDateString() %></p>
-                                                                <div class="row" style="flex-direction: row-reverse;">
-                                                                   
-                                                                    <div class=""><span><i class="fa-regular fa-thumbs-down fa-lg" style="color: #05070a;"></i></span><span style="margin-left: 10px;">0</span></div>
-                                                                    <div class="" style="margin-right: 1rem;"><span><i class="fa-regular fa-thumbs-up fa-lg" style="color: #0d0d0d;"></i></span><span style="margin-left: 10px;">0</span></div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        `
-                                                    </div>
-
-                                                <%})%>
-                                                
-                                            </div>
+                                           
                                             
                                         </div>
                                     </div>

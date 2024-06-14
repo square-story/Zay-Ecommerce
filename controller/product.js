@@ -294,17 +294,10 @@ module.exports.productdetiles = async (req, res) => {
       res.json({ product: product, index: index });
     } else {
       let totalRating = 0;
-      const review = await Review.find({ productId: id });
-      if (review) {
-        const sumOfRating = review.reduce((acc, crr) => (acc += crr.rating), 0);
-        totalRating = sumOfRating / review.length;
-        console.log("helloo", totalRating, sumOfRating, review.length);
-      }
 
       res.render("productDetails", {
         product: product,
         index: index,
-        review: review,
         image: product.variant[index].images[0],
         totalRating,
       });

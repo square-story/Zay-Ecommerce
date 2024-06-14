@@ -1,6 +1,8 @@
 const Catagery = require("../models/cetagory");
 const Product = require("../models/product");
 
+
+//products page rendering
 module.exports.loadShop = async (req, res) => {
   try {
     const page = 1;
