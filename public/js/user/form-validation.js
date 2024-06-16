@@ -6,6 +6,7 @@ function alert(id) {
   }, 3000);
 }
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function validate() {
   let username = document.getElementById("uname");
   let password = document.getElementById("password");
@@ -25,7 +26,7 @@ function validate() {
     return false;
   } else if (
     email.value.indexOf("@") == -1 ||
-    !email.value.endsWith("gmail.com") ||
+    !emailRegex.test(email.value.trim()) ||
     email.value.trim() === ""
   ) {
     email.style.border = "solid 1px red";
