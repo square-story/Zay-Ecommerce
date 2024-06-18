@@ -345,3 +345,28 @@ module.exports.loadContact = (req, res) => {
     res.render("contact");
   } catch (error) {}
 };
+
+//load forget password page
+module.exports.loadForget = (req,res)=>{
+  try {
+    res.render('forgetPassword')
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+module.exports.forgetVerify = async(req,res)=>{
+  try {
+    const email = req.body.email
+    const userData = await User.findOne({email:email})
+    
+    if(userData){
+      console.log(userData)
+    }else{
+      req.flash("blocked", "Not Found This Email Please Check Again");
+      res.redirect('fogetPassword')
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}

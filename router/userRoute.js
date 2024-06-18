@@ -125,4 +125,10 @@ userRoute.get("/about", userController.loadAbout);
 
 userRoute.get("/contact", userController.loadContact);
 
+//forget
+userRoute.get('/forget-password',userController.loadForget)
+
+userRoute.post('/forget',userController.forgetVerify)
+
+
 module.exports = userRoute;
