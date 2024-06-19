@@ -197,11 +197,17 @@ module.exports.OTPlogin = (req, res) => {
   }
 };
 
-// verify otp
 module.exports.verifyOTP = async (req, res) => {
   try {
     const email = req.query.email;
     console.log("otp verify email", email);
+
+    // Check for blocked user before OTP verification
+    const user = await User.findOne({ email: email });
+    if (user && user.isBlocked) {
+      req.flash("blocked", "Your account is currently blocked. Please contact support.");
+      return res.redirect(`/login`); // Replace with your login page path
+    }
 
     const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
 
@@ -211,6 +217,7 @@ module.exports.verifyOTP = async (req, res) => {
       const { otp: hashed } = verify;
       const compare = await bcrypt.compare(otp, hashed);
       console.log(compare);
+
       if (compare) {
         const user = await User.findOne({ email: email });
 
@@ -232,19 +239,22 @@ module.exports.verifyOTP = async (req, res) => {
           console.log("user not found");
         }
       } else {
-        req.flash("incorrect", "please enter valid otp");
+        req.flash("incorrect", "Please enter a valid OTP");
         res.redirect(`/otp?email=${email}`);
         console.log("OTP is incorrect");
       }
     } else {
-      req.flash("expired", "OTP experied resend ");
+      req.flash("expired", "OTP expired. Please resend.");
       res.redirect(`/otp?email=${email}`);
       console.log("otp expired");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    req.flash("error", "An error occurred. Please try again."); // Generic error message
+    res.redirect(`/otp?email=${email}`);
   }
 };
+
 
 // Login with otp
 module.exports.otpLogin = async (req, res) => {
@@ -421,7 +431,7 @@ module.exports.resetPassword = async(req,res)=>{
     const user_id = req.body.user_id;
     const passHash = await bcrypt.hash(req.body.password, 10);
     const updatedData = await User.findByIdAndUpdate({_id:user_id},{$set:{password:passHash}})
-    req.flash("blocked","password reset successfully");
+    req.flash("pass","password reset successfully");
     res.redirect('/login')
   } catch (error) {
     console.log(error)
@@ -438,7 +448,7 @@ module.exports.forgetVerify = async(req,res)=>{
       user.passwordResetToken = resetToken;
       await user.save();
       await sendVerificationEmail(user, resetToken);
-      req.flash("blocked","Password reset instructions sent to your email");
+      req.flash("pass","Password reset instructions sent to your email");
       res.redirect('/forget-password')
     }else{
       req.flash("blocked", "Not Found This User");
