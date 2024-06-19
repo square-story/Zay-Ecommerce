@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const verifyOtp = require("../models/otpVerification");
 const Product = require("../models/product");
+require("dotenv").config();
+
 
 // load home page
 module.exports.loadHome = async (req, res) => {
@@ -131,8 +133,8 @@ const sentOtp = async (email) => {
       port: 465,
       secure: true,
       auth: {
-        user: "gibmepreo@gmail.com",
-        pass: 'ekju dnie eirt bmao',
+        user: process.env.USER_AUTH,
+        pass: process.env.USER_AUTH_PASS,
 
       },
     });
@@ -355,16 +357,92 @@ module.exports.loadForget = (req,res)=>{
   }
 }
 
+// Function to generate a random reset token
+function generateResetToken() {
+  return Math.random().toString(20).substring(2, 12); // Example for illustration
+}
+
+async function sendVerificationEmail(user, token) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.USER_AUTH,
+      pass: process.env.USER_AUTH_PASS
+    }
+  });
+
+  const mailOptions = {
+    from: process.env.USER_AUTH,
+    to: user.email,
+    subject: 'Account Verification',
+    html: `
+      <p>Click on the link below to verify your account:</p>
+      <a href="http://localhost:3000/change-password/${user._id}/${token}">Verify Account</a>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Verification email sent to:', user.email);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
+
+// User verification controller
+exports.verifyUser = async (req, res) => {
+  const { userId, token } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      req.flash("blocked", "Not Found This User");
+      res.redirect('/forget-password')
+    }
+    console.log(user)
+    // // Check if token matches and is not expired (implement expiration logic)
+    // if (user.verificationToken !== token) {
+    //   return res.status(401).json({ message: 'Invalid verification token' });
+    // }
+
+    // User verified, perform actions (e.g., set verified flag)
+    res.render('forgetPasswordByUser', { user_id:user._id }); 
+  } catch (error) {
+    console.error(error);
+    res.status(500)
+  }
+};
+
+module.exports.resetPassword = async(req,res)=>{
+  try {
+    const user_id = req.body.user_id;
+    const passHash = await bcrypt.hash(req.body.password, 10);
+    const updatedData = await User.findByIdAndUpdate({_id:user_id},{$set:{password:passHash}})
+    req.flash("blocked","password reset successfully");
+    res.redirect('/forget-password')
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports.forgetVerify = async(req,res)=>{
   try {
     const email = req.body.email
-    const userData = await User.findOne({email:email})
+    const user = await User.findOne({email:email})
     
-    if(userData){
-      console.log(userData)
+    if(user){
+      const resetToken = generateResetToken();
+      user.passwordResetToken = resetToken;
+      await user.save();
+      await sendVerificationEmail(user, resetToken);
+      req.flash("blocked","Password reset instructions sent to your email");
+      res.redirect('/forget-password')
     }else{
-      req.flash("blocked", "Not Found This Email Please Check Again");
-      res.redirect('fogetPassword')
+      req.flash("blocked", "Not Found This User");
+      res.redirect('/forget-password')
     }
   } catch (error) {
     console.log(error)

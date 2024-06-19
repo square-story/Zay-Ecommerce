@@ -130,5 +130,8 @@ userRoute.get('/forget-password',userController.loadForget)
 
 userRoute.post('/forget',userController.forgetVerify)
 
+userRoute.get('/change-password/:userId/:token', userMiddleware.isLogined, userController.verifyUser);
+userRoute.post('/change-password',userController.resetPassword);
+
 
 module.exports = userRoute;
