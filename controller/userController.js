@@ -422,7 +422,7 @@ module.exports.resetPassword = async(req,res)=>{
     const passHash = await bcrypt.hash(req.body.password, 10);
     const updatedData = await User.findByIdAndUpdate({_id:user_id},{$set:{password:passHash}})
     req.flash("blocked","password reset successfully");
-    res.redirect('/forget-password')
+    res.redirect('/login')
   } catch (error) {
     console.log(error)
   }
