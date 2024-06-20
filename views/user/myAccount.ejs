@@ -6,7 +6,7 @@
     <meta name="keywords" content="Male_Fashion, unica, creative, html" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Male-Fashion | Template</title>
+    <title>Account Details</title>
 
     <!-- Google Font -->
     <link
@@ -23,12 +23,18 @@
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css" />
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css" />
     <link rel="stylesheet" href="css/style.css" type="text/css" />
+    <link rel="stylesheet" href="assets2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets2/css/templatemo.css">
+    <link rel="stylesheet" href="assets2/css/custom.css">
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
+     <!-- Load fonts style after rendering the layout styles -->
+     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
+     <link rel="stylesheet" href="assets2/css/fontawesome.min.css">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -52,7 +58,13 @@
         text-decoration: none;
         text-transform: capitalize;
         font-size: 0.9rem;
-        font-family: "Quicksand";
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+      }
+      .menu-itemmm a:hover {
+        color: #59ab6e;
+        font-weight: 800;
       }
 
       .menu-headinggg {
@@ -61,6 +73,54 @@
         margin-bottom: 10px;
         color: rgba(127, 127, 127, 1);
         padding-left: 10px;
+      }
+      .btn-1,
+      .btn-1 *,
+      .btn-1 :after,
+      .btn-1 :before,
+      .btn-1:after,
+      .btn-1:before {
+        border: 0 solid;
+        box-sizing: border-box;
+      }
+      .btn-1 {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-appearance: button;
+        background-color: #59ab6e;
+        background-image: none;
+        color: #fff;
+        cursor: pointer;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif,
+          Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+        font-size: 100%;
+        font-weight: 900;
+        line-height: 1.5;
+        margin: 0;
+        -webkit-mask-image: -webkit-radial-gradient(#000, #fff);
+        padding: 0;
+        text-transform: uppercase;
+      }
+      .btn-1:disabled {
+        cursor: default;
+      }
+      .btn-1:-moz-focusring {
+        outline: auto;
+      }
+      .btn-1 svg {
+        display: block;
+        vertical-align: middle;
+      }
+      .btn-1 [hidden] {
+        display: none;
+      }
+      .btn-1 {
+        border-radius: 99rem;
+        border-width: 2px;
+        padding: 0.8rem 3rem;
+      }
+      .btn-1:hover {
+        color: #999;
       }
     </style>
   </head>
@@ -71,7 +131,7 @@
       <div class="container-fluid">
         <div class="row">
           <%- include('../partials/profileNav.ejs') -%>
-          <div class="col-md-9">
+          <div class="col-md-9" style="margin-top: 20px">
             <div
               class="div row"
               style="
@@ -232,8 +292,8 @@
                   </div>
                 </div>
                 <div>
-                  <button onclick="showForm()" class="btn btn-dark">
-                    change
+                  <button onclick="showForm()" class="btn btn-dark btn-1">
+                    <span>Change</span>
                   </button>
                 </div>
                 <div id="passwords" style="margin-top: 2rem; display: none">

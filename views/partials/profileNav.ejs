@@ -11,8 +11,8 @@
       "
     >
       <img
-        src="/img/profileImage.jpg.png"
-        style="width: 50px; height: 50px; vertical-align: middle"
+        src="/img/profileImage.jpg"
+        style="width: 100px; height: 100px; border-radius: 50%; vertical-align: middle"
         alt=""
       />
       <div style="display: flex; flex-grow: 1">
@@ -25,7 +25,7 @@
             font-weight: 900;
           "
         >
-          Hello
+          Hello <%= user.name %>
           <p><span>Wallet amount</span> 0</p>
         </div>
       </div>
@@ -41,25 +41,17 @@
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
       "
     >
-      <div class="menu-headinggg" style="padding-top: 1rem">General</div>
+      <div class="menu-headinggg" style="padding-top: 1rem;">General</div>
 
       <div class="menu-itemmm">
-        <a href="/manage-address">Manage Address</a>
+        <a href="/manage-address">ADDRESS</a>
       </div>
 
-      <div class="menu-itemmm"><a href="/my-order">MY ORDERS</a></div>
+      <div class="menu-itemmm"><a href="/my-order">ORDERS</a></div>
 
-      <div class="menu-itemmm"><a href="/wishlist">MY Wishlist</a></div>
+      <div class="menu-itemmm"><a href="/wishlist">WISH LIST</a></div>
 
-      <div class="menu-itemmm"><a href="/my-coupon">My Coupon</a></div>
-
-      <div class="menu-headinggg">Legal</div>
-      <div class="menu-itemmm"><a href="">Terms of Use</a></div>
-
-      <div class="menu-itemmm"><a href="#">Privacy Policy</a></div>
-
-      <div class="menu-headinggg">Personal</div>
-      <div class="menu-itemmm"><a href="#">Report a Bug</a></div>
+      <div class="menu-itemmm"><a href="/my-coupon">COUPONS</a></div>
 
       <div class="menu-itemmm" style="display: flex; padding-bottom: 1rem">
         <a href="">
