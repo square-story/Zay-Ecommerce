@@ -56,6 +56,7 @@ module.exports.addproduct = async (req, res) => {
     const isSave = await product.save();
 
     if (isSave) {
+      req.flash('pass',"product listed sucessfully")
       res.redirect("/admin/addProduct");
     }
   } catch (error) {

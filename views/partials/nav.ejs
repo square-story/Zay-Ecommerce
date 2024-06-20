@@ -47,7 +47,7 @@
             class="dropdown"
             style="display: inline-block; margin-right: 1rem"
           >
-            <% const dropdown = locals.logedIn ? 'Account' : 'Login' %>
+            <% const dropdown = locals.logedIn ? user.name : 'Login' %>
             <button
               class="btn btn-outline-dark dropdown-toggle"
               type="button"

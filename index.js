@@ -3,10 +3,10 @@ const app = express();
 const mongoose = require("mongoose");
 
 //for logging
-app.use((req, res, next) => {
-  console.log(req.path, req.method);
-  next(); 
-});
+// app.use((req, res, next) => {
+//   console.log(req.path, req.method);
+//   next(); 
+// });
 
 // Using method-override allows you to leverage RESTful API design principles where you can use different HTTP verbs (GET, POST, PUT, DELETE, PATCH) to perform specific actions on your resources.
 const methodOverried = require("method-override");

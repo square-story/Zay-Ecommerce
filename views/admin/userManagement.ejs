@@ -62,7 +62,7 @@
                           >
                             <%= user.name %>
                           </h6>
-                          <small class="text-muted">Seller ID: #439</small>
+                          <small class="text-muted">Seller ID:</small>
                         </div>
                       </a>
                     </td>
@@ -149,26 +149,25 @@
 <script>
   function block(id) {
     const data = { id: id };
-    const btn = document.getElementById("button");
-    let stat;
-    btn.addEventListener("click", () => {
-      const status = btn.getAttribute("data-status");
-      console.log(status, "hii");
+  const btn = document.getElementById("button");
+  let stat; // Declare stat here
 
-      if (status) {
-        console.log("unbock");
-        stat = "Unblock";
-        console.log(stat + "111");
-      } else {
-        console.log("block");
-        stat = "block";
-        console.log(stat + " 00000");
-      }
-    });
+  btn.addEventListener("click", () => {
+    const status = btn.getAttribute("data-status");
+    console.log(status, "hii");
+
+    if (status) {
+      console.log("unbock");
+      stat = "Unblock";
+    } else {
+      console.log("block");
+      stat = "block";
+    }
+  });
 
     Swal.fire({
       title: "Are you sure",
-      text: `do you want to ${stat} this user!`,
+      text: `do you really want this to do ${status === "active" ? "Block" : "Unblock"}?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -176,6 +175,7 @@
       confirmButtonText: "Yes!",
     }).then((decision) => {
       if (decision.isConfirmed) {
+        let stat = status === "active" ? "Block" : "Unblock"; // Set stat based on status
         $.ajax({
           method: "POST",
           url: "/admin/blockUser",

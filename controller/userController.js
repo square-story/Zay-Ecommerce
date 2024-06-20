@@ -458,3 +458,15 @@ module.exports.forgetVerify = async(req,res)=>{
     console.log(error)
   }
 }
+
+
+//user details
+module.exports.loadMyAccount = async (req, res) => {
+  try {
+    const userId = req.session.user?._id;
+    const userDetails = await User.findById({ _id: userId });
+    res.render("myAccount", { userDetails });
+  } catch (error) {
+    console.log(error);
+  }
+};

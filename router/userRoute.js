@@ -132,5 +132,12 @@ userRoute.post('/forget',userController.forgetVerify)
 userRoute.get('/change-password/:userId/:token', userMiddleware.isLogined, userController.verifyUser);
 userRoute.post('/change-password',userController.resetPassword);
 
+//account details section
+userRoute.get(
+  "/account",
+  userMiddleware.userAuth,
+  userController.loadMyAccount
+);
+
 
 module.exports = userRoute;
