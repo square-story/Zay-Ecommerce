@@ -292,11 +292,30 @@ module.exports.otpLogin = async (req, res) => {
 };
 
 module.exports.successGoogleLogin = async (req,res)=>{
-  console.log(req.session.passport.user)
-  if(!req.user) res.redirect('/failure'); 
-	req.session.user=req.user.name
-  console.log(req.user)
-  res.redirect('/')
+  const name = req.user.name.givenName
+	const email = req.user.email;
+  const user = await User.findOne({ email }, {});
+  if (user) {
+		req.session.user = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    };
+		return res.redirect('/');
+	}else{
+    const hashedPassword = ' ';
+    const createNewUser = await User.create({
+      name:name,
+			email: email,
+			password: hashedPassword
+		});
+    req.session.user = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    };
+    res.redirect('/');
+  }
 }
 
 module.exports.failureGoogleLogin = async (req,res)=>{
