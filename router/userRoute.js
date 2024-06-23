@@ -7,6 +7,7 @@ userRoute.set("view engine", "ejs");
 userRoute.set("views", "./views/user");
 const shopController = require("../controller/shop");
 const User = require("../models/userModel");
+const cartController = require("../controller/cartCotroller");
 const userMiddleware = require("../middleware/userAuth");
 const passport = require('passport'); 
 const nocache = require("nocache");
@@ -138,6 +139,19 @@ userRoute.get(
   userMiddleware.userAuth,
   userController.loadMyAccount
 );
+
+//user cart render
+userRoute.get("/cart", userMiddleware.userAuth, cartController.loadCart);
+
+//add procuct into cart
+userRoute.post("/add-cart", cartController.addToCart);
+
+//remove product in cart
+userRoute.post("/removeFormCart", cartController.removeFromCart);
+
+//user cart product quantity change
+userRoute.post("/counter", cartController.changeQuantity);
+
 
 
 module.exports = userRoute;

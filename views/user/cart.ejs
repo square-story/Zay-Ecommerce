@@ -1,0 +1,327 @@
+<%- include('../layout/userHeader.ejs') -%>
+
+    <%- include('../partials/nav.ejs') -%>
+    <!-- Header Section End -->
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Shopping Cart</h4>
+                        <div class="breadcrumb__links">
+                            <a href="/">Home</a>
+                            <a href="/shop">Shop</a>
+                            <span>Shopping Cart</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+     
+
+    
+           
+
+
+        <section class="shopping-cart spad" id="ReloadArea">
+
+            <%if(products && products.length > 0) {%>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="shopping__cart__table" id="Reload">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>image</th>
+                                      
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+    
+                                    
+                                       <% let totalAmount = 0%>
+                                       <% let total = 0%>
+                                       <% let items = 0%>
+                                    <%products.forEach((item, i) => {%>
+    
+                                       
+                                    <tr>
+                                        <td class="product__cart__item">
+                                            <div class="product__cart__item__pic">
+    
+                                                <img class="" style="width: 100px; height: 100px;" src="/img/productImage/sharp/<%= item.productId.variant[item.product].images[0] %>" alt="">
+                                            </div>
+                                            <div class="product__cart__item__text">
+                                                <h6 style="font-size: 12px;"><%= item.productId.name %></h6>
+                                                <h5 style="font-size: 15px;">₹<%= item.price%></h5>
+                                                 
+                                                <% const match = [['S', 'Small'], ['M', 'Medium'], ['L', "Large"], ['XL', 'Exel'], ['XXL', 'Double exel']]%>
+                                                <%const size = match.find((size) => (size[0] === item.size)) %>
+                                                <%console.log(size)%>
+                                                <span>Size: <%= size[1]%></span>
+                                            </div>
+                                        </td>
+                                        <td class="quantity__item">
+                                            <div class="quantity">
+                                                <div class="pro-qty-2" id="newID">
+                                                    <span  id="minus" class="fa fa-angle-left   counter"></span>
+                                                    <input type="text" id="ctn" value="<%= item.quantity%>" data-productId="<%= item.productId._id%>" data-size="<%= item.size%>" readonly data-index="<%= item.product%>">
+                                                    <span  id="plus" class="fa fa-angle-right  counter"></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <%total += (item.productId.variant[item.product].price * item.quantity)%>
+                                        <% items += item.quantity%>
+                                        <%totalAmount += item.totalPrice%>
+                                        <td class="cart__price">₹<%= item.totalPrice%></td>
+                                       
+                                        <td class="cart__close" onclick="remove_from_cart('<%= item.productId._id%>','<%= item.product%>', '<%= item.size%>')"><i class="fa fa-close"></i></td>
+                                    </tr>
+    
+                                    <%})%>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="continue__btn">
+                                    <a class="btn btn-outline-dark" href="/shop">Continue Shopping</a>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        
+                        <div class="cart__total" id="price">
+                            <h6>Cart total</h6>
+                            <ul>
+                                
+
+                                <li>Price (<%= items %> <%= items > 1? "items" : "item"%>)<span style="color: black;">₹<%= total%></span></li>
+                                <li>Discount <span style="color: green;">-₹<%= total - totalAmount%></span></li>
+
+                                <%if(totalAmount > 1000) {%>
+
+                                    <li>Delivery Charges<span style="color: green;"><del style="color: black;">₹80</del> Free</span></li>
+                            
+                                <%} else{%>
+
+                                    <li>Delivery Charges<span style="color: black;">₹80</span></li>
+
+                                <%}%>
+                                
+                                <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount%></span></li>
+                            </ul>
+                            <button type="button" id="btn" data-session="<%= logedIn %>" onclick="proccedTOCheckOut()" class="primary-btn">Proceed to checkout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            
+        <%} else {%>
+           
+
+            <div style="display: flex; justify-content: center; align-items: center; height: 30rem;">
+                <div style="text-align: center;">
+                    <img src="/img/emptycart.png" alt="Empty Cart Image" style="width: 150px; height: 150px; margin-bottom: 20px;">
+                    <p style="font-size: 1.5rem; color: #555;">Your cart is currently empty.</p>
+                    <a href="/shop" class="btn btn-outline-dark btn-lg">Explore Our Shop</a>
+                </div>
+            </div>
+
+        <%}%>
+     </section>
+
+
+
+
+
+    <!-- Shopping Cart Section Begin -->
+    
+    <!-- Shopping Cart Section End -->
+
+    <footer class="bg-dark" id="tempaltemo_footer">
+        <div class="container">
+            <div class="row">
+      
+                <div class="col-md-4 pt-5">
+                    <h2 class="h2 text-success border-bottom pb-3 border-light logo">Zay Shop</h2>
+                    <ul class="list-unstyled text-light footer-link-list">
+                        <li>
+                            <i class="fas fa-map-marker-alt fa-fw"></i>
+                            123 Consectetur at ligula 10660
+                        </li>
+                        <li>
+                            <i class="fa fa-phone fa-fw"></i>
+                            <a class="text-decoration-none" href="tel:010-020-0340">010-020-0340</a>
+                        </li>
+                        <li>
+                            <i class="fa fa-envelope fa-fw"></i>
+                            <a class="text-decoration-none" href="mailto:info@company.com">info@company.com</a>
+                        </li>
+                    </ul>
+                </div>
+      
+                <div class="col-md-4 pt-5">
+                    <h2 class="h2 text-light border-bottom pb-3 border-light">Products</h2>
+                    <ul class="list-unstyled text-light footer-link-list">
+                        <li><a class="text-decoration-none" href="#">Luxury</a></li>
+                        <li><a class="text-decoration-none" href="#">Sport Wear</a></li>
+                        <li><a class="text-decoration-none" href="#">Men's Shoes</a></li>
+                        <li><a class="text-decoration-none" href="#">Women's Shoes</a></li>
+                        <li><a class="text-decoration-none" href="#">Popular Dress</a></li>
+                        <li><a class="text-decoration-none" href="#">Gym Accessories</a></li>
+                        <li><a class="text-decoration-none" href="#">Sport Shoes</a></li>
+                    </ul>
+                </div>
+      
+                <div class="col-md-4 pt-5">
+                    <h2 class="h2 text-light border-bottom pb-3 border-light">Further Info</h2>
+                    <ul class="list-unstyled text-light footer-link-list">
+                        <li><a class="text-decoration-none" href="#">Home</a></li>
+                        <li><a class="text-decoration-none" href="#">About Us</a></li>
+                        <li><a class="text-decoration-none" href="#">Shop Locations</a></li>
+                        <li><a class="text-decoration-none" href="#">FAQs</a></li>
+                        <li><a class="text-decoration-none" href="#">Contact</a></li>
+                    </ul>
+                </div>
+      
+            </div>
+      
+            <div class="row text-light mb-4">
+                <div class="col-12 mb-3">
+                    <div class="w-100 my-3 border-top border-light"></div>
+                </div>
+                <div class="col-auto me-auto">
+                    <ul class="list-inline text-left footer-icons">
+                        <li class="list-inline-item border border-light rounded-circle text-center">
+                            <a class="text-light text-decoration-none" target="_blank" href="http://facebook.com/"><i class="fab fa-facebook-f fa-lg fa-fw"></i></a>
+                        </li>
+                        <li class="list-inline-item border border-light rounded-circle text-center">
+                            <a class="text-light text-decoration-none" target="_blank" href="https://www.instagram.com/"><i class="fab fa-instagram fa-lg fa-fw"></i></a>
+                        </li>
+                        <li class="list-inline-item border border-light rounded-circle text-center">
+                            <a class="text-light text-decoration-none" target="_blank" href="https://twitter.com/"><i class="fab fa-twitter fa-lg fa-fw"></i></a>
+                        </li>
+                        <li class="list-inline-item border border-light rounded-circle text-center">
+                            <a class="text-light text-decoration-none" target="_blank" href="https://www.linkedin.com/"><i class="fab fa-linkedin fa-lg fa-fw"></i></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-auto">
+                    <label class="sr-only" for="subscribeEmail">Email address</label>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control bg-dark border-light" id="subscribeEmail" placeholder="Email address">
+                        <div class="input-group-text btn-success text-light">Subscribe</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      
+        <div class="w-100 bg-black py-3">
+            <div class="container">
+                <div class="row pt-2">
+                    <div class="col-12">
+                        <p class="text-left text-light">
+                            Copyright &copy; 2021 Company Name 
+                            | Designed by <a rel="sponsored" href="https://templatemo.com" target="_blank">TemplateMo</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      
+      </footer>
+      <!-- End Footer -->
+      
+      <!-- Start Script -->
+      <script src="assets2/js/jquery-1.11.0.min.js"></script>
+      <script src="assets2/js/jquery-migrate-1.2.1.min.js"></script>
+      <script src="assets2/js/bootstrap.bundle.min.js"></script>
+      <script src="assets2/js/templatemo.js"></script>
+      <script src="assets2/js/custom.js"></script>
+      <!-- End Script -->
+</body>
+
+</html>
+
+
+
+<script>
+     function remove_from_cart(productId, index, size) {
+
+        console.log(productId, index)
+         const data = {productId: productId, index: index, size: size}
+         console.log(data)
+       try {
+
+        $.ajax({
+            type: 'POST',
+            url: '/removeFormCart',
+            data: JSON.stringify(data),
+            contentType: 'application/Json',
+            success: (response) => {
+                   
+                if(response.removed) {
+                    $('#Reload').load('/cart #Reload');
+                    $('#price').load('/cart #price');
+                    $('#ReloadArea').load('/cart #ReloadArea');
+                }
+            }
+        })
+        
+       } catch (error) {
+        console.log(error)
+       }
+
+     }
+</script>
+
+<script>
+
+
+const parentElement = document.querySelector('.pro-qty-2');
+
+parentElement.addEventListener('click', (event) => {
+    try {
+        const input = document.getElementById('ctn');
+        const productId = input.getAttribute('data-productId');
+        const index = input.getAttribute('data-index');
+        const size = input.getAttribute('data-size');
+        
+        if (event.target.classList.contains('counter')) {
+            const decision = event.target.id === "plus" ? 'plus' : 'minus';
+            
+            const data = { status: decision, productId, index, size };
+
+            $.ajax({
+                type: 'POST',
+                url: '/counter',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: (response) => {
+                    if (response.changed) {
+                      $('#newID').load('/cart #newID');
+                      $('#price').load('/cart #price');
+                    } else {
+                        console.log('Error');
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+});
+</script>

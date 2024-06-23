@@ -291,6 +291,7 @@ module.exports.otpLogin = async (req, res) => {
   }
 };
 
+//the success route control of google auth
 module.exports.successGoogleLogin = async (req,res)=>{
   const name = req.user.name.givenName
 	const email = req.user.email;
@@ -310,7 +311,7 @@ module.exports.successGoogleLogin = async (req,res)=>{
 			password: hashedPassword
 		});
     req.session.user = {
-      _id: user._id,
+      _id: createNewUser._id,
       name: user.name,
       email: user.email,
     };
@@ -318,13 +319,13 @@ module.exports.successGoogleLogin = async (req,res)=>{
   }
 }
 
+//google auth failure route controller
 module.exports.failureGoogleLogin = async (req,res)=>{
   res.send("Error"); 
 }
 // ============================================ User sign up ends =============================================\\
 
 // user logout
-
 module.exports.userLogout = async (req, res) => {
   try {
     req.session.user = null;
@@ -333,6 +334,7 @@ module.exports.userLogout = async (req, res) => {
     console.log(error);
   }
 };
+
 
 module.exports.resend = async (req, res) => {
   try {
@@ -351,7 +353,6 @@ module.exports.resend = async (req, res) => {
 };
 
 // check session
-
 module.exports.checkSession = (req, res) => {
   try {
     if (req.session) {
