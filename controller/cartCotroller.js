@@ -278,3 +278,21 @@ module.exports.loadCart = async (req, res) => {
     }
   };
   
+
+
+  module.exports.proceedToCheckout = async (req, res) => {
+    try {
+      const userid = req.session.user?._id;
+      const address = await Address.findOne({ user: userid });
+      console.log(address);
+      const cart = await Cart.findOne({ user: userid }).populate(
+        "products.productId"
+      );
+      console.log(cart);
+      res.render("checkOut", { address: address, products: cart.products });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  

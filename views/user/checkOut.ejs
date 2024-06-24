@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Male_Fashion Template">
+    <meta name="keywords" content="Male_Fashion, unica, creative, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Zay Fashion</title>
+    <link rel="apple-touch-icon" href="assets2/img/apple-icon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="assets2/img/favicon.ico">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="css/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="assets2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets2/css/templatemo.css">
+    <link rel="stylesheet" href="assets2/css/custom.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+    <style>
+        .cards-container::-webkit-scrollbar {
+            display: none;
+            /* Hide the scrollbar in WebKit browsers */
+        }
+
+        .sticky-element {
+            position: -webkit-sticky;
+            /* For Safari */
+            position: sticky;
+            bottom: 0;
+            /* Stick it to the bottom */
+
+            padding: 10px;
+
+
+        }
+
+        @media screen and (min-width: 480px) {
+
+            .sticky-element {
+                margin-left: 10rem;
+            }
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <%- include('../partials/nav.ejs') -%>
+    <!-- Header Section End -->
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Check Out</h4>
+                        <div class="breadcrumb__links">
+                            <a href="./index.html">Home</a>
+                            <a href="./shop.html">Shop</a>
+                            <span>Check Out</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add address</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="checkout__form">
+                        <form action="/add-Address" method="post">
+                            <div class="row">
+                                <div class="col-lg-12 col-md-">
+
+                                    <h6 class="checkout__title">Billing Details</h6>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="checkout__input">
+                                                <p>Fist Name<span>*</span></p>
+                                                <input type="text" id="firstname" name="fname">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="checkout__input">
+                                                <p>Last Name<span>*</span></p>
+                                                <input type="text" id="lastName" name="lname">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkout__input">
+                                        <p>Country<span>*</span></p>
+                                        <input type="text" name="country" value="India">
+                                    </div>
+                                    <div class="checkout__input">
+                                        <p>Address<span>*</span></p>
+                                        <input type="text" id="address" name="address" placeholder="Street Address"
+                                            class="checkout__input__add">
+
+                                    </div>
+                                    <div class="checkout__input">
+                                        <p>Town/City<span>*</span></p>
+                                        <input type="text" id="city" name="city">
+                                    </div>
+                                    <div class="checkout__input">
+                                        <p>State<span>*</span></p>
+                                        <input type="text" id="state" name="state">
+                                    </div>
+                                    <div class="checkout__input">
+                                        <p>Postcode / ZIP<span>*</span></p>
+                                        <input type="text" id="pin" name="pin">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="checkout__input">
+                                                <p>Phone<span>*</span></p>
+                                                <input type="text" id="Phone" name="phone">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="checkout__input">
+                                                <p>Email<span>*</span></p>
+                                                <input type="text" id="email" name="email">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="align-self: flex-end;">
+                                    <button type="submit" class="btn btn-dark">add</button>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Section Begin -->
+    <section class="checkout spad">
+        <div class="container">
+            <div class="checkout__form">
+                <!-- <div>
+                    <button href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo"
+                        class="btn btn-dark"><i class="material-icons md-plus"></i>Add address</button>
+                </div> -->
+
+
+                <!-- <form action="/place-order" method="post"> -->
+                <div class="row justify-content-end">
+
+
+
+
+                    <div class="col-lg-8 col-md-6">
+                        <div class="accordion" id="accordionPanelsStayOpenExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button "
+                                        style="background-color: #111111 !important; color: #f3f2ee; border-color: none !important;"
+                                        type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true"
+                                        aria-controls="panelsStayOpen-collapseOne">
+                                        SELECT ADDRESS
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
+                                    <div class="accordion-body" style="background-color: #f3f2ee;">
+
+                                        <div class="cards-container"
+                                            style="display: flex; flex-wrap: nowrap;  gap: 2rem; overflow: scroll; ">
+                                            <%if(address) {%>
+                                                <%address.address.forEach((el, i)=> {%>
+                                                    <%console.log(el)%>
+
+                                                        <div class="card text-center mb-3"
+                                                            style="max-width: 18rem; margin-left: 2rem;  flex: 1 0 18rem; ">
+
+                                                            <div class="card-body">
+                                                                <h5 class="card-title"
+                                                                    style="color: #111111; font-weight: 800;">Address
+                                                                    <%= i + 1%>
+                                                                </h5>
+                                                                <address>
+                                                                    <p style="text-align: left; margin: 0;">
+
+                                                                        <span style="font-weight: bold;">Name:</span>
+                                                                        <%= el.fullName %><br>
+                                                                            <span
+                                                                                style="font-weight: bold;">Country:</span>
+                                                                            <%= el.country %><br>
+                                                                                <span style="font-weight: bold;">House
+                                                                                    Name:</span>
+                                                                                <%= el.address %><br>
+                                                                                    <span
+                                                                                        style="font-weight: bold;">State:</span>
+                                                                                    <%= el.state %><br>
+                                                                                        <span
+                                                                                            style="font-weight: bold;">City:</span>
+                                                                                        <%= el.city %><br>
+                                                                                            <span
+                                                                                                style="font-weight: bold;">Pincode:</span>
+                                                                                            <%= el.pincode %><br>
+                                                                                                <span
+                                                                                                    style="font-weight: bold;">Phone:</span>
+                                                                                                <%= el.phone %><br>
+                                                                                                    <span
+                                                                                                        style="font-weight: bold;">Email:</span>
+                                                                                                    <%= el.email %><br>
+                                                                    </p>
+                                                                </address>
+
+                                                                <div class="" role="group"
+                                                                    aria-label="Basic radio toggle button group">
+                                                                    <input type="radio" class="btn-check"
+                                                                        value="<%= i %>" name="address"
+                                                                        id="btnradio<%= i + 1%>" autocomplete="off">
+                                                                    <label class="btn btn-outline-dark px-4"
+                                                                        for="btnradio<%= i + 1%>">Select</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <%})%>
+
+                                                            <%} else {%>
+                                                                <div class="d-flex flex-column align-items-center">
+                                                                    <img src="\img\noAddress..jpeg"
+                                                                        alt="No address found"
+                                                                        style="max-width: 150px; margin-bottom: 10px;">
+                                                                    <p
+                                                                        style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 2px;">
+                                                                        No address found</p>
+                                                                    <span
+                                                                        style="color: #555; margin-bottom: 2rem;">Please
+                                                                        add new address</span>
+                                                                </div>
+
+
+                                                                <%}%>
+
+
+
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                                data-bs-whatever="@mdo"
+                                                style="background-color: #111111; color: #f3f2ee;" type="button">ADD NEW
+                                                ADDRESS</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        style="background-color: #111111; color: #f3f2ee;"
+                                        data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
+                                        aria-controls="panelsStayOpen-collapseTwo">
+                                        ORDER SAMMARY
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="background-color: #f3f2ee;">
+                                     <div class="row">
+                                        <div class="col-12">
+                                            <div class="shopping__cart__table" id="Reload">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>image</th>
+                                                          <th></th>
+                                                            <th>Quantity</th>
+                                                            <th>Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                        
+                                                        
+                                                           <% let totalAmount = 0%>
+                                                           <% let total = 0%>
+                                                           <% let items = 0%>
+                                                        <%products.forEach((item, i) => {%>
+                        
+                                                           
+                                                        <tr>
+                                                            <td class="product__cart__item">
+                                                                <div class="product__cart__item__pic">
+                        
+                                                                    <img class="" style="width: 100px; height: 100px;" src="/img/productImage/sharp/<%= item.productId.variant[item.product].images[0] %>" alt="">
+                                                                </div>
+                                                                <div class="product__cart__item__text">
+                                                                    <h6 style="font-size: 12px;"><%= item.productId.name %></h6>
+                                                                    <h5 style="font-size: 15px;">₹<%= item.price%></h5>
+                                                                     
+                                                                    <% const match = [['S', 'Small'], ['M', 'Medium'], ['L', "Large"], ['XL', 'Exel'], ['XXL', 'Double exel']]%>
+                                                                    <%const size = match.find((size) => (size[0] === item.size)) %>
+                                                                    <%console.log(size)%>
+                                                                    <span>Size: <%= size[1]%></span>
+                                                                </div>
+                                                            </td>
+                                                            <td class="quantity__item">
+                                                                <div class="quantity">
+                                                                    <div class="pro-qty-2" id="newID">
+                                                                        
+                                                                       <td><%= item.quantity%></td>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="cart__price">₹<%= item.totalPrice%></td>
+                                                        </tr>
+                        
+                                                        <%})%>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <div class="continue__btn">
+                                                        <a class="btn btn-outline-dark" href="/shop">Continue Shopping</a>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                     </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+
+                        <div class="cart__discount" style="margin-bottom: 30px !important;">
+                            <h6>Discount codes</h6>
+                           <div class="d-flex">
+                            <input type="text" class="form-control" id="applyCoupon" placeholder="Coupon code">
+                            <button type="button" class="btn btn-dark" onclick="return applyCoupon();">Apply</button>
+                           </div>
+                        </div>
+
+                        <div class="checkout__order" style="padding-bottom: 0 !important;">
+                            <h4 class="order__title" style="border-bottom: none;">Your order</h4>
+
+
+
+                            <% let subtotal=0, totalItem=0 %>
+
+                                <%products.forEach((product, index)=> {%>
+                                    <%subtotal +=product.totalPrice%>
+
+                                        <%totalItem +=product.quantity %>
+                                            <%})%>
+
+
+
+                                                <ul class="checkout__total__all" style="margin-bottom: 0 !important;">
+                                                    <li>Price (<%= totalItem%>
+                                                            <%= totalItem> 1 ? "items" : "item"%>)<span
+                                                                    style="color: #111111;">₹<%= subtotal%></span></li>
+
+                                                    <%if(subtotal> 1000) {%>
+
+                                                        <li>Delivery Charges<span style="color: green;"><del
+                                                                    style="color: black;">₹80</del> Free</span></li>
+
+                                                        <%} else{%>
+
+                                                            <li>Delivery Charges<span style="color: black;">₹80</span>
+                                                            </li>
+
+                                                            <%}%>
+
+
+
+                                                                <li style="font-weight: 600;" id="subtotal">Amount
+                                                                    payaple<span id="discountedAmount"
+                                                                        style="color: #111111;">₹<%= subtotal%>
+                                                                    </span></li>
+
+                        </div>
+                        <div style="padding: 30px; background-color: #f3f2ee;">
+                            <table class="table" style="background-color: #f3f2ee;">
+
+                                <tbody>
+                                    <tr>
+                                        <td style="background-color: #f3f2ee;">
+                                            <div class="" style="background-color: #f3f2ee;">
+                                                <input type="radio" id="paypal1" value="razorpay"
+                                                    name="payment_method">
+                                                <label for="paypal1">Razorpay</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #f3f2ee;">
+                                            <div class="" style="background-color: #f3f2ee;">
+                                                <input type="radio" id="cod1" value="COD"
+                                                    name="payment_method">
+                                                <label for="cod1">Cash on Delivery</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #f3f2ee;">
+                                            <div class="" style="background-color: #f3f2ee;">
+                                                <input type="radio" id="wallet" value="wallet"
+                                                    name="payment_method">
+                                                <label for="wallet">Wallet</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+        <div class="sticky-element " style="max-width: 50%;">
+            <div class="d-grid gap-2 " style="">
+                <button class="btn" id="place-order" data-subtotal="<%= subtotal%>" data-productPrice=""
+                    onclick="placeOrder('<%= subtotal%>')"
+                    style=" color: #f3f2ee; padding: 1rem; background-color: #69bb7e;" type="button">PLACE
+                    ORDER</button>
+            </div>
+        </div>
+        <!-- <button type="button" onclick="placeOrder('<%= subtotal%>')" class="site-btn ">PLACE ORDER</button> -->
+    </section>
+    <!-- Checkout Section End -->
+
+    <!-- Footer Section Begin -->
+    <%- include('../layout/userTemplateFooter.ejs') -%>r>
+    <!-- Footer Section End -->
+
+    <!-- Search Begin -->
+    <div class="search-model">
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="search-close-switch">+</div>
+            <form class="search-model-form">
+                <input type="text" id="search-input" placeholder="Search here.....">
+            </form>
+        </div>
+    </div>
+    <!-- Search End -->
+
+    <!-- Js Plugins -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.nice-select.min.js"></script>
+    <script src="js/jquery.nicescroll.min.js"></script>
+    <script src="js/jquery.magnific-popup.min.js"></script>
+    <script src="js/jquery.countdown.min.js"></script>
+    <script src="js/jquery.slicknav.js"></script>
+    <script src="js/mixitup.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+</html>
+
+<script>
+    function placeOrder() {
+        try {
+            console.log('clicked')
+            const radioBtn = document.querySelector('input[name="address"]:checked');
+            const index = radioBtn ? radioBtn.value : null;
+            if (index) {
+
+                const payment = document.querySelector('input[name="payment_method"]:checked');
+                const paymet_method = payment ? payment.value : null;
+
+                if (paymet_method) {
+                    const total = document.getElementById('place-order').getAttribute('data-subtotal')
+                    const isCouponApplied = document.getElementById('place-order').getAttribute('data-couponApplied');
+                    console.log(isCouponApplied)
+                    const value = isCouponApplied ? document.getElementById('place-order').getAttribute('data-couponCode') : false;
+                    console.log(value);
+                    console.log(total)
+                    const subtotal = total;
+                    if (subtotal) {
+
+                        const data = {
+                            index: index,
+                            payment_method: paymet_method,
+                            subtotal: subtotal,
+                            isCoupon: value
+                        }
+                        // if(paymet_method == 'COD' && subtotal >= 500) {
+                        //    return fireSwal('Amount exceeds the maximum limit of 500 choose another payment option');
+                        
+                        // }
+
+                        console.log(data)
+                        $.ajax({
+                            type: 'POST',
+                            url: '/place-order',
+                            data: JSON.stringify(data),
+                            contentType: 'application/JSON',
+                            success: (response) => {
+                                if (response.success) {
+                                    location.href = '/order-success';
+                                } else if (response.order) {
+                                    razorPay(response.order);
+                                } else if (response.wallet) {
+
+                                    location.href = '/order-success';
+                                } else if (response.fail) {
+                                    fireSwal(response.massage);
+                                }else if(response.remove) {
+
+                                    fireSwal(response.massage)
+
+                                } else if(response.money){
+                                    console.log('money error')
+                                    Swal.fire({
+
+                                        title: "Wallet don't have enough money",
+                                        text: "Please choose another payment option",
+                                        icon: "error",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                }
+                            }
+
+                        })
+
+                    } else {
+                        console.log('total amount not recived...');
+
+                    }
+
+                } else {
+                    console.log('please select payment method');
+                    Swal.fire({
+
+                        title: "Select payament method",
+                        text: "Please select payament method!",
+                        icon: "warning",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+
+                }
+
+
+
+            } else {
+                Swal.fire({
+
+                    title: "Select address",
+                    text: "Please select address!",
+                    icon: "warning",
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+
+</script>
+
+
+
+
+<script>
+    function razorPay(order) {
+        try {
+            console.log(order);
+            var options = {
+                "key": "rzp_test_at0lMzCavdHpBO", // Enter the Key ID generated from the Dashboard
+                "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                "currency": "INR",
+                "name": "Male fashion", //your business name
+                "description": "Test Transaction",
+                "image": "https://example.com/your_logo",
+                "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                "handler" : (responce) => {
+                    verifyPayament(responce, order);
+                },
+                "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+                    "name": "Male fashion", //your customer's name
+                    "email": "najinn675@gmail.com",
+                    "contact": "9000090000" //Provide the customer's phone number for better conversion rates 
+                },
+                "notes": {
+                    "address": "Male fashion"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+
+            var rzp1 = new Razorpay(options);
+            rzp1.on('payment.failed', (err) => {
+                console.log(err);
+            })
+            rzp1.open();
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    function verifyPayament(payment, order) {
+        try {
+            $.ajax({
+                type: 'POST',
+                url: '/verifyPayment',
+                data: {
+                    payment: payment,
+                    order: order,
+                },
+                success: (responce) => {
+                    if (responce.payment_successful) {
+                        window.location.href = '/order-success';
+                    } else {
+                        Swal.fire({
+                            positon: "center",
+                            icon: "error",
+                            title: "Payment failed",
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+                    }
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+</script>
+
+
+<script>
+    function applyCoupon() {
+
+        const couponCode = document.getElementById('applyCoupon').value;
+        console.log(couponCode)
+        if (couponCode) {
+            document.getElementById('place-order').setAttribute('data-couponCode', `${couponCode}`);
+            const data = { couponCode: couponCode }
+            $.ajax({
+                type: "POST",
+                url: "/check-coupon",
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: (responce) => {
+                    if (responce.used) {
+
+                        fireSwal(responce.massage);
+
+                    } else if (responce.limit) {
+
+                        fireSwal(responce.massage);
+
+                    } else if (responce.expired) {
+
+                        fireSwal(responce.massage);
+
+                    } else if (responce.min) {
+
+                        fireSwal(responce.massage);
+
+                    } else if (responce.notAvailable) {
+
+                        fireSwal(responce.massage);
+
+                    } else if (responce.success) {
+                        console.log('hel')
+                        console.log(responce)
+
+                        document.getElementById('place-order').setAttribute('data-subtotal', `${responce.subtotal}`);
+                        document.getElementById('discountedAmount').innerText = `₹${responce.subtotal}`
+                        document.getElementById('place-order').setAttribute('data-couponApplied', '1')
+                    }
+                }
+            })
+
+        } else {
+            console.log('coupon not applied');
+
+        }
+
+
+    }
+</script>
+
+
+<script>
+    function fireSwal(text) {
+
+        Swal.fire({
+            positon: "center",
+            icon: "error",
+            title: `${text}`,
+            showConfirmButton: false,
+            timer: 1500,
+        });
+
+    }
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>

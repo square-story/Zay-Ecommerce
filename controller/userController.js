@@ -490,3 +490,233 @@ module.exports.loadMyAccount = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.loadManageAddress = async (req, res) => {
+  try {
+    const userId = req.session.user?._id;
+    if (!userId) {
+      // res.status(500).render('opps');
+    }
+    const addresses = await Address.findOne({ user: userId });
+    if (!addresses) {
+      // res.status(404).render('oops');
+    }
+    res.render("manageAddress", { address: addresses.address });
+  } catch (error) {
+    console.log(error);
+    // res.status(404).render('oops');
+  }
+};
+
+
+module.exports.editAddress = async (req, res) => {
+  try {
+    console.log(req.body);
+    const userid = req.session.user?._id;
+    const index = req.body.index;
+
+    if (!userid) {
+      //    res.status(500).render('oops');
+      console.log("user not found");
+    }
+
+    if (!index) {
+      // res.status(500).render('oops');
+      console.log("index not found");
+    }
+
+    const fullname = req.body.fname + " " + req.body.lname;
+
+    const userAddress = {
+      fullName: fullname,
+      country: req.body.country,
+      address: req.body.address,
+      state: req.body.state,
+      city: req.body.city,
+      pincode: req.body.pin,
+      phone: req.body.phone,
+      email: req.body.email,
+    };
+
+    await Address.findOneAndUpdate(
+      { user: userid },
+      {
+        $set: {
+          [`address.${index}`]: userAddress,
+        },
+      }
+    );
+    res.redirect("/manage-address");
+  } catch (error) {
+    //  res.status(500).render('oops');
+    console.log(error);
+  }
+};
+
+module.exports.deleteAddress = async (req, res) => {
+  try {
+    console.log("delete request");
+    const { index } = req.params;
+    const userId = req.session.user?._id;
+    console.log(index);
+    if (!index) {
+      console.log("index not recived");
+    }
+
+    await Address.findOneAndUpdate(
+      { user: userId },
+      {
+        $unset: {
+          [`address.${index}`]: 1,
+        },
+      }
+    );
+
+    await Address.findOneAndUpdate(
+      { user: userId },
+      {
+        $pull: {
+          address: null,
+        },
+      }
+    );
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.changePassword = async (req, res) => {
+  try {
+    console.log("hellooo");
+    const userId = req.session.user?._id;
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    console.log(req.body);
+    if (!userId) {
+      return res.status(500).send("user not found");
+    }
+
+    const user = await User.findById({ _id: userId });
+    const oldpass = await bcrypt.compare(oldPassword, user.password);
+
+    if (!oldpass) {
+      console.log(oldpass, "heloo2");
+      return res.json({ old: true, massage: "enter correct old password" });
+    }
+    if (oldpass === newPassword) {
+      return res.json({ old: true, massage: "Enter new password" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.json({ notSame: true, massage: "conform your password" });
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/.test(newPassword)) {
+      return res.json({ new: true, massage: "Enter strong password" });
+    }
+
+    const hashPass = await bcrypt.hash(newPassword, 10);
+    const changePassword = await User.findByIdAndUpdate(
+      { _id: userId },
+      {
+        $set: {
+          password: hashPass,
+        },
+      }
+    );
+    if (changePassword) {
+      return res.json({ success: true });
+    }
+  } catch (error) {}
+};
+
+
+module.exports.personalDetails = async (req, res) => {
+  try {
+    const userId = req.session.user?._id;
+    const { value, cls } = req.body;
+    console.log(req.body);
+    if (!userId) {
+      res.redirect("/");
+    }
+
+    if (cls === "editUserName") {
+      if (!/^\w+$/.test(value)) {
+        res.json({ username: true, massage: "enter correct username" });
+      } else {
+        const username = await User.findOne({ name: value });
+
+        if (username) {
+          res.json({ username: true, massage: "username alreay exist" });
+        } else {
+          const username = await User.findByIdAndUpdate(
+            { _id: userId },
+            {
+              $set: {
+                name: value,
+              },
+            }
+          );
+          if (username) {
+            return res.json({
+              success: true,
+              massage: "username successfully updated",
+            });
+          }
+        }
+      }
+    } else if (cls === "editEmail") {
+      if (value.indexOf("@") == -1 || !value.endsWith("gmail.com")) {
+        res.json({ email: true, massage: "enter correct email" });
+      } else {
+        const email = await User.findOne({ email: value });
+
+        if (email) {
+          res.json({ email: true, massage: "email alreay exist" });
+        } else {
+          const username = await User.findByIdAndUpdate(
+            { _id: userId },
+            {
+              $set: {
+                email: value,
+              },
+            }
+          );
+          if (username) {
+            return res.json({
+              success: true,
+              massage: "email successfully updated",
+            });
+          }
+        }
+      }
+    } else if (cls === "editPhone") {
+      if (value.trim().length < 10 || !/^\d+$/.test(value)) {
+        res.json({ phone: true, massage: "enter correct phone number" });
+      } else {
+        const phone = await User.findOne({ mobile: value });
+
+        if (phone) {
+          res.json({ phone: true, massage: "phone number alreay exist" });
+        } else {
+          const username = await User.findByIdAndUpdate(
+            { _id: userId },
+            {
+              $set: {
+                mobile: value,
+              },
+            }
+          );
+          if (username) {
+            return res.json({
+              success: true,
+              massage: "phone number successfully updated",
+            });
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

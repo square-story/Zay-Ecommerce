@@ -8,6 +8,10 @@ userRoute.set("views", "./views/user");
 const shopController = require("../controller/shop");
 const User = require("../models/userModel");
 const cartController = require("../controller/cartCotroller");
+const orderController = require("../controller/orderController");
+const review_Controller = require("../controller/reviewContoller");
+const couponController = require("../controller/couponController");
+const wishlistController = require("../controller/wishlistController");
 const userMiddleware = require("../middleware/userAuth");
 const passport = require('passport'); 
 const nocache = require("nocache");
@@ -151,6 +155,62 @@ userRoute.post("/removeFormCart", cartController.removeFromCart);
 
 //user cart product quantity change
 userRoute.post("/counter", cartController.changeQuantity);
+
+//user cart check-out
+userRoute.get(
+  "/check-out",
+  userMiddleware.userAuth,
+  cartController.proceedToCheckout
+);
+
+userRoute.get(
+  "/my-order",
+  userMiddleware.userAuth,
+  orderController.loadMyOrder
+);
+
+userRoute.post("/add-Address", orderController.addAddress);
+
+userRoute.post("/place-order", orderController.placeOrder);
+
+userRoute.get("/order-success", orderController.loadOrderSucces);
+
+userRoute.post("/search", shopController.filter);
+userRoute.post("/order-cancel", orderController.orderCancelation);
+
+userRoute.get("/single-orderDetails", orderController.singleOrderDetials);
+
+userRoute.get(
+  "/wishlist",
+  userMiddleware.userAuth,
+  wishlistController.loadWhislist
+);
+userRoute.post("/wishlist", wishlistController.addTOWhishlist);
+userRoute.post("/remove-wishlist", wishlistController.removeFromWishlist);
+
+userRoute.get("/manage-address", userController.loadManageAddress);
+
+// ==================================================================== //
+
+userRoute.post("/addReview", review_Controller.addReview);
+
+userRoute.post("/check-coupon", couponController.checkCoupon);
+
+userRoute.get("/my-coupon", couponController.loadMyCoupon);
+
+userRoute.get("/invoice", orderController.loadInvoice);
+
+userRoute.put("/edit-address", userController.editAddress);
+
+userRoute.delete("/delete-address/:index", userController.deleteAddress);
+
+userRoute.put("/change-password", userController.changePassword);
+
+userRoute.post("/change-details", userController.personalDetails);
+
+
+
+
 
 
 
