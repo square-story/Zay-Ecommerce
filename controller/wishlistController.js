@@ -4,17 +4,25 @@ module.exports.loadWhislist = async (req, res) => {
   try {
     const userId = req.session.user?._id;
     if (!userId) {
-      res.status(500).send("user not found");
+      return res.status(500).send("user not found");
     }
+
     const products = await Wishlist.find({ user: userId }).populate(
       "products.productId"
     );
-    const product = products[0].products;
-    res.render("wishlist", { product });
+
+    // Check for empty results
+    if (!products || !products.length) {
+      return res.render("404"); // Or send a different response
+    }
+
+    const wishlistProducts = products[0].products; // Access only if products exists
+    res.render("wishlist", { wishlistProducts });
   } catch (error) {
     console.log(error);
   }
 };
+
 
 module.exports.addTOWhishlist = async (req, res) => {
   try {

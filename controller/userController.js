@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const verifyOtp = require("../models/otpVerification");
 const Product = require("../models/product");
+const Address = require("../models/address");
 require("dotenv").config();
 
 

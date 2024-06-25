@@ -80,7 +80,7 @@
                                         </td>
                                         <%total += (item.productId.variant[item.product].price * item.quantity)%>
                                         <% items += item.quantity%>
-                                        <%totalAmount += item.totalPrice%>
+                                        <%totalAmount +=item.totalPrice%>
                                         <td class="cart__price">₹<%= item.totalPrice%></td>
                                        
                                         <td class="cart__close" onclick="remove_from_cart('<%= item.productId._id%>','<%= item.product%>', '<%= item.size%>')"><i class="fa fa-close"></i></td>
@@ -107,9 +107,9 @@
                                 
 
                                 <li>Price (<%= items %> <%= items > 1? "items" : "item"%>)<span style="color: black;">₹<%= total%></span></li>
-                                <li>Discount <span style="color: green;">-₹<%= total - totalAmount%></span></li>
+                                <li>Discount <span style="color: green;">₹<%= total - totalAmount%></span></li>
 
-                                <%if(totalAmount > 1000) {%>
+                                <%if(totalAmount > 500) {%>
 
                                     <li>Delivery Charges<span style="color: green;"><del style="color: black;">₹80</del> Free</span></li>
                             
@@ -119,7 +119,11 @@
 
                                 <%}%>
                                 
-                                <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount%></span></li>
+                                <% if (totalAmount > 500) { %>
+                                    <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount%></span></li>
+                                <% }else{ %>
+                                    <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount+80%></span></li>
+                                    <%}%>
                             </ul>
                             <button type="button" id="btn" data-session="<%= logedIn %>" onclick="proccedTOCheckOut()" class="primary-btn">Proceed to checkout</button>
                         </div>

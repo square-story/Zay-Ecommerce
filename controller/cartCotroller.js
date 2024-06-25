@@ -246,7 +246,6 @@ module.exports.loadCart = async (req, res) => {
             { "products.quantity": 1 }
           );
           console.log(productQuantity, "update quantity");
-          cnsole.log(he);
           await Cart.updateOne(
             {
               user: userId,

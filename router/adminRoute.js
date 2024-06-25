@@ -109,5 +109,17 @@ adminRoute.post("/login", adminController.login);
 
 adminRoute.post("/logout", adminController.logout);
 
+// order
+
+adminRoute.get("/order", adminAuth.islogin, adminController.loadOrder);
+
+adminRoute.get(
+  "/single-orderDetails",
+  adminAuth.islogin,
+  adminController.loadsingleOrder
+);
+
+
+adminRoute.post("/change-orderStatus", adminController.changeOrderStatus);
 
 module.exports = adminRoute;

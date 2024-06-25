@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const Catagery = require("../models/cetagory");
 const bcrypt = require("bcrypt");
 const product = require("../models/product");
+const Order = require("../models/order");
 require("dotenv").config();
 
 
@@ -201,6 +202,85 @@ module.exports.logout = (req, res) => {
   try {
     req.session.admin = null;
     res.redirect("/admin/login");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+module.exports.loadOrder = async (req, res) => {
+  try {
+    const page = req.query.page;
+    const orderLength = await Order.find();
+    const order = await Order.find()
+      .populate("user")
+      .populate("products.productId")
+      .sort({ date: -1 })
+      .skip(page * 8)
+      .limit(8);
+
+    console.log(order);
+    res.render("order-details", {
+      order: order,
+      page: parseInt(page),
+      orderLength: orderLength.length,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.loadsingleOrder = async (req, res) => {
+  try {
+    console.log(req.query);
+    const { orderId, returns } = req.query;
+    const orderDetails = await Order.findById({ _id: orderId })
+      .populate("user")
+      .populate("products.productId");
+    console.log(orderDetails);
+    if (returns) {
+      return res.render("returnSingleProduct", { order: orderDetails });
+    }
+    res.render("singleOrderDetials", { order: orderDetails });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.changeOrderStatus = async (req, res) => {
+  try {
+    const { orderId, productId, index, status, userId } = req.body;
+
+    console.log(req.body);
+
+    return Order.findByIdAndUpdate(
+      { _id: orderId, user: userId, "products.productId": productId },
+      {
+        $set: {
+          [`products.${index}.status`]: status,
+        },
+      },
+      {
+        new: true,
+      }
+    )
+      .then(async (data) => {
+        if (status === "canceled") {
+          const amount =
+            data.products[index].coupon > 0
+              ? data.products[index].coupon
+              : data.products[index].price;
+          await Wallet.updateOne(
+            { user: userId },
+            { $set: { amount: amount } }
+          );
+        }
+
+        res.json({ success: true, status: status });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   } catch (error) {
     console.log(error);
   }
