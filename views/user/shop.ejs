@@ -42,7 +42,6 @@
 <!-- Start Content -->
 <div class="container py-5">
     <div class="row">
-
         <div class="col-lg-3">
             <h1 class="h2 pb-4">Categories</h1>
             <ul class="list-unstyled templatemo-accordion">
@@ -52,34 +51,34 @@
                         <i class="fa fa-fw fa-chevron-circle-down mt-1"></i>
                     </a>
                     <ul class="collapse show list-unstyled pl-3">
-                        <% cetagory.forEach((el) => {%>
+                        <% cetagory.forEach((el) => { %>
                             <div class="shop_filters">
-                            <span class="cetagory"><%= el.name%></span>
-                            <span>(<%= results%>)</span>
+                                <span class="category"><%= el.name %></span>
+                                <span>(<%= totalResults %>)</span>
                             </div>
-                        <% })%>
+                        <% }) %>
                     </ul>
                 </li>
                 <li class="pb-3">
                     <a class="collapsed d-flex justify-content-between h3 text-decoration-none" href="#">
                         Brands
                         <i class="pull-right fa fa-fw fa-chevron-circle-down mt-1"></i>
-                    </a> 
+                    </a>
                     <ul id="collapseTwo" class="collapse list-unstyled pl-3">
-                        <%brand.forEach((el, i) =>{%>
-                            <li class="text-decoration-none shop_filters"><%= el.brand%></li>
-                        <%})%>
+                        <% brand.forEach((el, i) => { %>
+                            <li class="text-decoration-none shop_filters"><%= el %></li>
+                        <% }) %>
                     </ul>
                 </li>
                 <li class="pb-3">
                     <a class="collapsed d-flex justify-content-between h3 text-decoration-none" href="#">
-                        price-range
+                        Price Range
                         <i class="pull-right fa fa-fw fa-chevron-circle-down mt-1"></i>
                     </a>
                     <ul id="collapseThree" class="collapse list-unstyled pl-3">
-                        <%for(let i = 0 ; i < 6; i++) {%>
-                            <li class="shop_filters price"><%= i * 500%>-<%= (i + 1) * 500%></li>
-                        <%}%>
+                        <% for (let i = 0; i < 6; i++) { %>
+                            <li class="shop_filters price"><%= i * 500 %>-<%= (i + 1) * 500 %></li>
+                        <% } %>
                     </ul>
                 </li>
             </ul>
@@ -90,70 +89,55 @@
                 <div class="col-md-6">
                     <ul class="list-inline shop-top-menu pb-3 pt-1">
                         <li class="list-inline-item">
-                            <a class="h3 text-dark text-decoration-none mr-3" href="#"><p>Showing 1–6 of <%= results%> results</p></a>
+                            <a class="h3 text-dark text-decoration-none mr-3" href="#"><p>Showing 1–6 of <%= totalResults %> results</p></a>
                         </li>
-                        <!-- <li class="list-inline-item">
-                            <a class="h3 text-dark text-decoration-none mr-3" href="#">Men's</a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a class="h3 text-dark text-decoration-none" href="#">Women's</a>
-                        </li> -->
                     </ul>
                 </div>
                 <div class="col-md-6 pb-4">
                     <div class="d-flex">
                         <select class="form-control" id="sortbyPrice">
-                            <option value="increacing">Low To High</option>
-                            <option value="decreasing">High To Low</option>
+                            <option value="increasing" <% if (sortOption === 'increasing') { %> selected <% } %>>Low To High</option>
+                            <option value="decreasing" <% if (sortOption === 'decreasing') { %> selected <% } %>>High To Low</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="row" id="productContainer">
-                <%product.forEach((item, i) => {%>
-
-                    <%if(item.cetagory.isListed) {%>
-                <div class="col-md-4">
-                    <div class="card mb-4 product-wap rounded-0">
-                        <div class="card rounded-0">
-                            <img class="card-img rounded-0 img-fluid" src="/img/productImage/sharp/<%= item.variant[0].images[0] %>">
-                            <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
-                                <ul class="list-unstyled">
-                                    <li><a class="btn btn-success text-white" href="/productDetails?id=<%= item._id %>&index=0"><i class="far fa-heart"></i></a></li>
-                                    <li><a class="btn btn-success text-white mt-2" href="/productDetails?id=<%= item._id %>&index=0"><i class="far fa-eye"></i></a></li>
-                                    <li><a class="btn btn-success text-white mt-2" href="/productDetails?id=<%= item._id %>&index=0"><i class="fas fa-cart-plus"></i></a></li>
-                                    
-                                </ul>
+                <% product.forEach((item, i) => { %>
+                    <% if (item.cetagory.isListed) { %>
+                        <div class="col-md-4">
+                            <div class="card mb-4 product-wap rounded-0">
+                                <div class="card rounded-0">
+                                    <img class="card-img rounded-0 img-fluid" src="/img/productImage/sharp/<%= item.variant[0].images[0] %>" alt="<%= item.name %>">
+                                    <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
+                                        <ul class="list-unstyled">
+                                            <li><a class="btn btn-success text-white" onclick="addToWishlist('<%= item._id %>')" href="/wishlist"><i class="far fa-heart"></i></a></li>
+                                            <li><a class="btn btn-success text-white mt-2" href="/productDetails?id=<%= item._id %>&index=0"><i class="far fa-eye"></i></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <a href="/productDetails?id=<%= item._id %>&index=0" class="h3 text-decoration-none"><%= item.name %></a>
+                                    <ul class="w-100 list-unstyled d-flex justify-content-between mb-0">
+                                        <li><%= item.size %></li>
+                                    </ul>
+                                    <ul class="list-unstyled d-flex justify-content-center mb-1">
+                                        <li>
+                                            <i class="text-warning fa fa-star"></i>
+                                            <i class="text-warning fa fa-star"></i>
+                                            <i class="text-warning fa fa-star"></i>
+                                            <i class="text-muted fa fa-star"></i>
+                                            <i class="text-muted fa fa-star"></i>
+                                        </li>
+                                    </ul>
+                                    <p class="text-center mb-0">₹<%= item.variant[0].offerPrice %></p>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <a href="/productDetails?id=<%= item._id %>&index=0" class="h3 text-decoration-none"><%=item.name %></a>
-                            <ul class="w-100 list-unstyled d-flex justify-content-between mb-0">
-                                <li><%=item.size %></li>
-                                <li class="pt-2">
-                                    <span class="product-color-dot color-dot-red float-left rounded-circle ml-1"></span>
-                                    <span class="product-color-dot color-dot-blue float-left rounded-circle ml-1"></span>
-                                    <span class="product-color-dot color-dot-black float-left rounded-circle ml-1"></span>
-                                    <span class="product-color-dot color-dot-light float-left rounded-circle ml-1"></span>
-                                    <span class="product-color-dot color-dot-green float-left rounded-circle ml-1"></span>
-                                </li>
-                            </ul>
-                            <ul class="list-unstyled d-flex justify-content-center mb-1">
-                                <li>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-muted fa fa-star"></i>
-                                    <i class="text-muted fa fa-star"></i>
-                                </li>
-                            </ul>
-                            <p class="text-center mb-0">₹<%= item.variant[0].offerPrice %></p>
-                        </div>
-                    </div>
-                </div><% } %>
+                    <% } %>
                 <% }) %>
             </div>
-            <div div="row">
+            <div class="row">
                 <ul class="pagination pagination-lg justify-content-end">
                     <li class="page-item disabled">
                         <a class="page-link active rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="#" tabindex="-1">1</a>
@@ -167,7 +151,6 @@
                 </ul>
             </div>
         </div>
-
     </div>
 </div>
 <!-- End Content -->
@@ -288,6 +271,13 @@
     <script src="assets2/js/templatemo.js"></script>
     <script src="assets2/js/custom.js"></script>
     <!-- <script src="/js/user/filter.js"></script> -->
+    <script>
+        document.getElementById('sortbyPrice').addEventListener('change', function() {
+            const sortOption = this.value;
+            // Redirect to the products page with the selected sorting option
+            window.location.href = `/shop?sort=${sortOption}`;
+        });
+        </script>
     <!-- End Script -->
 </body>
     <style>

@@ -101,7 +101,7 @@ function addTOWishlist(productId) {
   };
   $.ajax({
     type: "POST",
-    url: "/wishlist",
+    url: "/addWishlist",
     data: JSON.stringify(data),
     contentType: "application/json",
     success: (response) => {

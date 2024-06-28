@@ -185,7 +185,7 @@ userRoute.get(
   userMiddleware.userAuth,
   wishlistController.loadWhislist
 );
-userRoute.post("/wishlist", wishlistController.addTOWhishlist);
+userRoute.post("/addWishlist", wishlistController.addTOWhishlist);
 userRoute.post("/remove-wishlist", wishlistController.removeFromWishlist);
 
 userRoute.get("/manage-address", userController.loadManageAddress);

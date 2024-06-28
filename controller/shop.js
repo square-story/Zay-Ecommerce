@@ -6,20 +6,22 @@ const Product = require("../models/product");
 module.exports.loadShop = async (req, res) => {
   try {
     const page = 1;
+    const sortOption = req.query.sort || 'increasing'; // Default to 'increasing'
+    const sortOrder = sortOption === 'decreasing' ? -1 : 1;
     const cetagory = await Catagery.find({ isListed: true });
-    const product = await Product.find({ isListed: true }).populate("cetagory");
+    const product = await Product.find({ isListed: true }).sort({ 'variant.0.offerPrice': sortOrder }).populate("cetagory");
     const brand = await Product.find({}, { brand: 1 });
-
-    console.log(product);
-    console.log(brand, brand);
     const totalPage = product.length / 2;
     console.log(totalPage);
+    const totalResults = product.length;
     res.render("shop", {
       cetagory: cetagory,
       product: product,
       brand: brand,
+      totalResults,
       page,
       totalPage,
+      sortOption,
       results: product.length,
     });
   } catch (error) {
