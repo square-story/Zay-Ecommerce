@@ -53,8 +53,7 @@
                     <ul class="collapse show list-unstyled pl-3">
                         <% cetagory.forEach((el) => { %>
                             <div class="shop_filters">
-                                <span class="category"><%= el.name %></span>
-                                <span>(<%= totalResults %>)</span>
+                                <a href="/shop?Catagery=<%= el._id %>"><%= el.name %></a>
                             </div>
                         <% }) %>
                     </ul>
@@ -66,7 +65,7 @@
                     </a>
                     <ul id="collapseTwo" class="collapse list-unstyled pl-3">
                         <% brand.forEach((el, i) => { %>
-                            <li class="text-decoration-none shop_filters"><%= el %></li>
+                            <li class="shop_filters"><a href="/shop?brand=<%= el %>"><%= el %></a></li>
                         <% }) %>
                     </ul>
                 </li>
@@ -77,7 +76,7 @@
                     </a>
                     <ul id="collapseThree" class="collapse list-unstyled pl-3">
                         <% for (let i = 0; i < 6; i++) { %>
-                            <li class="shop_filters price"><%= i * 500 %>-<%= (i + 1) * 500 %></li>
+                            <li class="shop_filters price"><a href="/shop?offerPrice=<%= i * 500 %>-<%= (i + 1) * 500 %>"><%= i * 500 %> - <%= (i + 1) * 500 %></a></li>
                         <% } %>
                     </ul>
                 </li>
@@ -89,15 +88,17 @@
                 <div class="col-md-6">
                     <ul class="list-inline shop-top-menu pb-3 pt-1">
                         <li class="list-inline-item">
-                            <a class="h3 text-dark text-decoration-none mr-3" href="#"><p>Showing 1–6 of <%= totalResults %> results</p></a>
+                            <a class="h3 text-dark text-decoration-none mr-3" href="#"><p>Showing <%= (currentPage - 1) * 6 + 1 %>–<%= Math.min(currentPage * 6, totalResults) %> of <%= totalResults %> results</p></a>
                         </li>
                     </ul>
                 </div>
                 <div class="col-md-6 pb-4">
                     <div class="d-flex">
-                        <select class="form-control" id="sortbyPrice">
+                        <select class="form-control" id="sortby">
                             <option value="increasing" <% if (sortOption === 'increasing') { %> selected <% } %>>Low To High</option>
                             <option value="decreasing" <% if (sortOption === 'decreasing') { %> selected <% } %>>High To Low</option>
+                            <option value="Aa-Zz" <% if (sortOption === 'Aa-Zz') { %> selected <% } %>>Aa-Zz</option>
+                            <option value="Zz-Aa" <% if (sortOption === 'Zz-Aa') { %> selected <% } %>>Zz-Aa</option>
                         </select>
                     </div>
                 </div>
@@ -139,15 +140,11 @@
             </div>
             <div class="row">
                 <ul class="pagination pagination-lg justify-content-end">
-                    <li class="page-item disabled">
-                        <a class="page-link active rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="#" tabindex="-1">1</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link rounded-0 mr-3 shadow-sm border-top-0 border-left-0 text-dark" href="#">2</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link rounded-0 shadow-sm border-top-0 border-left-0 text-dark" href="#">3</a>
-                    </li>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'disabled' : '' %>">
+                            <a class="page-link <%= i === currentPage ? 'active' : '' %> rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="/shop?page=<%= i %>&sort=<%= sortOption %>"><%= i %></a>
+                        </li>
+                    <% } %>
                 </ul>
             </div>
         </div>
@@ -272,10 +269,10 @@
     <script src="assets2/js/custom.js"></script>
     <!-- <script src="/js/user/filter.js"></script> -->
     <script>
-        document.getElementById('sortbyPrice').addEventListener('change', function() {
+        document.getElementById('sortby').addEventListener('change', function() {
             const sortOption = this.value;
             // Redirect to the products page with the selected sorting option
-            window.location.href = `/shop?sort=${sortOption}`;
+            window.location.href = `/shop?sort=${sortOption}&page=1`;
         });
         </script>
     <!-- End Script -->

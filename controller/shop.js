@@ -5,24 +5,63 @@ const Product = require("../models/product");
 //products page rendering
 module.exports.loadShop = async (req, res) => {
   try {
-    const page = 1;
     const sortOption = req.query.sort || 'increasing'; // Default to 'increasing'
-    const sortOrder = sortOption === 'decreasing' ? -1 : 1;
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const limit = 6; // Number of products per page
+    const skip = (page - 1) * limit;
+
+    const categoryFilter = req.query.category || null;
+    const brandFilter = req.query.brand || null;
+    const priceRange = req.query.price ? req.query.price.split('-').map(Number) : null;
+
+    let sortOrder;
+    switch (sortOption) {
+      case 'increasing':
+          sortOrder = { 'variant.0.price': 1 };
+          break;
+      case 'decreasing':
+          sortOrder = { 'variant.0.price': -1 };
+          break;
+      case 'Aa-Zz':
+          sortOrder = { 'name': 1 };
+          break;
+      case 'Zz-Aa':
+          sortOrder = { 'name': -1 };
+          break;
+      default:
+          sortOrder = { 'variant.0.price': 1 };
+  }
+
+  let filter = { isListed: true };
+  if (categoryFilter) {
+    filter.cetagory = categoryFilter;
+}
+
+if (brandFilter) {
+    filter.brand = brandFilter;
+}
+
+if (priceRange) {
+    filter['variant.0.price'] = { $gte: priceRange[0], $lte: priceRange[1] };
+}
+
     const cetagory = await Catagery.find({ isListed: true });
-    const product = await Product.find({ isListed: true }).sort({ 'variant.0.offerPrice': sortOrder }).populate("cetagory");
-    const brand = await Product.find({}, { brand: 1 });
-    const totalPage = product.length / 2;
-    console.log(totalPage);
-    const totalResults = product.length;
+    const product = await Product.find(filter).sort(sortOrder).skip(skip).limit(limit).populate("cetagory");
+    const brands = await Product.distinct('brand',filter);
+    const totalResults = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalResults / limit);
     res.render("shop", {
       cetagory: cetagory,
       product: product,
-      brand: brand,
+      brand: brands,
       totalResults,
-      page,
-      totalPage,
+      totalPages,
+      currentPage: page,
       sortOption,
       results: product.length,
+      categoryFilter,
+      brandFilter,
+      priceRange
     });
   } catch (error) {
     console.log(error);
