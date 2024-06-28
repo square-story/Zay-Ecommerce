@@ -17,10 +17,10 @@ module.exports.loadShop = async (req, res) => {
     let sortOrder;
     switch (sortOption) {
       case 'increasing':
-          sortOrder = { 'variant.0.price': 1 };
+          sortOrder = { 'variant.0.offerPrice': 1 };
           break;
       case 'decreasing':
-          sortOrder = { 'variant.0.price': -1 };
+          sortOrder = { 'variant.0.offerPrice': -1 };
           break;
       case 'Aa-Zz':
           sortOrder = { 'name': 1 };
@@ -29,12 +29,12 @@ module.exports.loadShop = async (req, res) => {
           sortOrder = { 'name': -1 };
           break;
       default:
-          sortOrder = { 'variant.0.price': 1 };
+          sortOrder = { 'variant.0.offerPrice': 1 };
   }
 
   let filter = { isListed: true };
   if (categoryFilter) {
-    filter.cetagory = categoryFilter;
+    filter.catagory = categoryFilter;
 }
 
 if (brandFilter) {
@@ -42,7 +42,7 @@ if (brandFilter) {
 }
 
 if (priceRange) {
-    filter['variant.0.price'] = { $gte: priceRange[0], $lte: priceRange[1] };
+    filter['variant.0.offerPrice'] = { $gte: priceRange[0], $lte: priceRange[1] };
 }
 
     const cetagory = await Catagery.find({ isListed: true });

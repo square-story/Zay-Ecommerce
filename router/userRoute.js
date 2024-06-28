@@ -169,6 +169,12 @@ userRoute.get(
   orderController.loadMyOrder
 );
 
+userRoute.get(
+  "/single-product",
+  userMiddleware.userAuth,
+  orderController.loadSingleProduct
+);
+
 userRoute.post("/add-Address", orderController.addAddress);
 
 userRoute.post("/place-order", orderController.placeOrder);

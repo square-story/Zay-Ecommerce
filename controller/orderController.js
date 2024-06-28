@@ -288,10 +288,6 @@ module.exports.orderCancelation = async (req, res) => {
               data.products[index].coupon > 0
                 ? data.products[index].coupon
                 : data.products[index].price;
-            await Wallet.updateOne(
-              { user: userId },
-              { $set: { amount: amount } }
-            );
           }
 
           return Product.findOneAndUpdate(
@@ -338,6 +334,29 @@ module.exports.loadInvoice = async (req, res) => {
       res.render("invoice", {
         order: order.products[index],
         deliveryAddress: order.deliveryDetails,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  module.exports.loadSingleProduct = async (req, res) => {
+    try {
+      console.log(req.query);
+      const userId = req.session.user?._id;
+      const { productId, index, size, orderId } = req.query;
+      const detials = await Order.findOne({ _id: orderId, user: userId })
+        .populate("user")
+        .populate("products.productId");
+      const product = detials.products.find((pro, i) => i === parseInt(index));
+      const review = await Review.findOne({ user: userId, productId: productId });
+      res.render("singleProduct", {
+        product: product,
+        address: detials.deliveryDetails,
+        review: review,
+        orderId: orderId,
+        index: index,
+        order: detials,
       });
     } catch (error) {
       console.log(error);
