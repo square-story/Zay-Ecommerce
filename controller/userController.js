@@ -450,17 +450,36 @@ exports.verifyUser = async (req, res) => {
   }
 };
 
-module.exports.resetPassword = async(req,res)=>{
+module.exports.resetPassword = async (req, res) => {
   try {
-    const user_id = req.body.user_id;
-    const passHash = await bcrypt.hash(req.body.password, 10);
-    const updatedData = await User.findByIdAndUpdate({_id:user_id},{$set:{password:passHash}})
-    req.flash("pass","password reset successfully");
-    res.redirect('/login')
+    const { user_id, password } = req.body;
+
+    if (!user_id || !password) {
+      req.flash("error", "Invalid request. Missing user ID or password.");
+      return res.redirect('/forget-password');
+    }
+
+    const passHash = await bcrypt.hash(password, 10);
+
+    const updatedData = await User.findByIdAndUpdate(
+      { _id: user_id },
+      { $set: { password: passHash } },
+      { new: true, runValidators: true } // Returns the updated document and runs validation
+    );
+
+    if (!updatedData) {
+      req.flash("error", "User not found or invalid user ID.");
+      return res.redirect('/forget-password');
+    }
+
+    req.flash("pass", "Password reset successfully");
+    res.redirect('/login');
   } catch (error) {
-    console.log(error)
+    console.error('Error resetting password:', error);
+    req.flash("error", "An error occurred while resetting the password. Please try again.");
+    res.redirect('/forget-password');
   }
-}
+};
 
 module.exports.forgetVerify = async(req,res)=>{
   try {

@@ -13,7 +13,6 @@ function validate() {
   let passwordconf = document.getElementById("conform");
   let userphone = document.getElementById("phone");
   let email = document.getElementById("email");
-  console;
 
   if (!/^\w+$/.test(username.value)) {
     username.style.border = "solid 1px red";
