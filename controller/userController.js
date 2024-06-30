@@ -202,19 +202,14 @@ module.exports.verifyOTP = async (req, res) => {
   try {
     const email = req.query.email;
     console.log("otp verify email", email);
+    const user = await User.findOne({email:email})
+    const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
+    const verify = await verifyOtp.findOne({ Email: email });
 
-    // Check for blocked user before OTP verification
-    const user = await User.findOne({ email: email });
     if (user && user.isBlocked) {
       req.flash("blocked", "Your account is currently blocked. Please contact support.");
       return res.redirect(`/login`); // Replace with your login page path
-    }
-
-    const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
-
-    const verify = await verifyOtp.findOne({ Email: email });
-
-    if (verify) {
+    }else if(verify) {
       const { otp: hashed } = verify;
       const compare = await bcrypt.compare(otp, hashed);
       console.log(compare);
@@ -261,31 +256,39 @@ module.exports.verifyOTP = async (req, res) => {
 module.exports.otpLogin = async (req, res) => {
   try {
     const email = req.query.email;
-    console.log(email);
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      req.flash("error", "User not found");
+      return res.redirect(`/login`); // Redirect to the login page if the user is not found
+    }
+
+    if (user.isBlocked) {
+      req.flash("blocked", "Your account is currently blocked. Please contact support.");
+      return res.redirect(`/login`); // Redirect to the login page if the user is blocked
+    }
 
     const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
     const find = await verifyOtp.findOne({ Email: email });
 
-    if (find) {
-      const compare = await bcrypt.compare(otp, find.otp);
-      const user = await User.findOne({ email: email });
-      if (compare) {
-        req.session.user = {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-        };
+    if (!find) {
+      req.flash("expired", "OTP expired. Please resend OTP.");
+      return res.redirect(`/otp?email=${email}&is=${true}`);
+    }
 
-        res.redirect("/");
-      } else {
-        req.flash("incorrect", "Enter valid otp");
-        res.redirect(`/otp?email=${email}&is=${true}`);
-        console.log("OTP incorrect", "from otp login");
-      }
+    const compare = await bcrypt.compare(otp, find.otp);
+    
+    if (compare) {
+      req.session.user = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      };
+      res.redirect("/");
     } else {
-      req.flash("expired", "OTP expired resend otp");
+      req.flash("incorrect", "Enter a valid OTP.");
       res.redirect(`/otp?email=${email}&is=${true}`);
-      console.log("otp expired", "from otp login");
+      console.log("OTP incorrect", "from otp login");
     }
   } catch (error) {
     console.log(error);
