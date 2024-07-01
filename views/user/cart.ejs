@@ -71,10 +71,8 @@
                                         </td>
                                         <td class="quantity__item">
                                             <div class="quantity">
-                                                <div class="pro-qty-2" id="newID">
-                                                    <span  id="minus" class="fa fa-angle-left   counter"></span>
-                                                    <input type="text" id="ctn" value="<%= item.quantity%>" data-productId="<%= item.productId._id%>" data-size="<%= item.size%>" readonly data-index="<%= item.product%>">
-                                                    <span  id="plus" class="fa fa-angle-right  counter"></span>
+                                                <div class="quantity buttons_added pro-qty-2" id="newID">
+                                                    <input type="button" value="-" id="minus" class="minus counter"><input type="number" step="1" min="1" max="" name="quantity" value="<%= item.quantity%>" data-productId="<%= item.productId._id%>" data-size="<%= item.size%>" readonly data-index="<%= item.product%>" title="Qty" class="input-text qty text" size="4" pattern="" id="ctn" inputmode=""><input type="button" value="+" id="plus" class="plus counter">
                                                 </div>
                                             </div>
                                         </td>

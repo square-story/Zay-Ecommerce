@@ -251,16 +251,8 @@
                                             </div>
                                             <div class="product__details__cart__option">
                                                
-                                                <div class="quantity">
-                                                    <div class="pro-qty">
-                                                        <input id="quantity" type="text" placeholder="1"
-                                                            data-stock="<%= product.variant[index].stock %>"
-                                                            name="quantity">
-                                                        <span style="transform: rotate(90deg ); margin-top: 6px;"
-                                                            class="fa fa-angle-left dec qtybtn"></span>
-                                                        <span style="transform: rotate(90deg); margin-top: 3px;"
-                                                            class="fa fa-angle-right inc qtybtn"></span>
-                                                    </div>
+                                                <div class="quantity buttons_added pro-qty">
+                                                    <input type="button" value="-" class="minus dec qtybtn"><input type="number" id="quantity" min="1" max="<%= product.variant[index].stock %>" data-stock="<%= product.variant[index].stock %>" name="quantity" value="1" title="Qty" class="input-text qty text" size="4" pattern="" inputmode=""><input type="button" value="+" class="plus inc qtybtn">
                                                 </div>
     
                                                 <button type="button" onclick="return addToCart('<%= product._id%>');"
