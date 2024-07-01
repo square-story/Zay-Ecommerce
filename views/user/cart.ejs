@@ -71,11 +71,14 @@
                                         </td>
                                         <td class="quantity__item">
                                             <div class="quantity">
-                                                <div class="quantity buttons_added pro-qty-2" id="newID">
-                                                    <input type="button" value="-" id="minus" class="minus counter"><input type="number" step="1" min="1" max="" name="quantity" value="<%= item.quantity%>" data-productId="<%= item.productId._id%>" data-size="<%= item.size%>" readonly data-index="<%= item.product%>" title="Qty" class="input-text qty text" size="4" pattern="" id="ctn" inputmode=""><input type="button" value="+" id="plus" class="plus counter">
-                                                </div>
+                                              <div class="quantity buttons_added pro-qty-2" id="newID-<%= item.productId._id %>">
+                                                <input type="button" value="-" class="minus counter" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>">
+                                                <input type="number" step="1" min="1" name="quantity" value="<%= item.quantity %>" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>" class="input-text qty text" readonly>
+                                                <input type="button" value="+" class="plus counter" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>">
+                                              </div>
                                             </div>
-                                        </td>
+                                          </td>
+                                          
                                         <%total += (item.productId.variant[item.product].price * item.quantity)%>
                                         <% items += item.quantity%>
                                         <%totalAmount +=item.totalPrice%>
@@ -292,39 +295,37 @@
 </script>
 
 <script>
-
-
-const parentElement = document.querySelector('.pro-qty-2');
-
-parentElement.addEventListener('click', (event) => {
-    try {
-        const input = document.getElementById('ctn');
-        const productId = input.getAttribute('data-productId');
-        const index = input.getAttribute('data-index');
-        const size = input.getAttribute('data-size');
-        
-        if (event.target.classList.contains('counter')) {
-            const decision = event.target.id === "plus" ? 'plus' : 'minus';
-            
-            const data = { status: decision, productId, index, size };
-
-            $.ajax({
-                type: 'POST',
-                url: '/counter',
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                success: (response) => {
-                    if (response.changed) {
-                      $('#newID').load('/cart #newID');
-                      $('#price').load('/cart #price');
-                    } else {
-                        console.log('Error');
-                    }
-                }
-            });
-        }
-    } catch (error) {
-        console.log(error);
-    }
-});
-</script>
+    document.querySelectorAll('.pro-qty-2').forEach(parentElement => {
+      parentElement.addEventListener('click', (event) => {
+          try {
+              if (event.target.classList.contains('counter')) {
+                  const input = event.target.closest('.quantity.buttons_added').querySelector('input.qty');
+                  const productId = input.getAttribute('data-productid');
+                  const index = input.getAttribute('data-index');
+                  const size = input.getAttribute('data-size');
+                  const decision = event.target.value === "+" ? 'plus' : 'minus';
+  
+                  const data = { status: decision, productId, index, size };
+  
+                  $.ajax({
+                      type: 'POST',
+                      url: '/counter',
+                      data: JSON.stringify(data),
+                      contentType: 'application/json',
+                      success: (response) => {
+                          if (response.changed) {
+                            $('#newID-' + productId).load('/cart #newID-' + productId);
+                            $('#price').load('/cart #price');
+                          } else {
+                              console.log('Error');
+                          }
+                      }
+                  });
+              }
+          } catch (error) {
+              console.log(error);
+          }
+      });
+    });
+  </script>
+  

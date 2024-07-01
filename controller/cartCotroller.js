@@ -136,59 +136,35 @@ module.exports.loadCart = async (req, res) => {
   module.exports.changeQuantity = async (req, res) => {
     try {
       const { status, productId, index, size } = req.body;
-      console.log(status, productId, index, size);
       const userId = req.session.user?._id;
   
+      if (!userId || !productId || index === undefined || !size) {
+        return res.status(400).json({ error: 'Invalid request data' });
+      }
+  
       const product = await Product.findOne({ _id: productId });
+      if (!product) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+  
       const variant = product.variant[index];
       const stock = variant.stock;
       const price = variant.offerPrice;
-      console.log(price, "price");
-      const cart = await Cart.findOne({
-        user: userId,
-        "products.productId": productId,
-      });
-      console.log(cart, "cart");
-      const cartProduct = cart.products.find(
-        (pro) => pro.product === index && pro.size === size
-      );
-      console.log(cartProduct);
+  
+      const cart = await Cart.findOne({ user: userId, "products.productId": productId });
+      if (!cart) {
+        return res.status(404).json({ error: 'Cart not found' });
+      }
+  
+      const cartProduct = cart.products.find(pro => pro.product === index && pro.size === size);
+      if (!cartProduct) {
+        return res.status(404).json({ error: 'Cart product not found' });
+      }
+  
       const quantity = cartProduct.quantity;
-      console.log(quantity);
   
-      console.log(variant, "ghhghghghhghghghhghgh");
       if (status === "plus") {
-        console.log("plus");
         if (stock > quantity) {
-          const he = await Cart.updateOne(
-            {
-              user: userId,
-              "products.productId": productId,
-              "products.product": index,
-              "products.size": size,
-            },
-            {
-              $inc: {
-                "products.$[elem].quantity": 1,
-              },
-            },
-            {
-              arrayFilters: [
-                {
-                  "elem.productId": productId,
-                  "elem.product": index,
-                  "elem.size": size,
-                },
-              ],
-            }
-          );
-          const productQuantity = await Cart.findOne(
-            { user: userId, "products.productId": productId },
-            { "products.quantity": 1 }
-          );
-          console.log(productQuantity, "update quantity");
-  
-          console.log(he);
           await Cart.updateOne(
             {
               user: userId,
@@ -197,55 +173,18 @@ module.exports.loadCart = async (req, res) => {
               "products.size": size,
             },
             {
-              $set: {
-                "products.$[elem].totalPrice":
-                  price * productQuantity.products[0].quantity,
-              },
+              $inc: { "products.$[elem].quantity": 1 },
+              $set: { "products.$[elem].totalPrice": (quantity + 1) * price }
             },
             {
-              arrayFilters: [
-                {
-                  "elem.productId": productId,
-                  "elem.product": index,
-                  "elem.size": size,
-                },
-              ],
+              arrayFilters: [{ "elem.productId": productId, "elem.product": index, "elem.size": size }]
             }
           );
         } else {
-          console.log("out of stock");
+          return res.status(400).json({ error: 'Out of stock' });
         }
       } else if (status === "minus") {
-        console.log("minus");
         if (quantity > 1) {
-          const he = await Cart.updateOne(
-            {
-              user: userId,
-              "products.productId": productId,
-              "products.product": index,
-              "products.size": size,
-            },
-            {
-              $inc: {
-                "products.$[elem].quantity": -1,
-              },
-            },
-            {
-              arrayFilters: [
-                {
-                  "elem.productId": productId,
-                  "elem.product": index,
-                  "elem.size": size,
-                },
-              ],
-            }
-          );
-  
-          const productQuantity = await Cart.findOne(
-            { user: userId, "products.productId": productId },
-            { "products.quantity": 1 }
-          );
-          console.log(productQuantity, "update quantity");
           await Cart.updateOne(
             {
               user: userId,
@@ -254,28 +193,25 @@ module.exports.loadCart = async (req, res) => {
               "products.size": size,
             },
             {
-              $set: {
-                "products.$[elem].totalPrice":
-                  price * productQuantity.products[0].quantity,
-              },
+              $inc: { "products.$[elem].quantity": -1 },
+              $set: { "products.$[elem].totalPrice": (quantity - 1) * price }
             },
             {
-              arrayFilters: [
-                {
-                  "elem.productId": productId,
-                  "elem.product": index,
-                  "elem.size": size,
-                },
-              ],
+              arrayFilters: [{ "elem.productId": productId, "elem.product": index, "elem.size": size }]
             }
           );
+        } else {
+          return res.status(400).json({ error: 'Quantity cannot be less than 1' });
         }
       }
+  
       res.json({ changed: true });
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   };
+  
   
 
 
