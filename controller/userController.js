@@ -143,7 +143,7 @@ const sentOtp = async (email) => {
     const createdOTP = `${Math.floor(1000 + Math.random() * 9000)}`;
 
     const mailOption = {
-      from: "gibmepreo@gmail.com",
+      from: process.env.USER_AUTH,
       to: email,
       subject: "OTP Verification",
       html: `Your otp is ${createdOTP}`,
