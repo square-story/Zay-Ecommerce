@@ -40,13 +40,16 @@
                   <i class="fa fa-fw fa-search text-dark mr-2"></i>
               </a>
               <a class="nav-icon position-relative text-decoration-none" href="/cart">
-                  <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
-                  <% if (locals?.cart&& locals?.cart?.cart?.length > 0) { %>
-                    <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark"><%= cart?.products.length%></span>
-                  <% }else{ %>
-                    <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">0</span>
-                    <%}%>
+                <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1"></i>
+                <% if (locals.cart && locals.cart.products.length > 0) { %>
+                  <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">
+                    <%= cart.products.length %>
+                  </span>
+                <% } else { %>
+                  <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">0</span>
+                <% } %>
               </a>
+              
               <div
             class="dropdown"
             style="display: inline-block; margin-right: 1rem"

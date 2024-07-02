@@ -15,6 +15,7 @@ const wishlistController = require("../controller/wishlistController");
 const userMiddleware = require("../middleware/userAuth");
 const passport = require('passport'); 
 const nocache = require("nocache");
+const fetchCartMiddleware = require('../middleware/fetchCartMiddleware');
 require('../passport');
 
 userRoute.use(nocache());
@@ -34,6 +35,8 @@ userRoute.use(
     saveUninitialized: true,
   })
 );
+
+userRoute.use(fetchCartMiddleware);
 
 //passport verify
 userRoute.use(passport.initialize()); 

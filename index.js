@@ -25,6 +25,8 @@ const path = require("node:path");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "public/assets")));
 
+
+
 //user route and home route
 const userRoute = require("./router/userRoute");
 app.use("/", userRoute);
