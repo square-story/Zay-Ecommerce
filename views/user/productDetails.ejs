@@ -258,7 +258,7 @@
                                                         <input type="number" id="quantity" min="1" max="<%= product.variant[index].stock %>" data-stock="<%= product.variant[index].stock %>" name="quantity" value="1" title="Qty" class="input-text qty text" pattern="" inputmode="">
                                                         <input type="button" value="+" class="plus inc qtybtn">
                                                     </div>
-                                                    <button type="button" onclick="return addToCart('<%= product._id %>');" class="primary-btn">Add to Cart</button>
+                                                    <button type="button" onclick="addToCart('<%= product._id %>');" class="primary-btn">Add to Cart</button>                                                    
                                                     <% if (product.variant[index].stock > 0 && product.variant[index].stock < 5) { %>
                                                         <div class="alert alert-warning mt-2" role="alert">
                                                             Hurry, only <%= product.variant[index].stock %> left in stock!
@@ -676,6 +676,7 @@
     var quantityInput = document.getElementById('quantity');
     var decBtn = document.querySelector('.dec');
     var incBtn = document.querySelector('.inc');
+    var addToCartBtn = document.querySelector('.primary-btn'); // Assuming this is your add to cart button
     const stock = quantityInput.getAttribute('data-stock');
     var maxStock = parseInt(stock);
 
@@ -697,9 +698,56 @@
 
         if (currentValue < maxStock) {
             quantityInput.value = currentValue + 1;
+        } else {
+            showSnackbar('Cannot add more than ' + maxStock + ' items to cart.');
         }
     });
 
+    // Event listener for adding to cart button click
+    addToCartBtn.addEventListener('click', function () {
+        var quantity = parseInt(quantityInput.value);
+
+        // AJAX request to backend to add to cart
+        var productId = '<%= product._id %>'; // Assuming you have this value available
+        var addToCartUrl = '/add-cart'; // Replace with your actual endpoint
+
+        // AJAX POST request
+        $.ajax({
+            type: 'POST',
+            url: addToCartUrl,
+            data: {
+                productId: productId,
+                quantity: quantity
+            },
+            success: function (response) {
+                // Handle success response (if needed)
+                console.log('Product added to cart successfully');
+                // Show success message or redirect to cart page
+                showSnackbar('Item successfully added to your cart!');
+            },
+            error: function (xhr, status, error) {
+                // Handle error response from server
+                var errorMessage = xhr.responseJSON.error || 'Error adding to cart.';
+                console.error('Error adding to cart:', errorMessage);
+                // Display error message to the user
+                showSnackbar(errorMessage);
+            }
+        });
+    });
+
+    // Function to show snackbar messages
+    function showSnackbar(message) {
+        var snackbar = document.getElementById('snackbar');
+        snackbar.textContent = message;
+        snackbar.classList.add('show');
+        setTimeout(function () {
+            snackbar.classList.remove('show');
+        }, 3000); // Hide after 3 seconds
+    }
 </script>
+
+
+
+
 
 

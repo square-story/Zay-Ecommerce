@@ -24,9 +24,11 @@ module.exports.loadCart = async (req, res) => {
       if (!userId) {
         return res.json({ user: true });
       }
-  
+      const maxQuantityPerPerson = 5; // Example: Hard-coded for demonstration
       console.log(productId, index, userId, size, quantity);
-  
+      if (quantity > maxQuantityPerPerson) {
+        return res.status(400).json({ error: 'Exceeded maximum quantity per person.' });
+    }
       // price of the variant
       const product = await Product.findOne({ _id: productId });
       const price = product.variant[index].price;
