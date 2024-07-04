@@ -17,43 +17,44 @@ module.exports.loadShop = async (req, res) => {
     let sortOrder;
     switch (sortOption) {
       case 'increasing':
-          sortOrder = { 'variant.0.offerPrice': 1 };
-          break;
+        sortOrder = { 'variant.0.offerPrice': 1 };
+        break;
       case 'decreasing':
-          sortOrder = { 'variant.0.offerPrice': -1 };
-          break;
+        sortOrder = { 'variant.0.offerPrice': -1 };
+        break;
       case 'Aa-Zz':
-          sortOrder = { 'name': 1 };
-          break;
+        sortOrder = { 'name': 1 };
+        break;
       case 'Zz-Aa':
-          sortOrder = { 'name': -1 };
-          break;
+        sortOrder = { 'name': -1 };
+        break;
       default:
-          sortOrder = { 'variant.0.offerPrice': 1 };
-  }
+        sortOrder = { 'variant.0.offerPrice': 1 };
+    }
 
-  let filter = { isListed: true };
-  if (categoryFilter) {
-    filter.catagory = categoryFilter;
-}
+    let filter = { isListed: true };
+    if (categoryFilter) {
+      filter.category = categoryFilter;
+    }
 
-if (brandFilter) {
-    filter.brand = brandFilter;
-}
+    if (brandFilter) {
+      filter.brand = brandFilter;
+    }
 
-if (priceRange) {
-    filter['variant.0.offerPrice'] = { $gte: priceRange[0], $lte: priceRange[1] };
-}
+    if (priceRange) {
+      filter['variant.0.offerPrice'] = { $gte: priceRange[0], $lte: priceRange[1] };
+    }
 
-    const cetagory = await Catagery.find({ isListed: true });
+    const categories = await Catagery.find({ isListed: true });
     const product = await Product.find(filter).sort(sortOrder).skip(skip).limit(limit).populate("cetagory");
-    const brands = await Product.distinct('brand',filter);
+    const brands = await Product.distinct('brand', filter);
     const totalResults = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalResults / limit);
+
     res.render("shop", {
-      cetagory: cetagory,
-      product: product,
-      brand: brands,
+      categories,
+      product,
+      brands,
       totalResults,
       totalPages,
       currentPage: page,
@@ -67,6 +68,7 @@ if (priceRange) {
     console.log(error);
   }
 };
+
 
 
 

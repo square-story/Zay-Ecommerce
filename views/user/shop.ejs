@@ -43,66 +43,49 @@
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-3">
-            <h1 class="h2 pb-4">Categories</h1>
-            <ul class="list-unstyled templatemo-accordion">
-                <li class="pb-3">
-                    <a class="collapsed d-flex justify-content-between h3 text-decoration-none" href="#">
-                        Gender
-                        <i class="fa fa-fw fa-chevron-circle-down mt-1"></i>
-                    </a>
-                    <ul class="collapse show list-unstyled pl-3">
-                        <% cetagory.forEach((el) => { %>
-                            <div class="shop_filters">
-                                <a href="/shop?cetagory=<%= el._id %>"><%= el.name %></a>
-                            </div>
-                        <% }) %>
-                    </ul>
-                </li>
-                <li class="pb-3">
-                    <a class="collapsed d-flex justify-content-between h3 text-decoration-none" href="#">
-                        Brands
-                        <i class="pull-right fa fa-fw fa-chevron-circle-down mt-1"></i>
-                    </a>
-                    <ul id="collapseTwo" class="collapse list-unstyled pl-3">
-                        <% brand.forEach((el, i) => { %>
-                            <li class="shop_filters"><a href="/shop?brand=<%= el %>"><%= el %></a></li>
-                        <% }) %>
-                    </ul>
-                </li>
-                <li class="pb-3">
-                    <a class="collapsed d-flex justify-content-between h3 text-decoration-none" href="#">
-                        Price Range
-                        <i class="pull-right fa fa-fw fa-chevron-circle-down mt-1"></i>
-                    </a>
-                    <ul id="collapseThree" class="collapse list-unstyled pl-3">
-                        <% for (let i = 0; i < 6; i++) { %>
-                            <li class="shop_filters price"><a href="/shop?offerPrice=<%= i * 500 %>-<%= (i + 1) * 500 %>"><%= i * 500 %> - <%= (i + 1) * 500 %></a></li>
-                        <% } %>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+            <h1 class="h2 pb-4">Sort By</h1>
+            <div class="pb-3">
+              <label for="sortGender" class="form-label">Category</label>
+              <select id="sortCategory" class="form-select">
+                <option value="">Select Category</option>
+                <% categories.forEach((el) => { %>
+                  <option value="<%= el._id %>" <%= categoryFilter === el._id ? 'selected' : '' %>><%= el.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="pb-3">
+              <label for="sortBrand" class="form-label">Brand</label>
+              <select id="sortBrand" class="form-select">
+                <option value="">Select Brand</option>
+                <% brands.forEach((el) => { %>
+                  <option value="<%= el %>" <%= brandFilter === el ? 'selected' : '' %>><%= el %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="pb-3">
+              <label for="sortPrice" class="form-label">Price Range</label>
+              <select id="sortPrice" class="form-select">
+                <option value="">Select Price Range</option>
+                <% for (let i = 0; i < 6; i++) { %>
+                  <option value="<%= i * 500 %>-<%= (i + 1) * 500 %>" <%= priceRange && priceRange[0] === i * 500 ? 'selected' : '' %>><%= i * 500 %> - <%= (i + 1) * 500 %></option>
+                <% } %>
+              </select>
+            </div>
+            <div class="pb-3">
+              <label for="sortOption" class="form-label">Sort Option</label>
+              <select id="sortOption" class="form-select">
+                <option value="increasing" <%= sortOption === 'increasing' ? 'selected' : '' %>>Price: Low to High</option>
+                <option value="decreasing" <%= sortOption === 'decreasing' ? 'selected' : '' %>>Price: High to Low</option>
+                <option value="Aa-Zz" <%= sortOption === 'Aa-Zz' ? 'selected' : '' %>>Name: A to Z</option>
+                <option value="Zz-Aa" <%= sortOption === 'Zz-Aa' ? 'selected' : '' %>>Name: Z to A</option>
+              </select>
+            </div>
+          </div>
+          
+        
 
         <div class="col-lg-9">
-            <div class="row">
-                <div class="col-md-6">
-                    <ul class="list-inline shop-top-menu pb-3 pt-1">
-                        <li class="list-inline-item">
-                            <a class="h3 text-dark text-decoration-none mr-3" href="#"><p>Showing <%= (currentPage - 1) * 6 + 1 %>–<%= Math.min(currentPage * 6, totalResults) %> of <%= totalResults %> results</p></a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-md-6 pb-4">
-                    <div class="d-flex">
-                        <select class="form-control" id="sortby">
-                            <option value="increasing" <% if (sortOption === 'increasing') { %> selected <% } %>>Low To High</option>
-                            <option value="decreasing" <% if (sortOption === 'decreasing') { %> selected <% } %>>High To Low</option>
-                            <option value="Aa-Zz" <% if (sortOption === 'Aa-Zz') { %> selected <% } %>>Aa-Zz</option>
-                            <option value="Zz-Aa" <% if (sortOption === 'Zz-Aa') { %> selected <% } %>>Zz-Aa</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+            
             <div class="row" id="productContainer">
                 <% product.forEach((item, i) => { %>
                     <% if (item.cetagory.isListed) { %>
@@ -275,6 +258,59 @@
             window.location.href = `/shop?sort=${sortOption}&page=1`;
         });
         </script>
+        <script>
+            document.getElementById('sortCategory').addEventListener('change', function() {
+              updateShopURL();
+            });
+          
+            document.getElementById('sortBrand').addEventListener('change', function() {
+              updateShopURL();
+            });
+          
+            document.getElementById('sortPrice').addEventListener('change', function() {
+              updateShopURL();
+            });
+          
+            document.getElementById('sortOption').addEventListener('change', function() {
+              updateShopURL();
+            });
+          
+            function updateShopURL() {
+              const category = document.getElementById('sortCategory').value;
+              const brand = document.getElementById('sortBrand').value;
+              const price = document.getElementById('sortPrice').value;
+              const sort = document.getElementById('sortOption').value;
+              const urlParams = new URLSearchParams(window.location.search);
+          
+              if (category) {
+                urlParams.set('cetagory', category);
+              } else {
+                urlParams.delete('cetagory');
+              }
+          
+              if (brand) {
+                urlParams.set('brand', brand);
+              } else {
+                urlParams.delete('brand');
+              }
+          
+              if (price) {
+                urlParams.set('price', price);
+              } else {
+                urlParams.delete('price');
+              }
+          
+              if (sort) {
+                urlParams.set('sort', sort);
+              } else {
+                urlParams.delete('sort');
+              }
+          
+              window.location.search = urlParams.toString();
+            }
+          </script>
+          
+            
     <!-- End Script -->
 </body>
     <style>
