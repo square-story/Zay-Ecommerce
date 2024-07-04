@@ -4,41 +4,39 @@ const Product = require("../models/product");
 //products page rendering
 module.exports.loadShop = async (req, res) => {
   try {
-    const sortOption = req.query.sort || "increasing"; // Default to 'increasing'
+    const sortOption = req.query.sort || 'increasing'; // Default to 'increasing'
     const page = parseInt(req.query.page) || 1; // Default to page 1
     const limit = 6; // Number of products per page
     const skip = (page - 1) * limit;
 
     const categoryFilter = req.query.category || null;
     const brandFilter = req.query.brand || null;
-    const priceRange = req.query.price
-      ? req.query.price.split("-").map(Number)
-      : null;
+    const priceRange = req.query.price ? req.query.price.split('-').map(Number) : null;
 
     let sortOrder;
     switch (sortOption) {
-      case "increasing":
-        sortOrder = { "variant.0.offerPrice": 1 };
+      case 'increasing':
+        sortOrder = { 'variant.0.offerPrice': 1 };
         break;
-      case "decreasing":
-        sortOrder = { "variant.0.offerPrice": -1 };
+      case 'decreasing':
+        sortOrder = { 'variant.0.offerPrice': -1 };
         break;
-      case "Aa-Zz":
+      case 'Aa-Zz':
         sortOrder = { name: 1 };
         break;
-      case "Zz-Aa":
+      case 'Zz-Aa':
         sortOrder = { name: -1 };
         break;
-      case "newArrival":
-        sortOrder = { "variant.0.created": -1 };
+      case 'newArrival':
+        sortOrder = { 'variant.0.created': -1 };
         break;
       default:
-        sortOrder = { "variant.0.offerPrice": 1 };
+        sortOrder = { 'variant.0.offerPrice': 1 };
     }
 
     let filter = { isListed: true };
     if (categoryFilter) {
-      filter.category = categoryFilter;
+      filter.cetagory = categoryFilter; // Adjusted to match your schema field name
     }
 
     if (brandFilter) {
@@ -46,37 +44,39 @@ module.exports.loadShop = async (req, res) => {
     }
 
     if (priceRange) {
-      filter["variant.0.offerPrice"] = {
+      filter['variant.offerPrice'] = {
         $gte: priceRange[0],
         $lte: priceRange[1],
       };
     }
 
     const categories = await Catagery.find({ isListed: true });
-    const product = await Product.find(filter)
+    const products = await Product.find(filter)
       .sort(sortOrder)
       .skip(skip)
       .limit(limit)
-      .populate("cetagory");
-    const brands = await Product.distinct("brand", filter);
+      .populate('cetagory'); // Ensure 'cetagory' matches the field in your Product model
+
+    const brands = await Product.distinct('brand', filter);
     const totalResults = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalResults / limit);
 
-    res.render("shop", {
+    res.render('shop', {
       categories,
-      product,
+      product: products,
       brands,
       totalResults,
       totalPages,
       currentPage: page,
       sortOption,
-      results: product.length,
+      results: products.length,
       categoryFilter,
       brandFilter,
       priceRange,
     });
   } catch (error) {
-    console.log(error);
+    console.error('Error loading shop:', error);
+    res.status(500).send('Server Error');
   }
 };
 

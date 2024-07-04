@@ -42,46 +42,51 @@
 <!-- Start Content -->
 <div class="container py-5">
     <div class="row">
-        <div class="col-lg-3">
-            <h1 class="h2 pb-4">Sort By</h1>
-            <div class="pb-3">
-              <label for="sortGender" class="form-label">Category</label>
-              <select id="sortCategory" class="form-select">
+      <div class="col-lg-3">
+        <h1 class="h2 pb-4">Sort By</h1>
+        <div class="pb-3">
+            <label for="sortCategory" class="form-label">Category</label>
+            <select id="sortCategory" class="form-select">
                 <option value="">Select Category</option>
                 <% categories.forEach((el) => { %>
-                  <option value="<%= el._id %>" <%= categoryFilter === el._id ? 'selected' : '' %>><%= el.name %></option>
+                    <option value="<%= el._id %>" <%= categoryFilter === el._id ? 'selected' : '' %>><%= el.name %></option>
                 <% }) %>
-              </select>
-            </div>
-            <div class="pb-3">
-              <label for="sortBrand" class="form-label">Brand</label>
-              <select id="sortBrand" class="form-select">
+            </select>
+        </div>
+        <div class="pb-3">
+            <label for="sortBrand" class="form-label">Brand</label>
+            <select id="sortBrand" class="form-select">
                 <option value="">Select Brand</option>
                 <% brands.forEach((el) => { %>
-                  <option value="<%= el %>" <%= brandFilter === el ? 'selected' : '' %>><%= el %></option>
+                    <option value="<%= el %>" <%= brandFilter === el ? 'selected' : '' %>><%= el %></option>
                 <% }) %>
-              </select>
-            </div>
-            <div class="pb-3">
-              <label for="sortPrice" class="form-label">Price Range</label>
-              <select id="sortPrice" class="form-select">
+            </select>
+        </div>
+        <div class="pb-3">
+            <label for="sortPrice" class="form-label">Price Range</label>
+            <select id="sortPrice" class="form-select">
                 <option value="">Select Price Range</option>
                 <% for (let i = 0; i < 6; i++) { %>
-                  <option value="<%= i * 500 %>-<%= (i + 1) * 500 %>" <%= priceRange && priceRange[0] === i * 500 ? 'selected' : '' %>><%= i * 500 %> - <%= (i + 1) * 500 %></option>
+                    <option value="<%= i * 500 %>-<%= (i + 1) * 500 %>" <%= priceRange && priceRange[0] === i * 500 ? 'selected' : '' %>><%= i * 500 %> - <%= (i + 1) * 500 %></option>
                 <% } %>
-              </select>
-            </div>
-            <div class="pb-3">
-              <label for="sortOption" class="form-label">Sort Option</label>
-              <select id="sortOption" class="form-select">
+            </select>
+        </div>
+        <div class="pb-3">
+            <label for="sortOption" class="form-label">Sort Option</label>
+            <select id="sortOption" class="form-select">
                 <option value="increasing" <%= sortOption === 'increasing' ? 'selected' : '' %>>Price: Low to High</option>
                 <option value="decreasing" <%= sortOption === 'decreasing' ? 'selected' : '' %>>Price: High to Low</option>
                 <option value="Aa-Zz" <%= sortOption === 'Aa-Zz' ? 'selected' : '' %>>Name: A to Z</option>
                 <option value="Zz-Aa" <%= sortOption === 'Zz-Aa' ? 'selected' : '' %>>Name: Z to A</option>
                 <option value="newArrival" <%= sortOption === 'newArrival' ? 'selected' : '' %>>New Arrivals</option>
-              </select>
-            </div>
-          </div>
+            </select>
+        </div>
+        <div class="pb-3">
+            <a href="#" id="resetFilters" class="btn btn-secondary">Reset Filters</a>
+        </div>
+    </div>
+    
+    
           
         
 
@@ -273,56 +278,73 @@
         });
         </script>
         <script>
-            document.getElementById('sortCategory').addEventListener('change', function() {
-              updateShopURL();
-            });
-          
-            document.getElementById('sortBrand').addEventListener('change', function() {
-              updateShopURL();
-            });
-          
-            document.getElementById('sortPrice').addEventListener('change', function() {
-              updateShopURL();
-            });
-          
-            document.getElementById('sortOption').addEventListener('change', function() {
-              updateShopURL();
-            });
-          
-            function updateShopURL() {
-              const category = document.getElementById('sortCategory').value;
-              const brand = document.getElementById('sortBrand').value;
-              const price = document.getElementById('sortPrice').value;
-              const sort = document.getElementById('sortOption').value;
-              const urlParams = new URLSearchParams(window.location.search);
-          
-              if (category) {
-                urlParams.set('cetagory', category);
-              } else {
-                urlParams.delete('cetagory');
+          document.addEventListener('DOMContentLoaded', function() {
+              // Event listener for category select
+              document.getElementById('sortCategory').addEventListener('change', function() {
+                  updateShopURL();
+              });
+      
+              // Event listeners for brand, price range, and sort option selects
+              document.getElementById('sortBrand').addEventListener('change', function() {
+                  updateShopURL();
+              });
+      
+              document.getElementById('sortPrice').addEventListener('change', function() {
+                  updateShopURL();
+              });
+      
+              document.getElementById('sortOption').addEventListener('change', function() {
+                  updateShopURL();
+              });
+      
+              // Event listener for reset button/link
+              document.getElementById('resetFilters').addEventListener('click', function(event) {
+                  event.preventDefault();
+                  resetFilters();
+              });
+      
+              // Function to update the shop URL based on selected filters
+              function updateShopURL() {
+                  const category = document.getElementById('sortCategory').value;
+                  const brand = document.getElementById('sortBrand').value;
+                  const price = document.getElementById('sortPrice').value;
+                  const sort = document.getElementById('sortOption').value;
+      
+                  // Constructing the new URL with updated parameters
+                  let url = '/shop';
+      
+                  // Adding category parameter if selected
+                  if (category) {
+                      url += `?category=${category}`;
+                  }
+      
+                  // Adding brand parameter if selected
+                  if (brand) {
+                      url += `${category ? '&' : '?'}brand=${brand}`;
+                  }
+      
+                  // Adding price parameter if selected
+                  if (price) {
+                      url += `${category || brand ? '&' : '?'}price=${price}`;
+                  }
+      
+                  // Adding sort option parameter if selected
+                  if (sort) {
+                      url += `${category || brand || price ? '&' : '?'}sort=${sort}`;
+                  }
+      
+                  // Redirecting to the new URL
+                  window.location.href = url;
               }
-          
-              if (brand) {
-                urlParams.set('brand', brand);
-              } else {
-                urlParams.delete('brand');
+      
+              // Function to reset all filters and revert to default view
+              function resetFilters() {
+                  window.location.href = '/shop'; // Redirect to the shop page without any filters or sorting
               }
-          
-              if (price) {
-                urlParams.set('price', price);
-              } else {
-                urlParams.delete('price');
-              }
-          
-              if (sort) {
-                urlParams.set('sort', sort);
-              } else {
-                urlParams.delete('sort');
-              }
-          
-              window.location.search = urlParams.toString();
-            }
-          </script>
+          });
+      </script>
+      
+      
           
             
     <!-- End Script -->
