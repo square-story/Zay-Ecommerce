@@ -255,8 +255,11 @@
                                                     <input type="button" value="-" class="minus dec qtybtn"><input type="number" id="quantity" min="1" max="<%= product.variant[index].stock %>" data-stock="<%= product.variant[index].stock %>" name="quantity" value="1" title="Qty" class="input-text qty text" size="4" pattern="" inputmode=""><input type="button" value="+" class="plus inc qtybtn">
                                                 </div>
     
-                                                <button type="button" onclick="return addToCart('<%= product._id%>');"
-                                                    class="primary-btn">add to cart</button>
+                                                <% if (product.variant[index].stock === 0) { %>
+                                                    <button type="button" class="primary-btn" disabled>Out of Stock</button>
+                                                <% } else { %>
+                                                    <button type="button" onclick="return addToCart('<%= product._id %>');" class="primary-btn">Add to Cart</button>
+                                                <% } %>
                                             </div>
                                             <div class="product__details__btns__option">
                                                 <button type="button" class="btn" onclick="addTOWishlist('<%= product._id%>')"><i class="fa fa-heart"></i> add to wishlist</button>
