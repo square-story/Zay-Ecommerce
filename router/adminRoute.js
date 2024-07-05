@@ -122,4 +122,9 @@ adminRoute.get(
 
 adminRoute.post("/change-orderStatus", adminController.changeOrderStatus);
 
+
+adminRoute.get("/returns", adminAuth.islogin, adminController.loadReturns);
+
+adminRoute.post("/returns", adminController.returns);
+
 module.exports = adminRoute;

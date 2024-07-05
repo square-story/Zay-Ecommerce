@@ -253,7 +253,7 @@ module.exports.changeOrderStatus = async (req, res) => {
 
     console.log(req.body);
 
-    return Order.findByIdAndUpdate(
+    const order = await Order.findOneAndUpdate(
       { _id: orderId, user: userId, "products.productId": productId },
       {
         $set: {
@@ -263,24 +263,96 @@ module.exports.changeOrderStatus = async (req, res) => {
       {
         new: true,
       }
-    )
-      .then(async (data) => {
-        if (status === "canceled") {
+    );
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    if (status === "canceled") {
+      const amount =
+        order.products[index].coupon > 0
+          ? order.products[index].coupon
+          : order.products[index].price;
+
+      // Increment product stock
+      const quantity = order.products[index].quantity;
+      await product.findOneAndUpdate(
+        { _id: productId },
+        {
+          $inc: {
+            [`variant.${index}.stock`]: quantity,
+          },
+        }
+      );
+    }
+
+    res.json({ success: true, status: status });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+};
+
+
+module.exports.loadReturns = async (req, res) => {
+  try {
+    const order = await Order.find({ "products.returnRequest": "requested" })
+      .populate("user")
+      .populate("products.productId");
+    res.render("returnRequest", { order: order });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.returns = async (req, res) => {
+  console.log("returns");
+  try {
+    const { orderId, productId, index, decision } = req.body;
+    if (decision === "accepted") {
+      return Order.findByIdAndUpdate(
+        { _id: orderId, "products.productId": productId },
+        {
+          $set: {
+            [`products.${index}.returnRequest`]: decision,
+            [`products.${index}.status`]: "returned",
+          },
+        },
+        {
+          new: true,
+        }
+      )
+        .then(async (data) => {
           const amount =
             data.products[index].coupon > 0
               ? data.products[index].coupon
               : data.products[index].price;
-          await Wallet.updateOne(
-            { user: userId },
-            { $set: { amount: amount } }
+          console.log(typeof amount, amount);
+          const quantity = data.products[index].quantity;
+          return product.findOneAndUpdate(
+            { _id: productId },
+            {
+              $inc: {
+                [`variant.${index}.stock`]: quantity,
+              },
+            }
           );
+        })
+        .then(() => {
+          res.json({ success: true });
+        });
+    } else {
+      await Order.findByIdAndUpdate(
+        { _id: orderId, "products.productId": productId },
+        {
+          $set: {
+            [`products.${index}. returnRequest`]: decision,
+          },
         }
-
-        res.json({ success: true, status: status });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      );
+      res.json({ success: true });
+    }
   } catch (error) {
     console.log(error);
   }

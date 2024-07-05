@@ -308,6 +308,30 @@ module.exports.orderCancelation = async (req, res) => {
   }
 };
 
+module.exports.productReturn = async (req, res) => {
+  try {
+    const { orderId, productId, index, returnReason } = req.body;
+
+    const userId = req.session.user?._id;
+    console.log(req.body, userId);
+    if (userId) {
+      return Order.findOneAndUpdate(
+        { _id: orderId, "products.productId": productId },
+        {
+          $set: {
+            [`products.${index}.returnRequest`]: "requested",
+            [`products.${index}.returnReason`]: returnReason,
+          },
+        }
+      ).then(() => {
+        res.json({ return: true });
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports.singleOrderDetials = async (req, res) => {
   try {
     const userId = req.session.user?._id;

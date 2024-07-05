@@ -203,6 +203,8 @@ userRoute.get("/manage-address", userController.loadManageAddress);
 
 userRoute.post("/addReview", review_Controller.addReview);
 
+userRoute.post("/product-return", orderController.productReturn);
+
 userRoute.post("/check-coupon", couponController.checkCoupon);
 
 userRoute.get("/my-coupon", couponController.loadMyCoupon);
