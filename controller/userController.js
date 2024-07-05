@@ -611,46 +611,49 @@ module.exports.deleteAddress = async (req, res) => {
 
 module.exports.changePassword = async (req, res) => {
   try {
-    console.log("hellooo");
+    console.log("Starting password change process");
+    
     const userId = req.session.user?._id;
     const { oldPassword, newPassword, confirmPassword } = req.body;
+    
     console.log(req.body);
+    
     if (!userId) {
-      return res.status(500).send("user not found");
+      return res.status(400).send("User not found");
     }
 
-    const user = await User.findById({ _id: userId });
-    const oldpass = await bcrypt.compare(oldPassword, user.password);
-
-    if (!oldpass) {
-      console.log(oldpass, "heloo2");
-      return res.json({ old: true, massage: "enter correct old password" });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
-    if (oldpass === newPassword) {
-      return res.json({ old: true, massage: "Enter new password" });
+
+    const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+    if (!isOldPasswordCorrect) {
+      return res.status(400).json({ error: "Incorrect old password" });
+    }
+
+    if (oldPassword === newPassword) {
+      return res.status(400).json({ error: "New password cannot be the same as the old password" });
     }
 
     if (newPassword !== confirmPassword) {
-      return res.json({ notSame: true, massage: "conform your password" });
+      return res.status(400).json({ error: "New password and confirm password do not match" });
     }
 
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/.test(newPassword)) {
-      return res.json({ new: true, massage: "Enter strong password" });
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{6,}$/.test(newPassword)) {
+      return res.status(400).json({ error: "Password must be stronger" });
     }
 
-    const hashPass = await bcrypt.hash(newPassword, 10);
-    const changePassword = await User.findByIdAndUpdate(
-      { _id: userId },
-      {
-        $set: {
-          password: hashPass,
-        },
-      }
-    );
-    if (changePassword) {
-      return res.json({ success: true });
-    }
-  } catch (error) {}
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 
