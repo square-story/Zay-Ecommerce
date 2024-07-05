@@ -119,9 +119,18 @@ adminRoute.get(
   adminController.loadsingleOrder
 );
 
+adminRoute.get(
+  "/Cancelationdetails",
+  adminAuth.islogin,
+  adminController.loadSingleCancelation
+);
+
 
 adminRoute.post("/change-orderStatus", adminController.changeOrderStatus);
 
+adminRoute.get("/cancel-request", adminAuth.islogin, adminController.loadCancel);
+
+adminRoute.post("/cancel-request", adminController.controlCancelation);
 
 adminRoute.get("/returns", adminAuth.islogin, adminController.loadReturns);
 

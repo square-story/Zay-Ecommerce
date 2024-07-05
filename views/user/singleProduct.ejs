@@ -548,7 +548,7 @@
                                                         </div>
                                                         <div class="text-muted"
                                                             style="position: absolute; top: -25px; left: 217px; font-size: 15px;">
-                                                            Outfordelivery
+                                                            Out for delivery
                                                         </div>
 
                                                         <div class="step"></div>
@@ -655,6 +655,23 @@
                 </div>
             </div>
         </div>
+        <!-- Modal for Order Cancellation Sent Message -->
+<div class="modal fade" id="orderCancelationSent" tabindex="-1" aria-labelledby="orderCancelationSentLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="orderCancelationSentLabel">Cancellation Request Sent</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Your cancellation request has been sent to the admin for confirmation.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
         <%- include('../layout/userTemplateFooter.ejs') -%>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
@@ -788,8 +805,11 @@
                 data: JSON.stringify(data),
                 contentType: 'application/json',
                 success: (response) => {
-                    if (response.canceled) {
-                        window.location.reload();
+                    if (response.return) {
+                       // Close the cancel order modal
+                    $('#orderCancelation').modal('hide');
+                    // Show the order cancellation sent modal
+                    $('#orderCancelationSent').modal('show');
                     }
                 }
             })

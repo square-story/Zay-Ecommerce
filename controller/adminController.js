@@ -294,6 +294,89 @@ module.exports.changeOrderStatus = async (req, res) => {
   }
 };
 
+module.exports.loadCancel = async (req, res) => {
+  try {
+    const order = await Order.find({ "products.cancelRequest": "requested" })
+      .populate("user")
+      .populate("products.productId");
+    res.render("cancelRequest", { order: order });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.controlCancelation = async (req, res) => {
+  console.log("cancelation");
+  try {
+    const { orderId, productId, index, decision } = req.body;
+    
+    if (decision === "accepted") {
+      return Order.findByIdAndUpdate(
+        { _id: orderId, "products.productId": productId },
+        {
+          $set: {
+            [`products.${index}.cancelRequest`]: decision,
+            [`products.${index}.status`]: "canceled",
+          },
+        },
+        {
+          new: true,
+        }
+      )
+      .then(async (data) => {
+        const amount = data.products[index].coupon > 0
+          ? data.products[index].coupon
+          : data.products[index].price;
+        console.log(typeof amount, amount);
+        const quantity = data.products[index].quantity;
+        return product.findOneAndUpdate(
+          { _id: productId },
+          {
+            $inc: {
+              [`variant.${index}.stock`]: quantity,
+            },
+          }
+        );
+      })
+      .then(() => {
+        res.json({ success: true });
+      });
+    } else if (decision === "denied") {
+      await Order.findByIdAndUpdate(
+        { _id: orderId, "products.productId": productId },
+        {
+          $set: {
+            [`products.${index}.cancelRequest`]: decision,
+          },
+        }
+      );
+      res.json({ success: true });
+    } else {
+      res.status(400).json({ success: false, message: "Invalid decision" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+module.exports.loadSingleCancelation = async (req, res) => {
+  try {
+    console.log(req.query);
+    const { orderId, returns } = req.query;
+    const orderDetails = await Order.findById({ _id: orderId })
+      .populate("user")
+      .populate("products.productId");
+    console.log(orderDetails);
+    if (returns) {
+      return res.render("cancelationDetails", { order: orderDetails });
+    }
+    res.render("singleOrderDetials", { order: orderDetails });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports.loadReturns = async (req, res) => {
   try {

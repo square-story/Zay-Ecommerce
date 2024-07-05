@@ -58,6 +58,11 @@ const orderSchema = new mongoose.Schema({
         type: String,
       },
 
+      cancelRequest:{
+        type: String,
+        enum: ["requested", "accepted", "denied"],
+      },
+
       returnReason: {
         type: String,
       },

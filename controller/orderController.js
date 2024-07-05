@@ -264,44 +264,22 @@ module.exports.loadOrderSucces = (req, res) => {
 
 module.exports.orderCancelation = async (req, res) => {
   try {
-    console.log("ssssssssss");
     const { orderId, productId, index, cancelReason } = req.body;
-    const userId = req.session.user?._id;
-    console.log(req.body);
 
+    const userId = req.session.user?._id;
+    console.log(req.body, userId);
     if (userId) {
-      return Order.findByIdAndUpdate(
+      return Order.findOneAndUpdate(
         { _id: orderId, "products.productId": productId },
         {
           $set: {
-            [`products.${index}.status`]: "canceled",
+            [`products.${index}.cancelRequest`]: "requested",
             [`products.${index}.cancelReason`]: cancelReason,
           },
-        },
-        { new: true }
-      )
-        .then(async (data) => {
-          console.log(data, "goooooooooooooot");
-          const quantity = data.products[index].quantity;
-          if (data.paymentMethod === "razorpay" || "wallet") {
-            const amount =
-              data.products[index].coupon > 0
-                ? data.products[index].coupon
-                : data.products[index].price;
-          }
-
-          return Product.findOneAndUpdate(
-            { _id: productId },
-            {
-              $inc: {
-                [`variant.${index}.stock`]: quantity,
-              },
-            }
-          );
-        })
-        .then(() => {
-          res.json({ canceled: true });
-        });
+        }
+      ).then(() => {
+        res.json({ return: true });
+      });
     }
   } catch (error) {
     console.log(error);
