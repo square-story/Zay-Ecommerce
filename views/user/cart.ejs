@@ -73,7 +73,7 @@
                                             <div class="quantity">
                                               <div class="quantity buttons_added pro-qty-2" id="newID-<%= item.productId._id %>">
                                                 <input type="button" value="-" class="minus counter" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>">
-                                                <input type="number" step="1" min="1" name="quantity" value="<%= item.quantity %>" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>" class="input-text qty text" readonly>
+                                                <input type="number" step="1" min="1" name="quantity" max="5" value="<%= item.quantity %>" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>" class="input-text qty text" readonly>
                                                 <input type="button" value="+" class="plus counter" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>">
                                               </div>
                                             </div>
@@ -295,37 +295,45 @@
 </script>
 
 <script>
-    document.querySelectorAll('.pro-qty-2').forEach(parentElement => {
-      parentElement.addEventListener('click', (event) => {
-          try {
-              if (event.target.classList.contains('counter')) {
-                  const input = event.target.closest('.quantity.buttons_added').querySelector('input.qty');
-                  const productId = input.getAttribute('data-productid');
-                  const index = input.getAttribute('data-index');
-                  const size = input.getAttribute('data-size');
-                  const decision = event.target.value === "+" ? 'plus' : 'minus';
-  
-                  const data = { status: decision, productId, index, size };
-  
-                  $.ajax({
-                      type: 'POST',
-                      url: '/counter',
-                      data: JSON.stringify(data),
-                      contentType: 'application/json',
-                      success: (response) => {
-                          if (response.changed) {
-                            $('#newID-' + productId).load('/cart #newID-' + productId);
-                            $('#price').load('/cart #price');
-                          } else {
-                              console.log('Error');
-                          }
-                      }
-                  });
+   document.querySelectorAll('.pro-qty-2').forEach(parentElement => {
+  parentElement.addEventListener('click', (event) => {
+      try {
+          if (event.target.classList.contains('counter')) {
+              const input = event.target.closest('.quantity.buttons_added').querySelector('input.qty');
+              const currentQuantity = parseInt(input.value);
+              const productId = input.getAttribute('data-productid');
+              const index = input.getAttribute('data-index');
+              const size = input.getAttribute('data-size');
+              const decision = event.target.value === "+" ? 'plus' : 'minus';
+
+              // Front-end validation
+              if (decision === 'plus' && currentQuantity >= 5) {
+                  alert('Maximum quantity of 5 reached');
+                  return;
               }
-          } catch (error) {
-              console.log(error);
+
+              const data = { status: decision, productId, index, size };
+
+              $.ajax({
+                  type: 'POST',
+                  url: '/counter',
+                  data: JSON.stringify(data),
+                  contentType: 'application/json',
+                  success: (response) => {
+                      if (response.changed) {
+                        $('#newID-' + productId).load('/cart #newID-' + productId);
+                        $('#price').load('/cart #price');
+                      } else {
+                          console.log('Error');
+                      }
+                  }
+              });
           }
-      });
-    });
+      } catch (error) {
+          console.log(error);
+      }
+  });
+});
+
   </script>
   

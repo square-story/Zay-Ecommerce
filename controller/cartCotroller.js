@@ -166,7 +166,7 @@ module.exports.loadCart = async (req, res) => {
       const quantity = cartProduct.quantity;
   
       if (status === "plus") {
-        if (stock > quantity) {
+        if (stock > quantity && quantity < 5) {  // Ensure quantity does not exceed 5
           await Cart.updateOne(
             {
               user: userId,
@@ -182,6 +182,9 @@ module.exports.loadCart = async (req, res) => {
               arrayFilters: [{ "elem.productId": productId, "elem.product": index, "elem.size": size }]
             }
           );
+          return res.json({ changed: true });
+        } else if (quantity >= 5) {
+          return res.status(400).json({ error: 'Maximum quantity of 5 reached' });
         } else {
           return res.status(400).json({ error: 'Out of stock' });
         }
@@ -202,17 +205,17 @@ module.exports.loadCart = async (req, res) => {
               arrayFilters: [{ "elem.productId": productId, "elem.product": index, "elem.size": size }]
             }
           );
+          return res.json({ changed: true });
         } else {
           return res.status(400).json({ error: 'Quantity cannot be less than 1' });
         }
       }
-  
-      res.json({ changed: true });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: 'Server error' });
     }
   };
+  
   
   
 
