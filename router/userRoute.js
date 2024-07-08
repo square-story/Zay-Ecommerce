@@ -16,6 +16,7 @@ const userMiddleware = require("../middleware/userAuth");
 const passport = require('passport'); 
 const nocache = require("nocache");
 const fetchCartMiddleware = require('../middleware/fetchCartMiddleware');
+const checkBlockedStatus = require('../middleware/checkBlockedStatus');
 require('../passport');
 
 userRoute.use(nocache());
@@ -37,6 +38,7 @@ userRoute.use(
 );
 
 userRoute.use(fetchCartMiddleware);
+userRoute.use(checkBlockedStatus)
 
 //passport verify
 userRoute.use(passport.initialize()); 
