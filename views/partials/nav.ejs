@@ -49,6 +49,16 @@
                   <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">0</span>
                 <% } %>
               </a>
+              <a class="nav-icon position-relative text-decoration-none" href="/wishlist">
+                <i class="fa fa-fw fa-heart text-dark mr-1"></i>
+                <% if (wishlist && wishlist.products.length > 0) { %>
+                  <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">
+                    <%= wishlist.products.length %>
+                  </span>
+                <% } else { %>
+                  <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark">0</span>
+                <% } %>
+              </a>
               
               <div
             class="dropdown"
@@ -97,16 +107,12 @@
                     </button>
                   </div>
                 </form>
-
-                <!-- <button class="dropdown-item" id="btn" type="button">Logout</button> -->
-
                 <%}%>
               </li>
             </ul>
           </div>
           </div>
       </div>
-
   </div>
 </nav>
 <!-- Close Header -->

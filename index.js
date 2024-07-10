@@ -1,47 +1,67 @@
 const express = require("express");
-const app = express();
+const session = require("express-session");
 const mongoose = require("mongoose");
-
-//for logging
-// app.use((req, res, next) => {
-//   console.log(req.path, req.method);
-//   next(); 
-// });
-
-// Using method-override allows you to leverage RESTful API design principles where you can use different HTTP verbs (GET, POST, PUT, DELETE, PATCH) to perform specific actions on your resources.
-const methodOverried = require("method-override");
-app.use(methodOverried("_method"));
-
-//for flash notification
+const methodOverride = require("method-override");
 const flash = require("express-flash");
+const path = require("node:path");
+
+const userRoute = require("./router/userRoute");
+const adminRoute = require("./router/adminRoute");
+const Wishlist = require("./models/wishlistModel");
+
+const app = express();
+
+// Session middleware setup
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set secure to true if using HTTPS
+}));
+
+// Middleware to fetch wishlist data
+app.use(async (req, res, next) => {
+  if (req.session && req.session.user) {
+    try {
+      const wishlist = await Wishlist.findOne({ user: req.session.user._id }).populate('products.productId');
+      res.locals.wishlist = wishlist || { products: [] };
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      res.locals.wishlist = { products: [] };
+    }
+  } else {
+    res.locals.wishlist = { products: [] };
+  }
+  next();
+});
+
+// Method override for RESTful API design
+app.use(methodOverride("_method"));
+
+// Flash notifications
 app.use(flash());
 
-//view engine set
+// Set view engine
 app.set("view engine", "ejs");
 app.set("views", "./views/user");
 
-//the static files location set
-const path = require("node:path");
+// Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "public/assets")));
 
-
-
-//user route and home route
-const userRoute = require("./router/userRoute");
+// User route and home route
 app.use("/", userRoute);
-//admin route
-const adminRoute = require("./router/adminRoute");
+
+// Admin route
 app.use("/admin", adminRoute);
 
-//for other route (error handiling with redirect to this page)
+// Handle other routes (error handling with redirect to 404 page)
 app.use("*", (req, res) => {
   res.render("404");
 });
 
-//db connection
-mongoose
-  .connect("mongodb://localhost:27017/zaydb")
+// DB connection
+mongoose.connect("mongodb://localhost:27017/zaydb")
   .then(() => {
     console.log("DB connected");
   })
@@ -49,7 +69,7 @@ mongoose
     console.log(err);
   });
 
-  //server listerning in 3000 port
+// Server listening on port 3000
 app.listen(3000, () => {
   console.log("http://localhost:3000");
 });
