@@ -265,75 +265,84 @@
 
 
 <script>
-     function remove_from_cart(productId, index, size) {
-
+    function remove_from_cart(productId, index, size) {
         console.log(productId, index)
-         const data = {productId: productId, index: index, size: size}
-         console.log(data)
-       try {
-
-        $.ajax({
-            type: 'POST',
-            url: '/removeFormCart',
-            data: JSON.stringify(data),
-            contentType: 'application/Json',
-            success: (response) => {
-                   
-                if(response.removed) {
-                    $('#Reload').load('/cart #Reload');
-                    $('#price').load('/cart #price');
-                    $('#ReloadArea').load('/cart #ReloadArea');
-                }
-            }
-        })
-        
-       } catch (error) {
-        console.log(error)
-       }
-
-     }
-</script>
-
-<script>
-   document.querySelectorAll('.pro-qty-2').forEach(parentElement => {
-  parentElement.addEventListener('click', (event) => {
-      try {
-          if (event.target.classList.contains('counter')) {
-              const input = event.target.closest('.quantity.buttons_added').querySelector('input.qty');
-              const currentQuantity = parseInt(input.value);
-              const productId = input.getAttribute('data-productid');
-              const index = input.getAttribute('data-index');
-              const size = input.getAttribute('data-size');
-              const decision = event.target.value === "+" ? 'plus' : 'minus';
-
-              // Front-end validation
-              if (decision === 'plus' && currentQuantity >= 5) {
-                  alert('Maximum quantity of 5 reached');
-                  return;
-              }
-
-              const data = { status: decision, productId, index, size };
-
-              $.ajax({
-                  type: 'POST',
-                  url: '/counter',
-                  data: JSON.stringify(data),
-                  contentType: 'application/json',
-                  success: (response) => {
-                      if (response.changed) {
-                        $('#newID-' + productId).load('/cart #newID-' + productId);
+        const data = { productId: productId, index: index, size: size }
+        console.log(data)
+        try {
+            $.ajax({
+                type: 'POST',
+                url: '/removeFormCart',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: (response) => {
+                    if (response.removed) {
+                        $('#Reload').load('/cart #Reload', function() {
+                            resetQuantityListeners();
+                        });
                         $('#price').load('/cart #price');
-                      } else {
-                          console.log('Error');
-                      }
-                  }
-              });
-          }
-      } catch (error) {
-          console.log(error);
-      }
-  });
-});
+                        $('#ReloadArea').load('/cart #ReloadArea');
+                    }
+                }
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    </script>
+    
 
-  </script>
+    <script>
+        function resetQuantityListeners() {
+            document.querySelectorAll('.pro-qty-2').forEach(parentElement => {
+                parentElement.addEventListener('click', async (event) => {
+                    if (event.target.classList.contains('counter')) {
+                        const input = event.target.closest('.quantity.buttons_added').querySelector('input.qty');
+                        const currentQuantity = parseInt(input.value);
+                        const productId = input.getAttribute('data-productid');
+                        const index = input.getAttribute('data-index');
+                        const size = input.getAttribute('data-size');
+                        const decision = event.target.value === "+" ? 'plus' : 'minus';
+        
+                        // Front-end validation
+                        if (decision === 'plus' && currentQuantity >= 5) {
+                            alert('Maximum quantity of 5 reached');
+                            return;
+                        }
+        
+                        const data = { status: decision, productId, index, size };
+        
+                        try {
+                            const response = await fetch('/counter', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(data)
+                            });
+        
+                            const result = await response.json();
+        
+                            if (result.changed) {
+                                $('#Reload').load('/cart #Reload', function() {
+                                    resetQuantityListeners();
+                                });
+                                $('#price').load('/cart #price');
+                            } else if (result.error) {
+                                alert(result.error);
+                            } else {
+                                console.log('Error');
+                            }
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }
+                });
+            });
+        }
+        
+        resetQuantityListeners(); // Initialize listeners on page load
+        </script>
+        
+ 
   

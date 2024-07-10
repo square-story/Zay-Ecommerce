@@ -100,122 +100,125 @@ module.exports.loadCart = async (req, res) => {
 
   module.exports.removeFromCart = async (req, res) => {
     try {
-      const userId = req.session.user?._id;
-      const { productId, index, size } = req.body;
-      console.log(req.body);
-  
-      if (userId) {
-        const result = await Cart.updateOne(
-          {
-            user: userId,
-            "products.productId": productId,
-            "products.product": index,
-            "products.size": size,
-          },
-          {
-            $pull: {
-              products: { productId: productId, product: index, size: size },
-            },
-          },
-          {
-            arrayFilters: [
-              {
-                "elem.productId": productId,
-                "elem.product": index,
-                "elem.size": size,
-              },
-            ],
-          }
-        );
-        res.json({ removed: true });
-      }
+        const userId = req.session.user?._id;
+        const { productId, index, size } = req.body;
+        console.log(req.body);
+
+        if (userId) {
+            await Cart.updateOne(
+                {
+                    user: userId,
+                    "products.productId": productId,
+                    "products.product": index,
+                    "products.size": size,
+                },
+                {
+                    $pull: {
+                        products: { productId: productId, product: index, size: size },
+                    },
+                },
+                {
+                    arrayFilters: [
+                        {
+                            "elem.productId": productId,
+                            "elem.product": index,
+                            "elem.size": size,
+                        },
+                    ],
+                }
+            );
+            res.json({ removed: true });
+        }
     } catch (error) {
-      console.log(error);
+        console.log(error);
+        res.status(500).json({ error: 'Server error' });
     }
-  };
+};
 
 
-  module.exports.changeQuantity = async (req, res) => {
-    try {
+
+module.exports.changeQuantity = async (req, res) => {
+  try {
       const { status, productId, index, size } = req.body;
       const userId = req.session.user?._id;
-  
+
       if (!userId || !productId || index === undefined || !size) {
-        return res.status(400).json({ error: 'Invalid request data' });
+          return res.status(400).json({ error: 'Invalid request data' });
       }
-  
+
       const product = await Product.findOne({ _id: productId });
       if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
+          return res.status(404).json({ error: 'Product not found' });
       }
-  
+
       const variant = product.variant[index];
       const stock = variant.stock;
       const price = variant.offerPrice;
-  
+
       const cart = await Cart.findOne({ user: userId, "products.productId": productId });
       if (!cart) {
-        return res.status(404).json({ error: 'Cart not found' });
+          return res.status(404).json({ error: 'Cart not found' });
       }
-  
+
       const cartProduct = cart.products.find(pro => pro.product === index && pro.size === size);
       if (!cartProduct) {
-        return res.status(404).json({ error: 'Cart product not found' });
+          return res.status(404).json({ error: 'Cart product not found' });
       }
-  
+
       const quantity = cartProduct.quantity;
-  
+
       if (status === "plus") {
-        if (stock > quantity && quantity < 5) {  // Ensure quantity does not exceed 5
-          await Cart.updateOne(
-            {
-              user: userId,
-              "products.productId": productId,
-              "products.product": index,
-              "products.size": size,
-            },
-            {
-              $inc: { "products.$[elem].quantity": 1 },
-              $set: { "products.$[elem].totalPrice": (quantity + 1) * price }
-            },
-            {
-              arrayFilters: [{ "elem.productId": productId, "elem.product": index, "elem.size": size }]
-            }
-          );
-          return res.json({ changed: true });
-        } else if (quantity >= 5) {
-          return res.status(400).json({ error: 'Maximum quantity of 5 reached' });
-        } else {
-          return res.status(400).json({ error: 'Out of stock' });
-        }
+          if (quantity >= 5) {
+              return res.status(400).json({ error: 'Maximum quantity of 5 reached' });
+          } else if (stock > quantity) {
+              await Cart.updateOne(
+                  {
+                      user: userId,
+                      "products.productId": productId,
+                      "products.product": index,
+                      "products.size": size,
+                  },
+                  {
+                      $inc: { "products.$[elem].quantity": 1 },
+                      $set: { "products.$[elem].totalPrice": (quantity + 1) * price }
+                  },
+                  {
+                      arrayFilters: [{ "elem.productId": productId, "elem.product": index, "elem.size": size }]
+                  }
+              );
+              return res.json({ changed: true });
+          } else {
+              return res.status(400).json({ error: 'Out of stock' });
+          }
       } else if (status === "minus") {
-        if (quantity > 1) {
-          await Cart.updateOne(
-            {
-              user: userId,
-              "products.productId": productId,
-              "products.product": index,
-              "products.size": size,
-            },
-            {
-              $inc: { "products.$[elem].quantity": -1 },
-              $set: { "products.$[elem].totalPrice": (quantity - 1) * price }
-            },
-            {
-              arrayFilters: [{ "elem.productId": productId, "elem.product": index, "elem.size": size }]
-            }
-          );
-          return res.json({ changed: true });
-        } else {
-          return res.status(400).json({ error: 'Quantity cannot be less than 1' });
-        }
+          if (quantity > 1) {
+              await Cart.updateOne(
+                  {
+                      user: userId,
+                      "products.productId": productId,
+                      "products.product": index,
+                      "products.size": size,
+                  },
+                  {
+                      $inc: { "products.$[elem].quantity": -1 },
+                      $set: { "products.$[elem].totalPrice": (quantity - 1) * price }
+                  },
+                  {
+                      arrayFilters: [{ "elem.productId": productId, "elem.product": index, "elem.size": size }]
+                  }
+              );
+              return res.json({ changed: true });
+          } else {
+              return res.status(400).json({ error: 'Quantity cannot be less than 1' });
+          }
       }
-    } catch (error) {
+  } catch (error) {
       console.error(error);
       return res.status(500).json({ error: 'Server error' });
-    }
-  };
-  
+  }
+};
+
+
   
   
 
