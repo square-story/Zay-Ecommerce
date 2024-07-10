@@ -30,24 +30,24 @@
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css" />
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css" />
     <link rel="stylesheet" href="css/style.css" type="text/css" />
-    <link rel="stylesheet" href="assets2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets2/css/templatemo.css">
-    <link rel="stylesheet" href="assets2/css/custom.css">
+    <link rel="stylesheet" href="assets2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets2/css/templatemo.css" />
+    <link rel="stylesheet" href="assets2/css/custom.css" />
     <style>
       #snackbar {
         visibility: hidden;
-        min-width: 400px;
-        margin-left: -125px;
+        min-width: 300px; /* Adjust width as needed */
         background-color: #000000;
         color: #fff;
         text-align: center;
         border-radius: 2px;
-        padding: 40px;
+        padding: 10px;
         position: fixed;
-        z-index: 1;
+        z-index: 1000; /* Ensure it's above other content */
         left: 50%;
-        bottom: 30px;
-        font-size: 17px;
+        bottom: 20px;
+        transform: translateX(-50%);
+        font-size: 16px;
       }
 
       #snackbar.show {
@@ -55,31 +55,22 @@
         -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
         animation: fadein 0.5s, fadeout 0.5s 2.5s;
       }
-      .show {
-        visibility: visible;
-        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        animation: fadein 0.5s, fadeout 0.5s 2.5s;
-      }
-
-      @-webkit-keyframes fadein {
-        from {
-          bottom: 0;
-          opacity: 0;
-        }
-        to {
-          bottom: 30px;
-          opacity: 1;
-        }
-      }
 
       @keyframes fadein {
         from {
-          bottom: 0;
           opacity: 0;
         }
         to {
-          bottom: 30px;
           opacity: 1;
+        }
+      }
+
+      @keyframes fadeout {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
         }
       }
 
@@ -258,7 +249,8 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <%console.log(wishlistProducts)%> <%wishlistProducts.forEach((item, i) => {%>
+                  <%console.log(wishlistProducts)%>
+                  <%wishlistProducts.forEach((item, i) => {%>
                   <tr>
                     <td class="product__cart__item">
                       <div class="product__cart__item__pic">
@@ -280,27 +272,14 @@
                     </td>
                     <td class="quantity__item"></td>
 
-                    <td
-                      class="product__details__option__size"
-                      style="position: relative"
-                    >
-                      <%item.productId.variant[item.index].size.forEach((el) =>
-                      {%>
-                      <label class="" for="<%= el%>">
-                        <%= el%>
-                        <input
-                          type="radio"
-                          id="<%= el %>"
-                          value="<%= el%>"
-                          name="size"
-                        />
-                      </label>
-                      <%})%>
-                      <div
-                        id="size"
-                        style="position: absolute; left: 50px"
-                      ></div>
-                    </td>
+                    <td class="product__details__option__size" style="position: relative;">
+                      <% item.productId.variant[item.index].size.forEach((el) => { %>
+                        <label for="<%= el %>">
+                          <%= el %>
+                          <input type="radio" id="<%= el %>" value="<%= el %>" name="size">
+                        </label>
+                      <% }) %>
+                    </td> 
                     <td class="">
                       <button
                         onclick="removeFromWishlist('<%= item.productId._id%>', '<%= item.index%>')"
@@ -396,22 +375,23 @@
     <script src="js/mixitup.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="/js/main.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
 
 <script>
   function remove_from_cart(productId, index, size) {
-    console.log(productId, index);
     const data = { productId: productId, index: index, size: size };
-    console.log(data);
     try {
       $.ajax({
         type: "POST",
-        url: "/removeFormCart",
+        url: "/removeFromCart", // Corrected endpoint URL
         data: JSON.stringify(data),
-        contentType: "application/Json",
+        contentType: "application/json", // Corrected content type
         success: (response) => {
           if (response.removed) {
             $("#Reload").load("/cart #Reload");
@@ -419,25 +399,25 @@
             $("#ReloadArea").load("/cart #ReloadArea");
           }
         },
+        error: (error) => {
+          console.log("Error removing from cart:", error);
+        }
       });
     } catch (error) {
-      console.log(error);
+      console.log("Error:", error);
     }
   }
 </script>
 
+
 <script>
-  const parentElement = document.querySelector(".pro-qty-2");
-
-  parentElement.addEventListener("click", (event) => {
-    try {
-      const input = document.getElementById("ctn");
-      const productId = input.getAttribute("data-productId");
-      const index = input.getAttribute("data-index");
-      const size = input.getAttribute("data-size");
-
-      if (event.target.classList.contains("counter")) {
-        const decision = event.target.id === "plus" ? "plus" : "minus";
+  $(document).ready(function() {
+    $(".pro-qty-2").on("click", ".counter", function(event) {
+      try {
+        const productId = $(this).data("productid");
+        const index = $(this).data("index");
+        const size = $(this).data("size");
+        const decision = $(this).attr("id") === "plus" ? "plus" : "minus";
 
         const data = { status: decision, productId, index, size };
 
@@ -451,13 +431,17 @@
               $("#newID").load("/cart #newID");
               $("#price").load("/cart #price");
             } else {
-              console.log("Error");
+              console.log("Error updating quantity.");
             }
           },
+          error: (error) => {
+            console.log("Error:", error);
+          }
         });
+      } catch (error) {
+        console.log("Error:", error);
       }
-    } catch (error) {
-      console.log(error);
-    }
+    });
   });
 </script>
+
