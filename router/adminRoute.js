@@ -145,4 +145,6 @@ adminRoute.post("/create-coupon", couponController.createCoupon);
 
 adminRoute.put("/edit-coupon", couponController.createCoupon);
 
+adminRoute.delete("/deleteCoupon",couponController.deleteCoupon)
+
 module.exports = adminRoute;

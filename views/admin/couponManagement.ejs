@@ -255,15 +255,15 @@
                         class="btn btn-sm btn-dark rounded font-sm mt-15"
                         data-user-id=""
                         data-status=""
-                        onclick="block('<%= c._id%>')"
+                        onclick="deleteCoupon('<%= c._id %>')"
                       >
-                        <%= c.active ? "List" : "Unlist" %>
+                        Delete
                       </button>
                       <button
                         id="button"
                         class="btn btn-sm btn-dark rounded font-sm mt-15"
                         data-user-id=""
-                        onclick="return editCoupon('<%= c._id%>', '<%= c.name%>', '<%= c.activationDate%>', '<%= c.expiresDate%>', '<%= c.discountAmount%>','<%= c.limit%>')"
+                        onclick="return editCoupon('<%= c._id %>', '<%= c.name %>', '<%= c.activationDate %>', '<%= c.expiresDate %>', '<%= c.discountAmount %>', '<%= c.limit %>')"
                         data-status=""
                         data-bs-toggle="modal"
                         data-bs-target="#exampleModal2"
@@ -289,12 +289,14 @@
         <div class="pagination-area mt-15 mb-50">
           <nav aria-label="Page navigation example">
             <ul class="pagination">
-              <%if(page != 0) {%>
-              <a class="page-link" href="?page=<%= page - 1%>"
-                ><i class="material-icons md-chevron_left"></i
-              ></a>
-              <%}%> <% for (let i = 0; i < couponLength; i++) { %> <% if (i ===
-              0 || i === couponLength - 1 || (i >= page - 2 && i <= page + 2)) {
+              <% if(page > 0) { %>
+              <li class="page-item">
+                <a class="page-link" href="?page=<%= page - 1 %>">
+                  <i class="material-icons md-chevron_left"></i>
+                </a>
+              </li>
+              <% } %> <% for (let i = 0; i < totalPages; i++) { %> <% if (i ===
+              0 || i === totalPages - 1 || (i >= page - 2 && i <= page + 2)) {
               %>
               <li class="page-item <%= page == i ? 'active' : '' %>">
                 <a class="page-link" href="?page=<%= i %>"><%= i + 1 %></a>
@@ -303,11 +305,13 @@
               <li class="page-item disabled">
                 <span class="page-link">...</span>
               </li>
-              <% } %> <% } %> <%if(page != couponLength) {%>
-              <a class="page-link" href="?page=<%= page + 1%>"
-                ><i class="material-icons md-chevron_right"></i
-              ></a>
-              <%}%>
+              <% } %> <% } %> <% if(page < totalPages - 1) { %>
+              <li class="page-item">
+                <a class="page-link" href="?page=<%= page + 1 %>">
+                  <i class="material-icons md-chevron_right"></i>
+                </a>
+              </li>
+              <% } %>
             </ul>
           </nav>
         </div>
@@ -329,55 +333,48 @@
 </html>
 
 <script>
-  function block(id) {
+  function deleteCoupon(id) {
     const data = { id: id };
-    const btn = document.getElementById("button");
-    let stat;
-    btn.addEventListener("click", () => {
-      const status = btn.getAttribute("data-status");
-      console.log(status, "hii");
-
-      if (status) {
-        console.log("unbock");
-        stat = "Unblock";
-        console.log(stat + "111");
-      } else {
-        console.log("block");
-        stat = "block";
-        console.log(stat + " 00000");
-      }
-    });
 
     Swal.fire({
-      title: "Are you sure",
-      text: `do you want to ${stat} this user!`,
+      title: "Are you sure?",
+      text: "Do you want to delete this coupon?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes!",
+      confirmButtonText: "Yes, delete it!",
     }).then((decision) => {
       if (decision.isConfirmed) {
         $.ajax({
-          method: "POST",
-          url: "/admin/blockUser",
+          method: "DELETE",
+          url: "/admin/deleteCoupon",
           data: JSON.stringify(data),
           contentType: "application/json",
           success: (response) => {
-            if (response.block === true) {
-              $("#Reload").load("/admin/user #Reload", null, () => {
-                Swal.fire({
-                  title: `${stat}`,
-                  icon: "success",
-                });
+            if (response.success) {
+              // Reload the current page to update the coupon list and pagination
+              window.location.reload();
+            } else {
+              Swal.fire({
+                title: "Failed to delete coupon",
+                icon: "error",
               });
             }
+          },
+          error: (xhr, status, error) => {
+            Swal.fire({
+              title: "An error occurred",
+              text: error,
+              icon: "error",
+            });
           },
         });
       }
     });
   }
 </script>
+
 <script>
   function editCoupon(id, name, adate, edate, damount, limit) {
     console.log("function is called");

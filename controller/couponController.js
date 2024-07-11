@@ -3,24 +3,30 @@ const Coupon = require("../models/couponModel");
 
 module.exports.loadCoupon = async (req, res) => {
   try {
-    let page = "";
+    // Set default page to 0 if not provided
+    let page = req.query.page ? parseInt(req.query.page) : 0;
+    const limit = 4;
 
-    if (req.query.page) {
-      page = req.query.page;
-    }
+    // Fetch coupons for the current page
     const coupon = await Coupon.find()
-      .skip(page * 4)
-      .limit(4);
-    const couponLenght = await Coupon.find();
+      .skip(page * limit)
+      .limit(limit);
+
+    // Fetch the total number of coupons
+    const totalCoupons = await Coupon.countDocuments();
+
     res.render("couponManagement", {
       coupon,
-      couponLength: couponLenght.length,
-      page: parseInt(page),
+      couponLength: totalCoupons,
+      page: page,
+      totalPages: Math.ceil(totalCoupons / limit),
     });
   } catch (error) {
     console.log(error);
+    res.status(500).send('Internal Server Error');
   }
 };
+
 
 module.exports.createCoupon = async (req, res) => {
   const { name, adate, edate, limit, damount } = req.body;
@@ -162,3 +168,25 @@ module.exports.loadMyCoupon = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.deleteCoupon = async (req,res)=>{
+  const { id } = req.body;
+
+  try {
+    // Assuming you use Mongoose to interact with MongoDB
+    const result = await Coupon.findByIdAndDelete(id);
+    if (result) {
+      // Recalculate the number of coupons after deletion
+      const totalCoupons = await Coupon.countDocuments();
+      const couponsPerPage = 10; // Adjust based on your requirement
+      const totalPages = Math.ceil(totalCoupons / couponsPerPage);
+
+      res.json({ success: true, totalPages: totalPages });
+    } else {
+      res.json({ success: false, message: 'Coupon not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting coupon:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
