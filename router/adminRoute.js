@@ -3,6 +3,7 @@ const adminRoute = express();
 const adminController = require("../controller/adminController");
 const productController = require("../controller/product");
 const cetagoryContorller = require("../controller/cetagoryController");
+const couponController = require("../controller/couponController");
 const nocache = require("nocache");
 
 adminRoute.use(nocache());
@@ -135,5 +136,13 @@ adminRoute.post("/cancel-request", adminController.controlCancelation);
 adminRoute.get("/returns", adminAuth.islogin, adminController.loadReturns);
 
 adminRoute.post("/returns", adminController.returns);
+
+// coupon management
+
+adminRoute.get("/load-coupon", adminAuth.islogin, couponController.loadCoupon);
+
+adminRoute.post("/create-coupon", couponController.createCoupon);
+
+adminRoute.put("/edit-coupon", couponController.createCoupon);
 
 module.exports = adminRoute;
