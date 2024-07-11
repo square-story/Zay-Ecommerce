@@ -365,90 +365,52 @@
                     </div>
 
                     <div class="col-lg-4 col-md-6">
-
                         <div class="cart__discount" style="margin-bottom: 30px !important;">
                             <h6>Discount codes</h6>
-                           <div class="d-flex">
-                            <input type="text" class="form-control" id="applyCoupon" placeholder="Coupon code">
-                            <button type="button" class="btn btn-dark" onclick="return applyCoupon();">Apply</button>
-                           </div>
+                            <div class="d-flex">
+                                <input type="text" class="form-control" id="applyCoupon" placeholder="Coupon code">
+                                <button type="button" class="btn btn-dark" onclick="applyCoupon()">Apply</button>
+                            </div>
+                            <p id="couponMessage" style="margin-top: 10px; color: green;"></p>
                         </div>
-
+                    
                         <div class="checkout__order" style="padding-bottom: 0 !important;">
                             <h4 class="order__title" style="border-bottom: none;">Your order</h4>
-
-
-
-                            <% let subtotal=0, totalItem=0 %>
-
-                                <%products.forEach((product, index)=> {%>
-                                    <%subtotal +=product.totalPrice%>
-
-                                        <%totalItem +=product.quantity %>
-                                            <%})%>
-
-
-
-                                                <ul class="checkout__total__all" style="margin-bottom: 0 !important;">
-                                                    <li>Price (<%= totalItem%>
-                                                            <%= totalItem> 1 ? "items" : "item"%>)<span
-                                                                    style="color: #111111;">₹<%= subtotal%></span></li>
-
-                                                    <%if(subtotal> 1000) {%>
-
-                                                        <li>Delivery Charges<span style="color: green;"><del
-                                                                    style="color: black;">₹80</del> Free</span></li>
-
-                                                        <%} else{%>
-
-                                                            <li>Delivery Charges<span style="color: black;">₹80</span>
-                                                            </li>
-
-                                                            <%}%>
-
-
-
-                                                                <li style="font-weight: 600;" id="subtotal">Amount
-                                                                    payaple<span id="discountedAmount"
-                                                                        style="color: #111111;">₹<%= subtotal%>
-                                                                    </span></li>
-
+                    
+                            <% let subtotal = 0, totalItem = 0 %>
+                            <% products.forEach((product, index) => { %>
+                                <% subtotal += product.totalPrice %>
+                                <% totalItem += product.quantity %>
+                            <% }) %>
+                    
+                            <ul class="checkout__total__all" style="margin-bottom: 0 !important;">
+                                <li>Price (<%= totalItem %> <%= totalItem > 1 ? "items" : "item" %>)<span style="color: #111111;">₹<%= subtotal %></span></li>
+                    
+                                <% if (subtotal > 1000) { %>
+                                    <li>Delivery Charges<span style="color: green;"><del style="color: black;">₹80</del> Free</span></li>
+                                <% } else { %>
+                                    <li>Delivery Charges<span style="color: black;">₹80</span></li>
+                                <% } %>
+                    
+                                <li id="couponDiscountLi" style="display: none;">Coupon Discount<span id="couponDiscountAmount" style="color: green;"></span></li>
+                                <li style="font-weight: 600;">Amount payable<span id="discountedAmount" style="color: #111111;">₹<%= subtotal %></span></li>
+                            </ul>
                         </div>
+                    
                         <div style="padding: 30px; background-color: #f3f2ee;">
                             <table class="table" style="background-color: #f3f2ee;">
-
                                 <tbody>
-                                    <!-- <tr>
-                                        <td style="background-color: #f3f2ee;">
-                                            <div class="" style="background-color: #f3f2ee;">
-                                                <input type="radio" id="paypal1" value="razorpay"
-                                                    name="payment_method">
-                                                <label for="paypal1">Razorpay</label>
-                                            </div>
-                                        </td>
-                                    </tr> -->
                                     <tr>
                                         <td style="background-color: #f3f2ee;">
                                             <div class="" style="background-color: #f3f2ee;">
-                                                <input type="radio" id="cod1" value="COD"
-                                                    name="payment_method">
+                                                <input type="radio" id="cod1" value="COD" name="payment_method">
                                                 <label for="cod1">Cash on Delivery</label>
                                             </div>
                                         </td>
                                     </tr>
-                                    <!-- <tr>
-                                        <td style="background-color: #f3f2ee;">
-                                            <div class="" style="background-color: #f3f2ee;">
-                                                <input type="radio" id="wallet" value="wallet"
-                                                    name="payment_method">
-                                                <label for="wallet">Wallet</label>
-                                            </div>
-                                        </td>
-                                    </tr> -->
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
                 </form>
@@ -679,58 +641,57 @@
 
 
 <script>
-    function applyCoupon() {
+    async function applyCoupon() {
+        const couponCode = document.getElementById('applyCoupon').value.trim();
 
-        const couponCode = document.getElementById('applyCoupon').value;
-        console.log(couponCode)
         if (couponCode) {
-            document.getElementById('place-order').setAttribute('data-couponCode', `${couponCode}`);
-            const data = { couponCode: couponCode }
-            $.ajax({
-                type: "POST",
-                url: "/check-coupon",
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                success: (responce) => {
-                    if (responce.used) {
+            try {
+                const response = await fetch('/check-coupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ couponCode })
+                });
 
-                        fireSwal(responce.massage);
-
-                    } else if (responce.limit) {
-
-                        fireSwal(responce.massage);
-
-                    } else if (responce.expired) {
-
-                        fireSwal(responce.massage);
-
-                    } else if (responce.min) {
-
-                        fireSwal(responce.massage);
-
-                    } else if (responce.notAvailable) {
-
-                        fireSwal(responce.massage);
-
-                    } else if (responce.success) {
-                        console.log('hel')
-                        console.log(responce)
-
-                        document.getElementById('place-order').setAttribute('data-subtotal', `${responce.subtotal}`);
-                        document.getElementById('discountedAmount').innerText = `₹${responce.subtotal}`
-                        document.getElementById('place-order').setAttribute('data-couponApplied', '1')
-                    }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
                 }
-            })
 
+                const responce = await response.json();
+
+                if (responce.used || responce.limit || responce.expired || responce.min || responce.notAvailable) {
+                    fireSwal(responce.message);
+                } else if (responce.success) {
+                    const discount = responce.discount; // assuming 'discount' is the amount of coupon value
+                    const discountedAmount = responce.subtotal;
+
+                    document.getElementById('couponDiscountLi').style.display = 'block';
+                    document.getElementById('couponDiscountAmount').innerText = `- ₹${discount.toFixed(2)}`;
+                    document.getElementById('discountedAmount').innerText = `₹${discountedAmount.toFixed(2)}`;
+                    document.getElementById('couponMessage').innerText = 'Coupon applied successfully!';
+                }
+            } catch (error) {
+                console.error('Error applying coupon:', error);
+                fireSwal('Error applying coupon. Please try again later.');
+            }
         } else {
-            console.log('coupon not applied');
-
+            console.log('Coupon code not provided.');
         }
+    }
 
-
+    function fireSwal(text) {
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: `${text}`,
+            showConfirmButton: false,
+            timer: 1500,
+        });
     }
 </script>
+
+
 
 
 <script>

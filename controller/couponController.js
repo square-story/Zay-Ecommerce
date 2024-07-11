@@ -78,87 +78,69 @@ module.exports.editCoupon = async (req, res) => {
 module.exports.checkCoupon = async (req, res) => {
   try {
     const { couponCode } = req.body;
-    console.log(couponCode);
     const userId = req.session.user?._id;
     const coupon = await Coupon.findOne({ couponCode: couponCode });
+
     if (coupon) {
-      const alreadyUsed = coupon.userUsed.find((user) => user === userId);
-      console.log(alreadyUsed);
-      const count = coupon.limit < coupon.userUsed;
-      const limitOfCoupon = coupon.limit === -1 ? false : count;
+      const alreadyUsed = coupon.userUsed.includes(userId);
+      const count = coupon.userUsed.length;
+      const limitOfCoupon = coupon.limit === -1 ? false : count >= coupon.limit;
 
-      let dateStrings = [coupon.activationDate, coupon.expiresDate]; // Add your date strings here
-      let isoDateStrings = [];
-
-      for (let dateString of dateStrings) {
+      let dateStrings = [coupon.activationDate, coupon.expiresDate];
+      let isoDateStrings = dateStrings.map(dateString => {
         let dateArray = dateString.split("-");
-        let isoDateString = `${dateArray[2]}-${dateArray[1]}-${dateArray[0]}T00:00:00.000Z`;
-        isoDateStrings.push(isoDateString);
-      }
+        return `${dateArray[2]}-${dateArray[1]}-${dateArray[0]}T00:00:00.000Z`;
+      });
 
-      let convertedDates = isoDateStrings.map(
-        (dateString) => new Date(dateString)
-      );
-
-      console.log(convertedDates);
+      let convertedDates = isoDateStrings.map(dateString => new Date(dateString));
 
       const today = new Date();
-      console.log(today);
       const active = new Date(coupon.activationDate);
-      console.log(active, "active");
       const expire = new Date(coupon.expiresDate);
-      console.log(expire, "hello");
 
       if (alreadyUsed) {
-        res.json({ used: true, massage: "This coupon is already used" });
+        res.json({ used: true, message: "This coupon is already used" });
       } else if (limitOfCoupon) {
-        res.json({ limit: true, massage: "Coupon is expried" });
+        res.json({ limit: true, message: "Coupon limit reached" });
       } else if (!(today >= convertedDates[0] && today <= convertedDates[1])) {
-        res.json({ expired: true, massage: "Coupon expired" });
+        res.json({ expired: true, message: "Coupon expired" });
       } else {
-        console.log("reached");
-
-        // taking amount
-
         const cart = await Cart.findOne({ user: userId });
 
         let discount = 0;
         let cartAmount = 0;
-        console.log(coupon.discountAmount, "discount amount");
+
+        const total = cart.products.reduce((acc, crr) => acc + crr.totalPrice, 0);
 
         if (coupon.percentage) {
+          discount = (coupon.percentage / 100) * total;
         } else if (coupon.discountAmount) {
-          console.log(coupon.discountAmount, cart.products.length);
-
-          const div = coupon.discountAmount / cart.products.length;
-          discount = Math.round(div);
-          console.log(discount + "discount", "div: " + div);
+          discount = coupon.discountAmount;
         }
-        const total = cart.products.reduce(
-          (acc, crr) => (acc += crr.totalPrice)
-        );
-        cartAmount = cart.products.reduce((acc, crr) => {
-          console.log(crr);
-          if (crr.totalPrice >= discount) {
-            return (acc += crr.totalPrice - discount);
-          } else {
-            return (acc += crr.totalPrice);
-          }
-        }, 0);
+
+        cartAmount = total - discount;
 
         if (total <= 500) {
-          res.json({ min: true, massage: "Minimum ₹500 needed" });
+          res.json({ min: true, message: "Minimum ₹500 needed" });
         } else {
-          res.json({ success: true, subtotal: cartAmount });
+          // Add user ID to the userUsed array and save the coupon document
+          coupon.userUsed.push(userId);
+          await coupon.save();
+
+          res.json({ success: true, subtotal: cartAmount, discount: discount });
         }
       }
     } else {
-      res.json({ notAvailable: true, massage: "No coupon  available" });
+      res.json({ notAvailable: true, message: "No coupon available" });
     }
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+
 
 module.exports.loadMyCoupon = async (req, res) => {
   try {
