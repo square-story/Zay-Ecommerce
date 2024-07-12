@@ -369,32 +369,33 @@
                             <h6>Discount codes</h6>
                             <div class="d-flex">
                                 <input type="text" class="form-control" id="applyCoupon" placeholder="Coupon code">
-                                <button type="button" class="btn btn-dark" onclick="applyCoupon()">Apply</button>
+                                <button type="button" class="btn btn-dark" onclick="return applyCoupon();">Apply</button>
                             </div>
-                            <p id="couponMessage" style="margin-top: 10px; color: green;"></p>
                         </div>
                     
                         <div class="checkout__order" style="padding-bottom: 0 !important;">
                             <h4 class="order__title" style="border-bottom: none;">Your order</h4>
                     
-                            <% let subtotal = 0, totalItem = 0 %>
+                            <% let subtotal=0, totalItem=0 %>
                             <% products.forEach((product, index) => { %>
                                 <% subtotal += product.totalPrice %>
                                 <% totalItem += product.quantity %>
                             <% }) %>
                     
                             <ul class="checkout__total__all" style="margin-bottom: 0 !important;">
-                                <li>Price (<%= totalItem %> <%= totalItem > 1 ? "items" : "item" %>)<span style="color: #111111;">₹<%= subtotal %></span></li>
-                    
+                                <li>Price (<%= products.length %> <%= products.length > 1 ? "items" : "item" %>)<span style="color: #111111;">₹<%= subtotal %></span></li>
+                            
                                 <% if (subtotal > 1000) { %>
                                     <li>Delivery Charges<span style="color: green;"><del style="color: black;">₹80</del> Free</span></li>
                                 <% } else { %>
-                                    <li>Delivery Charges<span style="color: black;">₹80</span></li>
+                                    <li>Delivery Charges<span style="color: black;">₹<%= deliveryCharge %></span></li>
                                 <% } %>
-                    
-                                <li id="couponDiscountLi" style="display: none;">Coupon Discount<span id="couponDiscountAmount" style="color: green;"></span></li>
-                                <li style="font-weight: 600;">Amount payable<span id="discountedAmount" style="color: #111111;">₹<%= subtotal %></span></li>
+                            
+                                <li>Coupon Discount<span style="color: #ff0000;" id="discountAmount">₹<%= discount %></span></li>
+                            
+                                <li style="font-weight: 600;" id="subtotal">Amount payable<span id="discountedAmount" style="color: #111111;">₹<%= finalAmount %></span></li>
                             </ul>
+                                           
                         </div>
                     
                         <div style="padding: 30px; background-color: #f3f2ee;">
@@ -412,16 +413,16 @@
                             </table>
                         </div>
                     </div>
+                    
+                    <div class="sticky-element" style="max-width: 34%;">
+                        <div class="d-grid gap-2">
+                            <button class="btn" id="place-order" data-subtotal="<%= subtotal %>" data-productPrice=""
+                                onclick="placeOrder()"
+                                style="color: #f3f2ee; padding: 1rem; background-color: #69bb7e;" type="button">PLACE ORDER</button>
+                        </div>
+                    </div>
                 </div>
                 </form>
-            </div>
-        </div>
-        <div class="sticky-element " style="max-width: 50%;">
-            <div class="d-grid gap-2">
-                <button class="btn" id="place-order" data-subtotal="<%= subtotal%>" data-productPrice=""
-                    onclick="placeOrder('<%= subtotal%>')"
-                    style=" color: #f3f2ee; padding: 1rem; background-color: #69bb7e;" type="button">PLACE
-                    ORDER</button>
             </div>
         </div>
         <!-- <button type="button" onclick="placeOrder('<%= subtotal%>')" class="site-btn ">PLACE ORDER</button> -->
@@ -461,111 +462,107 @@
 </html>
 
 <script>
+    function applyCoupon() {
+        const couponCode = document.getElementById('applyCoupon').value;
+        if (couponCode) {
+            const data = { couponCode: couponCode };
+            $.ajax({
+                type: "POST",
+                url: "/check-coupon",
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: (response) => {
+                    if (response.success) {
+                        const subtotal = response.subtotal;
+                        const discount = response.discount;
+
+                        document.getElementById('discountedAmount').innerText = `₹${subtotal}`;
+                        document.getElementById('discountAmount').innerText = `₹${discount}`;
+                        document.getElementById('place-order').setAttribute('data-subtotal', subtotal);
+                        document.getElementById('place-order').setAttribute('data-couponApplied', '1');
+                        document.getElementById('place-order').setAttribute('data-couponCode', couponCode);
+
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "Coupon applied successfully!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        fireSwal(response.message);
+                    }
+                }
+            });
+        } else {
+            console.log('coupon not applied');
+        }
+    }
+
+    function fireSwal(text) {
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: text,
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
+
     function placeOrder() {
         try {
-            console.log('clicked')
             const radioBtn = document.querySelector('input[name="address"]:checked');
             const index = radioBtn ? radioBtn.value : null;
             if (index) {
-
                 const payment = document.querySelector('input[name="payment_method"]:checked');
-                const paymet_method = payment ? payment.value : null;
-
-                if (paymet_method) {
-                    const total = document.getElementById('place-order').getAttribute('data-subtotal')
+                const payment_method = payment ? payment.value : null;
+                if (payment_method) {
+                    const total = document.getElementById('place-order').getAttribute('data-subtotal');
                     const isCouponApplied = document.getElementById('place-order').getAttribute('data-couponApplied');
-                    console.log(isCouponApplied)
-                    const value = isCouponApplied ? document.getElementById('place-order').getAttribute('data-couponCode') : false;
-                    console.log(value);
-                    console.log(total)
-                    const subtotal = total;
-                    if (subtotal) {
+                    const couponCode = isCouponApplied ? document.getElementById('place-order').getAttribute('data-couponCode') : false;
 
-                        const data = {
-                            index: index,
-                            payment_method: paymet_method,
-                            subtotal: subtotal,
-                            isCoupon: value
-                        }
-                        // if(paymet_method == 'COD' && subtotal >= 500) {
-                        //    return fireSwal('Amount exceeds the maximum limit of 500 choose another payment option');
-                        
-                        // }
+                    const data = {
+                        index: index,
+                        payment_method: payment_method,
+                        subtotal: total,
+                        isCoupon: couponCode
+                    };
 
-                        console.log(data)
-                        $.ajax({
-                            type: 'POST',
-                            url: '/place-order',
-                            data: JSON.stringify(data),
-                            contentType: 'application/JSON',
-                            success: (response) => {
-                                if (response.success) {
-                                    location.href = '/order-success';
-                                } else if (response.order) {
-                                    razorPay(response.order);
-                                } else if (response.wallet) {
-
-                                    location.href = '/order-success';
-                                } else if (response.fail) {
-                                    fireSwal(response.massage);
-                                }else if(response.remove) {
-
-                                    fireSwal(response.massage)
-
-                                } else if(response.money){
-                                    console.log('money error')
-                                    Swal.fire({
-
-                                        title: "Wallet don't have enough money",
-                                        text: "Please choose another payment option",
-                                        icon: "error",
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    })
-                                }
+                    $.ajax({
+                        type: 'POST',
+                        url: '/place-order',
+                        data: JSON.stringify(data),
+                        contentType: 'application/JSON',
+                        success: (response) => {
+                            if (response.success) {
+                                location.href = '/order-success';
+                            } else {
+                                fireSwal(response.message);
                             }
-
-                        })
-
-                    } else {
-                        console.log('total amount not recived...');
-
-                    }
-
+                        }
+                    });
                 } else {
-                    console.log('please select payment method');
                     Swal.fire({
-
-                        title: "Select payament method",
-                        text: "Please select payament method!",
+                        title: "Select payment method",
+                        text: "Please select payment method!",
                         icon: "warning",
                         showConfirmButton: false,
                         timer: 1500
-                    })
-
+                    });
                 }
-
-
-
             } else {
                 Swal.fire({
-
                     title: "Select address",
                     text: "Please select address!",
                     icon: "warning",
                     showConfirmButton: false,
                     timer: 1500
-                })
-
+                });
             }
-
-
         } catch (error) {
             console.log(error);
         }
     }
-
-
 </script>
 
 
@@ -640,56 +637,7 @@
 </script>
 
 
-<script>
-    async function applyCoupon() {
-        const couponCode = document.getElementById('applyCoupon').value.trim();
 
-        if (couponCode) {
-            try {
-                const response = await fetch('/check-coupon', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ couponCode })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok.');
-                }
-
-                const responce = await response.json();
-
-                if (responce.used || responce.limit || responce.expired || responce.min || responce.notAvailable) {
-                    fireSwal(responce.message);
-                } else if (responce.success) {
-                    const discount = responce.discount; // assuming 'discount' is the amount of coupon value
-                    const discountedAmount = responce.subtotal;
-
-                    document.getElementById('couponDiscountLi').style.display = 'block';
-                    document.getElementById('couponDiscountAmount').innerText = `- ₹${discount.toFixed(2)}`;
-                    document.getElementById('discountedAmount').innerText = `₹${discountedAmount.toFixed(2)}`;
-                    document.getElementById('couponMessage').innerText = 'Coupon applied successfully!';
-                }
-            } catch (error) {
-                console.error('Error applying coupon:', error);
-                fireSwal('Error applying coupon. Please try again later.');
-            }
-        } else {
-            console.log('Coupon code not provided.');
-        }
-    }
-
-    function fireSwal(text) {
-        Swal.fire({
-            position: "center",
-            icon: "error",
-            title: `${text}`,
-            showConfirmButton: false,
-            timer: 1500,
-        });
-    }
-</script>
 
 
 

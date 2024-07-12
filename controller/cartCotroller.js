@@ -223,19 +223,32 @@ module.exports.changeQuantity = async (req, res) => {
   
 
 
-  module.exports.proceedToCheckout = async (req, res) => {
-    try {
-      const userid = req.session.user?._id;
-      const address = await Address.findOne({ user: userid });
-      console.log(address);
-      const cart = await Cart.findOne({ user: userid }).populate(
-        "products.productId"
-      );
-      console.log(cart);
-      res.render("checkOut", { address: address, products: cart.products });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+module.exports.proceedToCheckout = async (req, res) => {
+  try {
+    const userId = req.session.user?._id;
+    const address = await Address.findOne({ user: userId });
+    const cart = await Cart.findOne({ user: userId }).populate("products.productId");
+
+    // Calculate subtotal
+    const subtotal = cart.products.reduce((acc, product) => acc + product.totalPrice, 0);
+
+    // Calculate delivery charge
+    const deliveryCharge = subtotal < 500 ? 80 : 0;
+
+    // Calculate discount
+    let discount = 0;
+    // Assume no coupon applied here for simplicity; you'll handle this in your actual coupon application logic
+    // If a coupon is applied, calculate the discount and adjust the final amount accordingly
+
+    // Calculate final amount
+    const finalAmount = subtotal + deliveryCharge - discount;
+
+    res.render("checkOut", { address: address, products: cart.products, subtotal, deliveryCharge, discount, finalAmount });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
   

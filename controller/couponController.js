@@ -108,8 +108,6 @@ module.exports.checkCoupon = async (req, res) => {
         const cart = await Cart.findOne({ user: userId });
 
         let discount = 0;
-        let cartAmount = 0;
-
         const total = cart.products.reduce((acc, crr) => acc + crr.totalPrice, 0);
 
         if (coupon.percentage) {
@@ -118,12 +116,11 @@ module.exports.checkCoupon = async (req, res) => {
           discount = coupon.discountAmount;
         }
 
-        cartAmount = total - discount;
+        const cartAmount = total - discount;
 
         if (total <= 500) {
           res.json({ min: true, message: "Minimum ₹500 needed" });
         } else {
-          // Add user ID to the userUsed array and save the coupon document
           coupon.userUsed.push(userId);
           await coupon.save();
 
@@ -138,6 +135,7 @@ module.exports.checkCoupon = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 
