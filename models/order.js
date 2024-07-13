@@ -17,30 +17,24 @@ const orderSchema = new mongoose.Schema({
         required: true,
         ref: "Product",
       },
-
       product: {
         type: String,
       },
-
       price: {
         type: Number,
         required: true,
       },
-
       quantity: {
         type: Number,
         default: 1,
       },
-
       totalPrice: {
         type: Number,
         required: true,
       },
-
       size: {
         type: String,
       },
-
       status: {
         type: String,
         enum: [
@@ -53,30 +47,24 @@ const orderSchema = new mongoose.Schema({
         ],
         default: "placed",
       },
-
       cancelReason: {
         type: String,
       },
-
-      cancelRequest:{
+      cancelRequest: {
         type: String,
         enum: ["requested", "accepted", "denied"],
       },
-
       returnReason: {
         type: String,
       },
-
       returnRequest: {
         type: String,
         enum: ["requested", "accepted", "denied"],
       },
-
       coupon: {
         type: Number,
         default: 0,
       },
-
       offer: {
         type: Number,
       },
@@ -86,7 +74,6 @@ const orderSchema = new mongoose.Schema({
       },
     },
   ],
-
   totalAmount: {
     type: Number,
     required: true,
@@ -109,6 +96,9 @@ const orderSchema = new mongoose.Schema({
   },
   paymentId: {
     type: String,
+  },
+  razorpayOrderId: {
+    type: String, // Add this field to store Razorpay's order_id
   },
 });
 

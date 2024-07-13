@@ -189,7 +189,7 @@ userRoute.get("/order-success", orderController.loadOrderSucces);
 userRoute.post("/search", shopController.filter);
 userRoute.post("/order-cancel", orderController.orderCancelation);
 
-userRoute.get("/single-orderDetails", orderController.singleOrderDetials);
+userRoute.get("/single-orderDetails", orderController.getOrderDetails);
 
 userRoute.get(
   "/wishlist",
@@ -204,6 +204,9 @@ userRoute.get("/manage-address", userController.loadManageAddress);
 // ==================================================================== //
 
 userRoute.post("/addReview", review_Controller.addReview);
+
+userRoute.post("/verify-payment", orderController.verifyPayment);
+
 
 userRoute.post("/product-return", orderController.productReturn);
 
