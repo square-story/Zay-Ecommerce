@@ -656,7 +656,7 @@
             </div>
         </div>
         <!-- Modal for Order Cancellation Sent Message -->
-<div class="modal fade" id="orderCancelationSent" tabindex="-1" aria-labelledby="orderCancelationSentLabel" aria-hidden="true">
+        <div class="modal fade" id="orderCancelationSent" tabindex="-1" aria-labelledby="orderCancelationSentLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -788,65 +788,77 @@
 </script>
 
 <script>
-    const cancelSubmit = document.getElementById('cancel');
-    cancelSubmit.addEventListener('click', () => {
-        const reason = document.getElementById('cancelReason').value;
-        console.log('hello')
-        if (reason) {
-            const orderId = document.getElementById('cancelDetails').getAttribute('data-orderId');
-            const index = document.getElementById('cancelDetails').getAttribute('data-index');
-            const productId = document.getElementById('cancelDetails').getAttribute('data-productId');
+    $(document).ready(function () {
+    // Function to handle the cancellation request submission
+    $('#cancel').on('click', function () {
+        const orderId = $('#cancelDetails').data('orderid');
+        const productId = $('#cancelDetails').data('productid');
+        const index = $('#cancelDetails').data('index');
+        const reason = $('#cancelReason').val();
 
-            const data = { orderId: orderId, productId: productId, index: index, cancelReason: reason };
-            console.log(data)
-            $.ajax({
-                type: "POST",
-                url: "/order-cancel",
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                success: (response) => {
-                    if (response.return) {
-                       // Close the cancel order modal
-                    $('#orderCancelation').modal('hide');
-                    // Show the order cancellation sent modal
-                    $('#orderCancelationSent').modal('show');
-                    }
+        // Assuming you're using AJAX to send the request
+        $.ajax({
+            url: '/order-cancel', // Your cancel order endpoint
+            method: 'POST',
+            data: {
+                orderId: orderId,
+                productId: productId,
+                index: index,
+                reason: reason
+            },
+            success: function (response) {
+                // Assuming response.success is true if the request was successful
+                if (response.success) {
+                    $('#orderCancelation').modal('hide'); // Hide the modal
+                    $('#orderCancelationSent').modal('show'); // Show confirmation message
+                } else {
+                    // Handle error case
+                    alert('Failed to send cancellation request.');
                 }
-            })
-        }
-    })
+            },
+            error: function () {
+                // Handle error case
+                alert('Failed to send cancellation request.');
+            }
+        });
+    });
 
-    const returnSubmit = document.getElementById('return');
-    returnSubmit.addEventListener('click', () => {
-        console.log('reutrn')
-        const reason = document.getElementById('returnReason').value;
-        console.log('hello')
-        if (reason) {
-            const orderId = document.getElementById('cancelDetails').getAttribute('data-orderId');
-            const index = document.getElementById('cancelDetails').getAttribute('data-index');
-            const productId = document.getElementById('cancelDetails').getAttribute('data-productId');
+    // Function to handle the return request submission
+    $('#return').on('click', function () {
+        const orderId = $('#cancelDetails').data('orderid');
+        const productId = $('#cancelDetails').data('productid');
+        const index = $('#cancelDetails').data('index');
+        const reason = $('#returnReason').val();
 
-            const data = { orderId: orderId, productId: productId, index: index, returnReason: reason };
-            console.log(data)
-            $.ajax({
-                type: "POST",
-                url: "/product-return",
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                success: (response) => {
-                    if (response.return) {
-                        console.log('return success')
-                        window.location.reload();
-                    }
+        // Assuming you're using AJAX to send the request
+        $.ajax({
+            url: '/product-return', // Your return product endpoint
+            method: 'POST',
+            data: {
+                orderId: orderId,
+                productId: productId,
+                index: index,
+                reason: reason
+            },
+            success: function (response) {
+                // Assuming response.success is true if the request was successful
+                if (response.success) {
+                    $('#returnProduct').modal('hide'); // Hide the modal
+                    $('#orderCancelationSent').modal('show'); // Show confirmation message
+                } else {
+                    // Handle error case
+                    alert('Failed to send return request.');
                 }
-            })
-        }
-    })
-
-
-
-
+            },
+            error: function () {
+                // Handle error case
+                alert('Failed to send return request.');
+            }
+        });
+    });
+});
 </script>
+
 
 
 <script>
