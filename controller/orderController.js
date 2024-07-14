@@ -28,7 +28,10 @@ module.exports.loadMyOrder = async (req, res) => {
     }
 
     const orderLength = await Order.countDocuments({ user: userid });
-    const orders = await Order.find({ user: userid, status: { $ne: 'pending' } })
+    const orders = await Order.find({
+      user: userid,
+      status: { $ne: "pending" },
+    })
       .populate("user")
       .sort({ date: -1 }) // Ensure orders are sorted by creation date
       .skip(page * limit)
@@ -127,22 +130,31 @@ module.exports.placeOrder = async (req, res) => {
       return res.status(400).json({ error: "Address not found" });
     }
 
-    // Check stock availability
+    // Check stock availability for each product variant in the cart
+    const outOfStockProducts = [];
     for (let product of products) {
       const variantIndex = product.product;
       if (!variantIndex || variantIndex >= product.productId.variant.length) {
         return res.status(400).json({ error: "Invalid product variant index" });
       }
       const productVariant = product.productId.variant[variantIndex];
+      const requestedQuantity = product.quantity;
+      console.log(productVariant)
       if (
         !productVariant ||
         !productVariant.stock ||
-        productVariant.stock < product.quantity
+        productVariant.stock < requestedQuantity
       ) {
-        return res
-          .status(400)
-          .json({ error: "Out of stock or invalid variant" });
+        outOfStockProducts.push({
+          productName: product.productId.name,
+          variantDetails: productVariant,
+        });
       }
+    }
+    if (outOfStockProducts.length > 0) {
+      return res
+        .status(400)
+        .json({ error: "Some products are out of stock", outOfStockProducts });
     }
 
     let deliveryCharge = subtotal < 500 ? 80 : 0;
@@ -207,7 +219,11 @@ module.exports.placeOrder = async (req, res) => {
         res.json({ success: true });
         break;
       case "wallet":
-        const walletResult = await handleWalletPayment(userId, finalAmount, orderId);
+        const walletResult = await handleWalletPayment(
+          userId,
+          finalAmount,
+          orderId
+        );
         if (walletResult.success) {
           // Reduce product quantities after successful wallet payment
           for (const product of products) {
@@ -219,14 +235,14 @@ module.exports.placeOrder = async (req, res) => {
               { $inc: { [`variant.${variantIndex}.stock`]: -productQuantity } }
             );
           }
-    
+
           // Clear user's cart after successful order placement
           await Cart.deleteOne({ user: userId });
-    
+
           // Update order status to "placed"
           order.status = "placed";
           await order.save();
-    
+
           res.json({ success: true });
         } else {
           res.json({ success: false, message: "Insufficient wallet balance" });
@@ -263,7 +279,6 @@ const handleCOD = async (orderDetails, userId, products) => {
     );
   }
 };
-
 
 async function handleWalletPayment(userId, finalAmount, orderId) {
   const result = await updateWallet(

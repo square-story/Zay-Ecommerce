@@ -504,6 +504,10 @@
             } else {
               fireSwal(response.message);
             }
+          },
+          error: (xhr, status, error) => {
+            fireSwal("Failed to apply coupon. Please try again later.");
+            console.error("Error applying coupon:", error);
           }
         });
       } else {
@@ -511,6 +515,120 @@
       }
     }
   
+    function placeOrder() {
+      try {
+        const radioBtn = document.querySelector('input[name="address"]:checked');
+        const index = radioBtn ? radioBtn.value : null;
+        if (!index) {
+          return Swal.fire({
+            title: "Select address",
+            text: "Please select address!",
+            icon: "warning",
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+  
+        const payment = document.querySelector('input[name="payment_method"]:checked');
+        const payment_method = payment ? payment.value : null;
+        if (!payment_method) {
+          return Swal.fire({
+            title: "Select payment method",
+            text: "Please select payment method!",
+            icon: "warning",
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+  
+        const total = document.getElementById('place-order').getAttribute('data-subtotal');
+        const isCouponApplied = document.getElementById('place-order').getAttribute('data-couponApplied');
+        const couponCode = isCouponApplied ? document.getElementById('place-order').getAttribute('data-couponCode') : false;
+  
+        const data = {
+          index: index,
+          payment_method: payment_method,
+          subtotal: total,
+          isCoupon: couponCode
+        };
+  
+        $.ajax({
+          type: 'POST',
+          url: '/place-order',
+          data: JSON.stringify(data),
+          contentType: 'application/json',
+          success: (response) => {
+            if (response.success) {
+              if (payment_method === 'razorpay' && response.razorpayOrderId) {
+                const options = {
+                  key: "rzp_test_03lybiPDaK7CJ0",
+                  amount: response.amount * 100, // Amount in paisa
+                  currency: 'INR',
+                  name: 'Zay e-commerce',
+                  description: 'Order Payment',
+                  order_id: response.razorpayOrderId,
+                  handler: function (paymentResponse) {
+                    handlePaymentSuccess(paymentResponse);
+                  },
+                  prefill: {
+                    name: 'Customer Name',
+                    email: 'customer@example.com',
+                    contact: '9999999999',
+                  },
+                  notes: {
+                    address: 'Customer Address',
+                  },
+                  theme: {
+                    color: '#F37254',
+                  },
+                };
+                const rzp1 = new Razorpay(options);
+                rzp1.open();
+              } else {
+                location.href = '/order-success';
+              }
+            } else {
+              fireSwal(response.message || "Failed to place order. Please try again later.");
+            }
+          },
+          error: (xhr, status, error) => {
+            fireSwal("Failed to place order. Please try again later.");
+            console.error("Error placing order:", error);
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  
+    // Function to handle payment success
+    function handlePaymentSuccess(response) {
+      const paymentData = {
+        payment_id: response.razorpay_payment_id,
+        order_id: response.razorpay_order_id,
+        signature: response.razorpay_signature,
+      };
+  
+      $.ajax({
+        type: 'POST',
+        url: '/verify-payment',
+        data: JSON.stringify(paymentData),
+        contentType: 'application/json',
+        success: (response) => {
+          if (response.success) {
+            location.href = '/order-success';
+          } else {
+            fireSwal(response.message || "Payment verification failed. Please contact support.");
+          }
+        },
+        error: (xhr, status, error) => {
+          fireSwal("Failed to verify payment. Please try again later.");
+          console.error("Error verifying payment:", error);
+        }
+      });
+    }
+  
+    // Function to display error message
     function fireSwal(text) {
       Swal.fire({
         position: "center",
@@ -521,141 +639,26 @@
       });
     }
   
-    function placeOrder() {
-        try {
-            const radioBtn = document.querySelector('input[name="address"]:checked');
-            const index = radioBtn ? radioBtn.value : null;
-            if (!index) {
-                return Swal.fire({
-                    title: "Select address",
-                    text: "Please select address!",
-                    icon: "warning",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-
-            const payment = document.querySelector('input[name="payment_method"]:checked');
-            const payment_method = payment ? payment.value : null;
-            if (!payment_method) {
-                return Swal.fire({
-                    title: "Select payment method",
-                    text: "Please select payment method!",
-                    icon: "warning",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-
-            const total = document.getElementById('place-order').getAttribute('data-subtotal');
-            const isCouponApplied = document.getElementById('place-order').getAttribute('data-couponApplied');
-            const couponCode = isCouponApplied ? document.getElementById('place-order').getAttribute('data-couponCode') : false;
-
-            const data = {
-                index: index,
-                payment_method: payment_method,
-                subtotal: total,
-                isCoupon: couponCode
-            };
-
-            $.ajax({
-                type: 'POST',
-                url: '/place-order',
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                success: (response) => {
-                    if (response.success) {
-                        if (payment_method === 'razorpay' && response.razorpayOrderId) {
-                            const options = {
-                                key: "rzp_test_03lybiPDaK7CJ0",
-                                amount: response.amount * 100, // Amount in paisa
-                                currency: 'INR',
-                                name: 'Your Company Name',
-                                description: 'Order Payment',
-                                order_id: response.razorpayOrderId,
-                                handler: function (paymentResponse) {
-                                    handlePaymentSuccess(paymentResponse);
-                                },
-                                prefill: {
-                                    name: 'Customer Name',
-                                    email: 'customer@example.com',
-                                    contact: '9999999999',
-                                },
-                                notes: {
-                                    address: 'Customer Address',
-                                },
-                                theme: {
-                                    color: '#F37254',
-                                },
-                            };
-                            const rzp1 = new Razorpay(options);
-                            rzp1.open();
-                        } else {
-                            location.href = '/order-success';
-                        }
-                    } else {
-                        fireSwal(response.message);
-                    }
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    // Function to handle payment success
-    function handlePaymentSuccess(response) {
-        const paymentData = {
-            payment_id: response.razorpay_payment_id,
-            order_id: response.razorpay_order_id,
-            signature: response.razorpay_signature,
-        };
-
-        $.ajax({
-            type: 'POST',
-            url: '/verify-payment',
-            data: JSON.stringify(paymentData),
-            contentType: 'application/json',
-            success: (response) => {
-                if (response.success) {
-                    location.href = '/order-success';
-                } else {
-                    fireSwal(response.message);
-                }
-            }
-        });
-    }
-
-    // Function to display error message
-    function fireSwal(text) {
-        Swal.fire({
-            position: "center",
-            icon: "error",
-            title: text,
-            showConfirmButton: false,
-            timer: 1500
-        });
-    }
-
     // Event listener to show Razorpay button on selecting Razorpay payment method
     document.querySelectorAll('input[name="payment_method"]').forEach(input => {
-        input.addEventListener('change', function (e) {
-            const paymentMethod = e.target.value;
-            const razorpayButton = document.getElementById('razorpayButton');
-
-            if (paymentMethod === 'razorpay') {
-                razorpayButton.style.display = 'block'; // Show the Razorpay button
-            } else {
-                razorpayButton.style.display = 'none'; // Hide the Razorpay button for other payment methods
-            }
-        });
+      input.addEventListener('change', function (e) {
+        const paymentMethod = e.target.value;
+        const razorpayButton = document.getElementById('razorpayButton');
+  
+        if (paymentMethod === 'razorpay') {
+          razorpayButton.style.display = 'block'; // Show the Razorpay button
+        } else {
+          razorpayButton.style.display = 'none'; // Hide the Razorpay button for other payment methods
+        }
+      });
     });
-
+  
     // Event listener for Razorpay payment button click
     document.getElementById('razorpayButton').addEventListener('click', function (e) {
-        placeOrder();
+      placeOrder();
     });
   </script>
+  
   
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
