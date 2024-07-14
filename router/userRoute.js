@@ -187,7 +187,7 @@ userRoute.post("/place-order", orderController.placeOrder);
 userRoute.get("/order-success", orderController.loadOrderSucces);
 
 userRoute.post("/search", shopController.filter);
-userRoute.post("/order-cancel", orderController.orderCancelation);
+userRoute.post("/order-cancel", orderController.orderCancellation);
 
 userRoute.get("/single-orderDetails", orderController.getOrderDetails);
 

@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const Wallet = require("../models/walletModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const verifyOtp = require("../models/otpVerification");
@@ -105,11 +106,11 @@ module.exports.insertUser = async (req, res) => {
         email: req.body.email,
         mobile: req.body.phone,
         password: passHash,
-        isAdmin: false,
-        isBlocked: false,
         verified: false,
       });
-
+      const wallet = new Wallet({ user: user._id });
+      user.wallet = wallet._id;
+      await wallet.save();
       const save = await user.save();
       // console.log(user.email);
       if (save) {

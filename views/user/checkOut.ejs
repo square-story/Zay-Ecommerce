@@ -400,26 +400,29 @@
                     
                         <div style="padding: 30px; background-color: #f3f2ee;">
                             <table class="table" style="background-color: #f3f2ee;">
-                                <tbody>
-                                    <tr>
-                                        <td style="background-color: #f3f2ee;">
-                                            <div>
-                                                <input type="radio" id="cod" value="COD" name="payment_method" checked>
-                                                <label for="cod">Cash on Delivery</label>
-                                            </div>
-                                            <div>
-                                                <input type="radio" id="wallet" value="wallet" name="payment_method">
-                                                <label for="wallet">Wallet</label>
-                                            </div>
-                                            <div>
-                                                <input type="radio" id="razorpay" value="razorpay" name="payment_method">
-                                                <label for="razorpay">Razorpay</label>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                              <tbody>
+                                <tr>
+                                  <td style="background-color: #f3f2ee;">
+                                    <div>
+                                      <input type="radio" id="cod" value="COD" name="payment_method" checked>
+                                      <label for="cod">Cash on Delivery</label>
+                                    </div>
+                                    <div>
+                                      <input type="radio" id="wallet" value="wallet" name="payment_method">
+                                      <label for="wallet">Wallet</label>
+                                    </div>
+                                    <div>
+                                      <input type="radio" id="razorpay" value="razorpay" name="payment_method">
+                                      <label for="razorpay">Razorpay</label>
+                                    </div>
+                                    <div>
+                                        <h2>Wallet Balance: ₹<%= walletBalance %></h2>
+                                      </div>
+                                  </td>
+                                </tr>
+                              </tbody>
                             </table>
-                        </div>
+                          </div>
                     </div>
                     
                     <div class="sticky-element" style="max-width: 34%;">

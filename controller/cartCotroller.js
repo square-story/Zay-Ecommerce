@@ -1,6 +1,7 @@
 const Product = require("../models/product");
 const Cart = require("../models/cartModel");
 const Address = require("../models/address");
+const Wallet = require("../models/walletModel")
 
 module.exports.loadCart = async (req, res) => {
     try {
@@ -228,6 +229,8 @@ module.exports.proceedToCheckout = async (req, res) => {
     const userId = req.session.user?._id;
     const address = await Address.findOne({ user: userId });
     const cart = await Cart.findOne({ user: userId }).populate("products.productId");
+    const wallet = await Wallet.findOne({ user: userId });
+    const walletBalance = wallet ? wallet.balance : 0;
 
     // Calculate subtotal
     const subtotal = cart.products.reduce((acc, product) => acc + product.totalPrice, 0);
@@ -243,7 +246,7 @@ module.exports.proceedToCheckout = async (req, res) => {
     // Calculate final amount
     const finalAmount = subtotal + deliveryCharge - discount;
 
-    res.render("checkOut", { address: address, products: cart.products, subtotal, deliveryCharge, discount, finalAmount });
+    res.render("checkOut", { address: address, products: cart.products, subtotal, deliveryCharge, discount, finalAmount,walletBalance });
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");

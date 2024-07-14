@@ -23,15 +23,21 @@ const userSchema = mongoose.Schema({
 
   isBlocked: {
     type: Boolean,
+    default: false,
   },
 
   verified: {
     type: Boolean,
+    default: false,
   },
 
   created: {
     type: Date,
     default: Date.now,
+  },
+  wallet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wallet',
   },
 });
 
