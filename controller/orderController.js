@@ -404,7 +404,8 @@ module.exports.productReturn = async (req, res) => {
     const order = await Order.findById(orderId);
     if (
       order.paymentMethod === "wallet" ||
-      order.paymentMethod === "razorpay"
+      order.paymentMethod === "razorpay"||
+      order.paymentMethod ==="COD"
     ) {
       await updateWallet(
         userId,
