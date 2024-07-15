@@ -509,7 +509,9 @@ module.exports.loadMyAccount = async (req, res) => {
   try {
     const userId = req.session.user?._id;
     const userDetails = await User.findById({ _id: userId });
-    res.render("myAccount", { userDetails });
+    const wallet = await Wallet.findOne({ user: userId });
+    const walletBalance = wallet ? wallet.balance : 0;
+    res.render("myAccount", { userDetails , walletBalance});
   } catch (error) {
     console.log(error);
   }
@@ -521,11 +523,13 @@ module.exports.loadManageAddress = async (req, res) => {
     if (!userId) {
       // res.status(500).render('opps');
     }
+    const wallet = await Wallet.findOne({ user: userId });
+    const walletBalance = wallet ? wallet.balance : 0;
     const addresses = await Address.findOne({ user: userId });
     if (!addresses) {
       // res.status(404).render('oops');
     }
-    res.render("manageAddress", { address: addresses.address });
+    res.render("manageAddress", { address: addresses.address ,walletBalance});
   } catch (error) {
     console.log(error);
     // res.status(404).render('oops');

@@ -22,7 +22,8 @@ module.exports.loadMyOrder = async (req, res) => {
     const page = parseInt(req.query.page) || 0;
     const limit = 4; // Set the limit of orders per page
     const userid = req.session.user?._id;
-
+    const wallet = await Wallet.findOne({ user: userid });
+    const walletBalance = wallet ? wallet.balance : 0;
     if (!userid) {
       return res.redirect("/login"); // Redirect to login if the user is not logged in
     }
@@ -42,6 +43,7 @@ module.exports.loadMyOrder = async (req, res) => {
       page,
       limit, // Pass the limit to the template
       orderLength,
+      walletBalance
     });
   } catch (error) {
     console.error(error);

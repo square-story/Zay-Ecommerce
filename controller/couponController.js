@@ -1,5 +1,6 @@
 const Cart = require("../models/cartModel");
 const Coupon = require("../models/couponModel");
+const Wallet =require("../models/walletModel")
 
 module.exports.loadCoupon = async (req, res) => {
   try {
@@ -142,8 +143,14 @@ module.exports.checkCoupon = async (req, res) => {
 
 module.exports.loadMyCoupon = async (req, res) => {
   try {
+    const userId = req.session.user?._id;
+    if (!userId) {
+      res.redirect('/')
+    }
+    const wallet = await Wallet.findOne({ user: userId });
+    const walletBalance = wallet ? wallet.balance : 0;
     const coupon = await Coupon.find();
-    res.render("myCoupon", { coupon: coupon });
+    res.render("myCoupon", { coupon: coupon , walletBalance });
   } catch (error) {
     console.log(error);
   }

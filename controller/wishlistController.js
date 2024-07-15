@@ -1,8 +1,11 @@
 const Wishlist = require("../models/wishlistModel");
+const Wallet =require("../models/walletModel")
 
 module.exports.loadWhislist = async (req, res) => {
   try {
     const userId = req.session.user?._id;
+    const wallet = await Wallet.findOne({ user: userId });
+    const walletBalance = wallet ? wallet.balance : 0;
     if (!userId) {
       return res.status(500).send("user not found");
     }
@@ -17,7 +20,7 @@ module.exports.loadWhislist = async (req, res) => {
     }
 
     const wishlistProducts = products[0].products; // Access only if products exists
-    res.render("wishlist", { wishlistProducts });
+    res.render("wishlist", { wishlistProducts,walletBalance });
   } catch (error) {
     console.log(error);
   }
