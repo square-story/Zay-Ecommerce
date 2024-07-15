@@ -3,15 +3,85 @@ const Catagery = require("../models/cetagory");
 const bcrypt = require("bcrypt");
 const product = require("../models/product");
 const Order = require("../models/order");
+const Wallet = require("../models/walletModel");
+const adminHelpers = require("../helpers/adminHelper");
 require("dotenv").config();
 
 
 // load admin home page
 module.exports.loadAdmin = async (req, res) => {
   try {
-    res.render("adminDashboard");
+    const currentDate = new Date();
+    const startDate = new Date(currentDate - 30 * 24 * 60 * 60 * 1000);
+
+    // Fetch all users
+    const users = await User.find();
+    const userCount = users.length;
+
+    // Fetch orders placed in the last 30 days
+    const orders = await Order.find({
+      date: { $gte: startDate, $lt: currentDate },
+    });
+
+    // Fetch all orders
+    const allOrders = await Order.find();
+
+    // Calculate various metrics
+    const orderCount = orders.length;
+    const monthlyEarning = orders.reduce((acc, order) => 
+      order.status === 'placed' ? acc + order.totalAmount : acc,
+      0
+    );
+    const revenue = allOrders.reduce((acc, order) => acc + order.totalAmount, 0);
+    const productCount = orders.reduce((acc, order) => acc + order.products.length, 0);
+
+    // Aggregate monthly ordered count
+    const monthlyOrderedCount = await Order.aggregate([
+      {
+        $match: {
+          status: 'placed',
+          date: { $gte: startDate, $lt: currentDate },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$date' },
+          totalAmount: { $sum: '$totalAmount' },
+        },
+      },
+    ]);
+
+    // Prepare monthly data array
+    const monthlyData = Array.from({ length: 12 }).fill(0);
+    monthlyOrderedCount.forEach(item => {
+      const monthIndex = item._id - 1;
+      if (monthIndex >= 0 && monthIndex < 12) {
+        monthlyData[monthIndex] = item.totalAmount;
+      }
+    });
+
+    // Fetch best selling name, category, and brand
+    const bestSellingName = await adminHelpers.bestSelling('_id');
+    const bestSellingCategory = await adminHelpers.bestSelling('cetagory');
+    const bestSellingBrand = await adminHelpers.bestSelling('brand');
+    const topTenCategories = await adminHelpers.mapCategory(bestSellingCategory);
+
+    // Render admin dashboard with data
+    res.render('adminDashboard', {
+      monthlyData,
+      userCount,
+      monthlyEarning,
+      revenue,
+      orderCount,
+      productCount,
+      name: bestSellingName,
+      brand: bestSellingBrand,
+      topTenCategory: topTenCategories,
+    });
   } catch (error) {
     console.log(error);
+    // Handle errors appropriately, maybe render an error page
+    res.status(500).send('Internal Server Error');
   }
 };
 
@@ -436,6 +506,29 @@ module.exports.returns = async (req, res) => {
       );
       res.json({ success: true });
     }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.loadSalesReport = async (req, res) => {
+  try {
+    let query = "";
+    if (req.query.startDate) {
+      const { startDate, endDate } = req.query;
+      console.log(req.query);
+      const sDate = new Date(startDate);
+      const eDate = new Date(endDate);
+      query = {
+        date: { $gte: sDate, $lt: eDate },
+      };
+    } else {
+      query = {};
+    }
+    console.log(query);
+    const report = await Order.find(query).populate("user");
+    console.log(report);
+    res.render("salesreport", { report });
   } catch (error) {
     console.log(error);
   }

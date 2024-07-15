@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Zay fashion</title>
+    <title>Zay Dashboard</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,11 +11,8 @@
     <meta property="og:url" content="" />
     <meta property="og:image" content="" />
     <!-- Favicon -->
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      href="/assets/imgs/theme/favicon.svg"
-    />
+    <link rel="apple-touch-icon" href="/assets2/img/apple-icon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/assets2/img/favicon.ico">
     <!-- Template CSS -->
     <link href="/assets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
   </head>
@@ -47,8 +44,7 @@
                 ></span>
                 <div class="text">
                   <h6 class="mb-1 card-title">Revenue</h6>
-                  <span>₹revenue</span>
-                  <span class="text-sm"> Shipping fees are not included </span>
+                  <span>₹<%= revenue%></span>
                 </div>
               </article>
             </div>
@@ -61,8 +57,7 @@
                 ></span>
                 <div class="text">
                   <h6 class="mb-1 card-title">Orders</h6>
-                  <span> order count </span>
-                  <span class="text-sm"> Excluding orders in transit </span>
+                  <span> <%= orderCount%> </span>
                 </div>
               </article>
             </div>
@@ -75,7 +70,7 @@
                 ></span>
                 <div class="text">
                   <h6 class="mb-1 card-title">Products</h6>
-                  <span> product </span>
+                  <span> <%= productCount%> </span>
                 </div>
               </article>
             </div>
@@ -88,7 +83,7 @@
                 ></span>
                 <div class="text">
                   <h6 class="mb-1 card-title">Monthly Earning</h6>
-                  <span>₹montly Earning</span>
+                  <span>₹<%= monthlyEarning%></span>
                 </div>
               </article>
             </div>
@@ -98,7 +93,7 @@
         <div
           class="row"
           id="gragh"
-          data-monthlyData="montly salary"
+          data-monthlyData="<%= JSON.stringify(monthlyData) %>"
         >
           <div class="container">
             <div class="filters">
@@ -128,21 +123,6 @@
                 style="margin: 80px; background-color: white"
               ></canvas>
             </div>
-          </div>
-        </div>
-      </section>
-      <section>
-        <div class="container mt-5">
-          <h1 class="mb-4">Top 10 Best Selling Products</h1>
-
-          
-          <h1 class="mb-4">Top 10 Best Selling Brands</h1>
-
-          
-          <h1 class="mb-4">Top 10 Best Selling Cetagory</h1>
-
-         
-            <!-- Repeat the above card structure for other products -->
           </div>
         </div>
       </section>

@@ -24,6 +24,8 @@ adminRoute.set("views", "./views/admin");
 // load home page
 adminRoute.get("/", adminAuth.islogin, adminController.loadAdmin);
 
+adminRoute.post("/order-filter", adminController.filterDashboard);
+
 // load user management
 
 adminRoute.get("/user", adminAuth.islogin, adminController.loadUser);
@@ -146,5 +148,13 @@ adminRoute.post("/create-coupon", couponController.createCoupon);
 adminRoute.put("/edit-coupon", couponController.createCoupon);
 
 adminRoute.delete("/deleteCoupon",couponController.deleteCoupon)
+
+adminRoute.post("/order-filter", adminController.filterDashboard);
+
+adminRoute.get(
+  "/sales-report",
+  adminAuth.islogin,
+  adminController.loadSalesReport
+);
 
 module.exports = adminRoute;
