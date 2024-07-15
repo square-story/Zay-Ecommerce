@@ -8,7 +8,7 @@ module.exports.loadShop = async (req, res) => {
     const page = parseInt(req.query.page) || 1; // Default to page 1
     const limit = 6; // Number of products per page
     const skip = (page - 1) * limit;
-
+    const searchQuery = req.query.search || ''; // Extract search query from request query params
     const categoryFilter = req.query.category || null;
     const brandFilter = req.query.brand || null;
     const priceRange = req.query.price ? req.query.price.split('-').map(Number) : null;
@@ -49,6 +49,9 @@ module.exports.loadShop = async (req, res) => {
         $lte: priceRange[1],
       };
     }
+    if (searchQuery) {
+      filter.name = new RegExp(searchQuery, 'i'); // Case-insensitive search by product name
+    }
 
     const categories = await Catagery.find({ isListed: true });
     const products = await Product.find(filter)
@@ -73,6 +76,7 @@ module.exports.loadShop = async (req, res) => {
       categoryFilter,
       brandFilter,
       priceRange,
+      searchQuery, // Pass searchQuery to template for rendering
     });
   } catch (error) {
     console.error('Error loading shop:', error);
