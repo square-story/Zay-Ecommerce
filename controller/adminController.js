@@ -513,23 +513,35 @@ module.exports.returns = async (req, res) => {
 
 module.exports.loadSalesReport = async (req, res) => {
   try {
-    let query = "";
+    let query = {};
+    let currentPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemsPerPage = 20; // Define items per page
+
     if (req.query.startDate) {
       const { startDate, endDate } = req.query;
-      console.log(req.query);
       const sDate = new Date(startDate);
       const eDate = new Date(endDate);
-      query = {
-        date: { $gte: sDate, $lt: eDate },
-      };
-    } else {
-      query = {};
+      query = { date: { $gte: sDate, $lt: eDate } };
     }
-    console.log(query);
-    const report = await Order.find(query).populate("user");
-    console.log(report);
-    res.render("salesreport", { report });
+
+    const totalOrders = await Order.countDocuments(query);
+    const totalPages = Math.ceil(totalOrders / itemsPerPage);
+
+    const report = await Order.find(query)
+      .populate("user")
+      .skip((currentPage - 1) * itemsPerPage)
+      .limit(itemsPerPage);
+
+    res.render("salesreport", {
+      report,
+      currentPage,
+      totalPages,
+      itemsPerPage,
+      startDate: req.query.startDate || "",
+      endDate: req.query.endDate || "",
+    });
   } catch (error) {
     console.log(error);
   }
 };
+

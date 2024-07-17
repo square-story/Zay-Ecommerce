@@ -75,6 +75,7 @@
                         <div class="breadcrumb__links">
                             <a href="/">Home</a>
                             <a href="/shop">Shop</a>
+                            <a href="/cart">Shopping Cart</a>
                             <span>Check Out</span>
                         </div>
                     </div>
@@ -172,18 +173,7 @@
     <section class="checkout spad">
         <div class="container">
             <div class="checkout__form">
-                <!-- <div>
-                    <button href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo"
-                        class="btn btn-dark"><i class="material-icons md-plus"></i>Add address</button>
-                </div> -->
-
-
-                <!-- <form action="/place-order" method="post"> -->
                 <div class="row justify-content-end">
-
-
-
-
                     <div class="col-lg-8 col-md-6">
                         <div class="accordion" id="accordionPanelsStayOpenExample">
                             <div class="accordion-item">
@@ -299,14 +289,6 @@
                                         <div class="col-12">
                                             <div class="shopping__cart__table" id="Reload">
                                                 <table>
-                                                    <thead>
-                                                        <tr>
-                                                            <th>image</th>
-                                                          <th></th>
-                                                            <th>Quantity</th>
-                                                            <th>Total</th>
-                                                        </tr>
-                                                    </thead>
                                                     <tbody>
                         
                                                         
@@ -330,14 +312,6 @@
                                                                     <%const size = match.find((size) => (size[0] === item.size)) %>
                                                                     <%console.log(size)%>
                                                                     <span>Size: <%= size[1]%></span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="quantity__item">
-                                                                <div class="quantity">
-                                                                    <div class="pro-qty-2" id="newID">
-                                                                        
-                                                                       <td><%= item.quantity%></td>
-                                                                    </div>
                                                                 </div>
                                                             </td>
                                                             <td class="cart__price">₹<%= item.totalPrice%></td>
@@ -365,73 +339,92 @@
                     </div>
 
                     <div class="col-lg-4 col-md-6">
-                        <div class="cart__discount" style="margin-bottom: 30px !important;">
-                            <h6>Discount codes</h6>
-                            <div class="d-flex">
-                                <input type="text" class="form-control" id="applyCoupon" placeholder="Coupon code">
-                                <button type="button" class="btn btn-dark" onclick="return applyCoupon();">Apply</button>
-                            </div>
-                        </div>
-                    
-                        <div class="checkout__order" style="padding-bottom: 0 !important;">
-                            <h4 class="order__title" style="border-bottom: none;">Your order</h4>
-                    
-                            <% let subtotal=0, totalItem=0 %>
-                            <% products.forEach((product, index) => { %>
-                                <% subtotal += product.totalPrice %>
-                                <% totalItem += product.quantity %>
-                            <% }) %>
-                    
-                            <ul class="checkout__total__all" style="margin-bottom: 0 !important;">
-                                <li>Price (<%= products.length %> <%= products.length > 1 ? "items" : "item" %>)<span style="color: #111111;">₹<%= subtotal %></span></li>
-                            
-                                <% if (subtotal > 1000) { %>
-                                    <li>Delivery Charges<span style="color: green;"><del style="color: black;">₹80</del> Free</span></li>
-                                <% } else { %>
-                                    <li>Delivery Charges<span style="color: black;">₹<%= deliveryCharge %></span></li>
-                                <% } %>
-                            
-                                <li>Coupon Discount<span style="color: #ff0000;" id="discountAmount">₹<%= discount %></span></li>
-                            
-                                <li style="font-weight: 600;" id="subtotal">Amount payable<span id="discountedAmount" style="color: #111111;">₹<%= finalAmount %></span></li>
-                            </ul>
-                                           
-                        </div>
-                    
-                        <div style="padding: 30px; background-color: #f3f2ee;">
-                            <table class="table" style="background-color: #f3f2ee;">
-                              <tbody>
-                                <tr>
-                                  <td style="background-color: #f3f2ee;">
-                                    <div>
-                                      <input type="radio" id="cod" value="COD" name="payment_method" checked>
-                                      <label for="cod">Cash on Delivery</label>
-                                    </div>
-                                    <div>
-                                      <input type="radio" id="wallet" value="wallet" name="payment_method">
-                                      <label for="wallet">Wallet</label>
-                                    </div>
-                                    <div>
-                                      <input type="radio" id="razorpay" value="razorpay" name="payment_method">
-                                      <label for="razorpay">Razorpay</label>
-                                    </div>
-                                    <div>
-                                        <h2>Wallet Balance: ₹<%= walletBalance %></h2>
+                      <!-- Compact coupon display -->
+                    <!-- Coupon section -->
+                    <div class="card mb-4">
+                      <div class="card-body">
+                          <h5 class="card-title mb-3">Available Coupons</h5>
+                          <div class="coupon-list" style="max-height: 150px; overflow-y: auto;">
+                              <% if (coupon && coupon.length > 0) { %>
+                                  <% coupon.forEach(coup => { %>
+                                      <div class="coupon-item d-flex justify-content-between align-items-center p-2 mb-2" 
+                                           style="border: 1px solid #e0e0e0; border-radius: 5px; transition: all 0.3s ease;">
+                                          <div>
+                                              <strong><%= coup.name %></strong>
+                                              <small class="d-block text-muted">ExpiresDate : <%= coup.expiresDate %></small>
+                                              <small class="d-block text-muted"><%= coup.discountType === 'percentage' ? coup.discountAmount + '%' : '₹' + coup.discountAmount %> off</small>
+                                          </div>
+                                          <button class="btn btn-sm btn-outline-success copy-btn" data-coupon="<%= coup.couponCode %>">Copy</button>
                                       </div>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
+                                  <% }) %>
+                              <% } else { %>
+                                  <p class="text-muted">No coupons available at the moment.</p>
+                              <% } %>
                           </div>
-                    </div>
+                          <div class="mt-3">
+                              <input type="text" class="form-control" id="applyCoupon" placeholder="Enter coupon code">
+                              <button type="button" class="btn btn-success w-100 mt-2" onclick="return applyCoupon();">Apply Coupon</button>
+                          </div>
+                      </div>
+                  </div>
+
+                    <!-- Order summary -->
+                    <div class="card mb-4">
+                      <div class="card-body">
+                          <h5 class="card-title mb-3">Order Summary</h5>
+                          <ul class="list-unstyled">
+                              <li class="d-flex justify-content-between mb-2">
+                                  <span>Price (<%= products.length %> <%= products.length > 1 ? "items" : "item" %>)</span>
+                                  <span>₹<%= subtotal %></span>
+                              </li>
+                              <li class="d-flex justify-content-between mb-2">
+                                  <span>Delivery Charges</span>
+                                  <% if (subtotal > 1000) { %>
+                                      <span class="text-success"><del class="text-muted">₹80</del> Free</span>
+                                  <% } else { %>
+                                      <span>₹<%= deliveryCharge %></span>
+                                  <% } %>
+                              </li>
+                              <li class="d-flex justify-content-between mb-2">
+                                  <span>Coupon Discount</span>
+                                  <span class="text-danger" id="discountAmount">₹<%= discount %></span>
+                              </li>
+                              <li class="d-flex justify-content-between font-weight-bold mt-3 pt-3 border-top">
+                                  <span>Amount Payable</span>
+                                  <span id="discountedAmount">₹<%= finalAmount %></span>
+                              </li>
+                          </ul>
+                      </div>
+                  </div>
                     
-                    <div class="sticky-element" style="max-width: 34%;">
-                        <div class="d-grid gap-2">
-                            <button class="btn" id="place-order" data-subtotal="<%= subtotal %>" data-productPrice=""
-                                onclick="placeOrder()"
-                                style="color: #f3f2ee; padding: 1rem; background-color: #69bb7e;" type="button">PLACE ORDER</button>
+                  <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Payment Method</h5>
+                        <div class="custom-control custom-radio mb-2">
+                            <input type="radio" id="cod" name="payment_method" class="custom-control-input" value="COD" checked>
+                            <label class="custom-control-label" for="cod">Cash on Delivery</label>
+                        </div>
+                        <div class="custom-control custom-radio mb-2">
+                            <input type="radio" id="wallet" name="payment_method" class="custom-control-input" value="wallet">
+                            <label class="custom-control-label" for="wallet">Wallet</label>
+                        </div>
+                        <div class="custom-control custom-radio mb-3">
+                            <input type="radio" id="razorpay" name="payment_method" class="custom-control-input" value="razorpay">
+                            <label class="custom-control-label" for="razorpay">Razorpay</label>
+                        </div>
+                        <div class="alert alert-info">
+                            Wallet Balance: ₹<%= walletBalance %>
                         </div>
                     </div>
+                </div>
+                    </div>
+                    
+                    <!-- Place order button -->
+                    <div class="d-grid gap-2">
+                      <button class="btn btn-success btn-lg" id="place-order" data-subtotal="<%= subtotal %>" onclick="placeOrder()">
+                          PLACE ORDER
+                      </button>
+                  </div>
                 </div>
                 </form>
             </div>
@@ -552,6 +545,10 @@
           isCoupon: couponCode
         };
   
+        if(payment_method == 'COD' && total >= 1000) {
+          return fireSwal('Amount exceeds the maximum limit of 1000. Choose another payment option');            
+        };
+  
         $.ajax({
           type: 'POST',
           url: '/place-order',
@@ -569,6 +566,11 @@
                   order_id: response.razorpayOrderId,
                   handler: function (paymentResponse) {
                     handlePaymentSuccess(paymentResponse);
+                  },
+                  modal: {
+                    ondismiss: function() {
+                      handlePaymentFailure({ error: { reason: "User closed payment window" } });
+                    }
                   },
                   prefill: {
                     name: 'Customer Name',
@@ -628,6 +630,33 @@
       });
     }
   
+    // Function to handle payment failure
+    function handlePaymentFailure(response) {
+      const paymentData = {
+        payment_id: response.razorpay_payment_id,
+        order_id: response.razorpay_order_id,
+        signature: response.razorpay_signature,
+        status: "failed",
+        reason: response.error.reason || "Payment failed"
+      };
+  
+      $.ajax({
+        type: 'POST',
+        url: '/verify-payment',
+        data: JSON.stringify(paymentData),
+        contentType: 'application/json',
+        success: (response) => {
+          if (!response.success) {
+            fireSwal(response.message || "Payment verification failed. Please contact support.");
+          }
+        },
+        error: (xhr, status, error) => {
+          fireSwal("Failed to verify payment. Please try again later.");
+          console.error("Error verifying payment:", error);
+        }
+      });
+    }
+  
     // Function to display error message
     function fireSwal(text) {
       Swal.fire({
@@ -658,6 +687,26 @@
       placeOrder();
     });
   </script>
+  
+  <script>
+    // JavaScript for copy functionality
+    document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const couponCode = this.getAttribute('data-coupon');
+            navigator.clipboard.writeText(couponCode).then(() => {
+                // Change button text temporarily
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+                
+                // Automatically fill the coupon input
+                document.getElementById('applyCoupon').value = couponCode;
+            });
+        });
+    });
+</script>
   
   
 

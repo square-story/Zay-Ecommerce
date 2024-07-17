@@ -4,6 +4,7 @@ const adminController = require("../controller/adminController");
 const productController = require("../controller/product");
 const cetagoryContorller = require("../controller/cetagoryController");
 const couponController = require("../controller/couponController");
+const offerController = require("../controller/offerController")
 const nocache = require("nocache");
 
 adminRoute.use(nocache());

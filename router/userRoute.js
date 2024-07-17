@@ -184,6 +184,9 @@ userRoute.post("/add-Address", orderController.addAddress);
 
 userRoute.post("/place-order", orderController.placeOrder);
 
+userRoute.post("/payment-failure", orderController.handlePaymentFailure);
+
+
 userRoute.get("/order-success", orderController.loadOrderSucces);
 
 userRoute.post("/search", shopController.filter);

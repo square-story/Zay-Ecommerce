@@ -287,13 +287,24 @@
                       >
                         Remove
                       </button>
-                      <button
-                        type="button"
-                        onclick="addToCart('<%= item.productId._id%>', '<%= item.index%>')"
-                        class="btn btn-dark"
-                      >
-                        Add to cart
-                      </button>
+                      <% if (item.productId.variant[item.index].stock > 0) { %>
+                        <button
+                          type="button"
+                          onclick="addToCart('<%= item.productId._id %>', '<%= item.index %>')"
+                          class="btn btn-dark"
+                        >
+                          Add to cart
+                        </button>
+                      <% } else { %>
+                        <button
+                          type="button"
+                          class="btn btn-dark"
+                          disabled
+                        >
+                          Out of stock
+                        </button>
+                      <% } %>
+                      
                     </td>
                   </tr>
 

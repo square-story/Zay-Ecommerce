@@ -31,7 +31,7 @@ module.exports.loadMyOrder = async (req, res) => {
     const orderLength = await Order.countDocuments({ user: userid });
     const orders = await Order.find({
       user: userid,
-      status: { $ne: "pending" },
+      status: { $nin: ["pending", "failed"] },
     })
       .populate("user")
       .sort({ date: -1 }) // Ensure orders are sorted by creation date
@@ -43,7 +43,7 @@ module.exports.loadMyOrder = async (req, res) => {
       page,
       limit, // Pass the limit to the template
       orderLength,
-      walletBalance
+      walletBalance,
     });
   } catch (error) {
     console.error(error);
@@ -141,7 +141,7 @@ module.exports.placeOrder = async (req, res) => {
       }
       const productVariant = product.productId.variant[variantIndex];
       const requestedQuantity = product.quantity;
-      console.log(productVariant)
+      console.log(productVariant);
       if (
         !productVariant ||
         !productVariant.stock ||
@@ -207,9 +207,10 @@ module.exports.placeOrder = async (req, res) => {
       totalAmount: finalAmount,
       date: new Date(),
       expected_delivery: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-      status: payment_method === "COD" ? "placed" : "pending",
+      status: payment_method === "COD" ? "placed" : "pending", // Changed from "pending"
       paymentMethod: payment_method,
       razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
+      paymentStatus: payment_method === "COD" ? "completed" : "pending", // Added paymentStatus
     });
 
     const orderDetails = await order.save();
@@ -268,6 +269,37 @@ module.exports.placeOrder = async (req, res) => {
   }
 };
 
+
+
+// Handle payment failure
+module.exports.handlePaymentFailure = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID not provided" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(400).json({ error: "Order not found" });
+    }
+
+    if (order.status !== 'pending') {
+      return res.status(400).json({ error: "Order is not in pending state" });
+    }
+
+    // Update order status to "failed"
+    order.status = 'failed';
+    await order.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error handling payment failure:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 // Handle COD (Cash on Delivery) payment
 const handleCOD = async (orderDetails, userId, products) => {
   await Cart.deleteOne({ user: userId });
@@ -294,10 +326,18 @@ async function handleWalletPayment(userId, finalAmount, orderId) {
 
 module.exports.verifyPayment = async (req, res) => {
   try {
-    const { payment_id, order_id, signature } = req.body;
+    const { payment_id, order_id, signature, status, reason } = req.body;
     const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
     hmac.update(order_id + "|" + payment_id);
     const generatedSignature = hmac.digest("hex");
+
+    if (status === "failed") {
+      // Update order status to "failed"
+      await Order.updateOne({ razorpayOrderId: order_id }, { status: "failed", failureReason: reason });
+      
+      // Send response
+      return res.json({ success: false, message: "Payment failed. Please try again." });
+    }
 
     if (generatedSignature === signature) {
       const order = await Order.findOne({ razorpayOrderId: order_id });

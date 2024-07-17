@@ -17,6 +17,9 @@
   <div class="alert alert-danger" role="alert"><%= messages.found %></div>
 
   <%}%>
+  <% if (message) { %>
+    <div class="alert alert-danger" role="alert"><%= message %></div>
+  <% } %>
 
   <!-- <h2>Log in</h2> -->
 

@@ -132,10 +132,10 @@
                 <table class="table table-hover">
                   <thead>
                     <tr>
-                      <th>Index</th>
-                      <th scope="col">Name</th>
-                      <th scope="col">Email</th>
+                      <th>Order ID</th>
+                      <th scope="col">Customer</th>
                       <th scope="col">Total</th>
+                      <th scope="col">Products</th>
                       <th scope="col">Status</th>
                       <th scope="col">Date</th>
                       <th scope="col">Action</th>
@@ -143,28 +143,34 @@
                   </thead>
                   <tbody>
                     <% if (orders && orders.length > 0) { %>
-                      <% orders.forEach((item, i) => { %>
+                      <% orders.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((order) => { %>
                         <tr>
-                          <td style="padding: 24px"><%= i + 1 %></td>
-                          <td style="padding: 24px"><b><%= item.user.name %></b></td>
-                          <td style="padding: 24px"><%= item.user.email %></td>
-                          <td style="padding: 24px">₹<%= item.totalAmount %></td>
-                          <td style="padding: 24px">
-                            <span class="badge rounded-pill alert-warning"><%= item.status %></span>
+                          <td style="padding: 16px"><%= order._id.toString().slice(-6).toUpperCase() %></td>
+                          <td style="padding: 16px">
+                            <b><%= order.user.name %></b><br>
+                            <small class="text-muted"><%= order.user.email %></small>
                           </td>
-                          <% const formattedDate = new Date(item.date).toLocaleString('en-US', {
-                            weekday: 'short',
+                          <td style="padding: 16px">₹<%= order.totalAmount.toFixed(2) %></td>
+                          <td style="padding: 16px">
+                            <%= order.products.length %> item<%= order.products.length !== 1 ? 's' : '' %>
+                          </td>
+                          <td style="padding: 16px">
+                            <% const latestStatus = order.products[order.products.length - 1].status; %>
+                            <% const greenStatuses = ['placed', 'outfordelivery', 'shipped', 'delivered']; %>
+                            <% const badgeClass = greenStatuses.includes(latestStatus.toLowerCase()) ? 'bg-success' : 'bg-danger'; %>
+                            <span class="badge <%= badgeClass %>"><%= latestStatus.toUpperCase() %></span>
+                          </td>
+                          <% const formattedDate = new Date(order.date).toLocaleString('en-US', {
                             month: 'short',
                             day: 'numeric',
                             year: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
-                            second: 'numeric',
                             hour12: true
                           }); %>
-                          <td style="padding: 24px"><%= formattedDate %></td>
-                          <td style="padding: 24px">
-                            <a href="/single-orderDetails?orderId=<%= item._id %>">More details</a>
+                          <td style="padding: 16px"><%= formattedDate %></td>
+                          <td style="padding: 16px">
+                            <a href="/single-orderDetails?orderId=<%= order._id %>" class="btn btn-sm btn-primary">View Details</a>
                           </td>
                         </tr>
                       <% }) %>

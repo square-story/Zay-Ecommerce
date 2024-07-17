@@ -1,0 +1,40 @@
+<!-- Modal for Create Offer -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Create A Offer</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="/admin/create-coupon" method="post">
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" id="name" name="name" placeholder="Enter coupon name" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label for="adate" class="form-label">Activation date</label>
+              <input type="text" id="adate" name="adate" placeholder="dd-mm-yyyy" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label for="edate" class="form-label">Expire date</label>
+              <input type="text" id="edate" name="edate" placeholder="dd-mm-yyyy" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label for="limit" class="form-label">Limit of use</label>
+              <input type="text" id="limit" name="limit" placeholder="Enter usage limit" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label for="damount" class="form-label">Discount amount</label>
+              <input type="text" id="damount" name="damount" placeholder="Enter discount amount" class="form-control">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  

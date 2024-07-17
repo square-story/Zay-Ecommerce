@@ -51,17 +51,17 @@
       <div class="col-md-12">
         <div class="invoice-body" style="background-color: rgb(231, 224, 224);">
           <h4>Bill To:</h4>
-          <p>Mens fashion<br>
+          <p>Zay fashion<br>
             <br>
-              calicut, kerala, 54685854<br>
-              Email: menfashion123@gmail.com<br>
-              Phone: (123) 456-7890
+              calicut, kerala, 673001<br>
+              Email: Zay e-commerce<br>
+              Phone: +91-90488-34867
           </p>
         
           <hr>
         
           <h4>Invoice Details:</h4>
-          <p>Invoice Number: 123456<br>
+          <p>Invoice Number: <%=order._id%><br>
             <%const invoiceDate = new Date()%>
             <%const formattedDate = invoiceDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long',day: 'numeric'})%>
               Invoice Date:<%= formattedDate%>
@@ -99,7 +99,7 @@
       </div>
     </div>
     <div class="download-button text-start">
-      <button type="button" class="btn btn-primary" onclick="downloadPdf()">Download</button>
+      <button type="button" class="btn btn-primary mb-3" onclick="downloadPdf()">Download</button>
     </div>
   </div>
 

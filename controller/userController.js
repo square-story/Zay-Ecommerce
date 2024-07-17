@@ -26,7 +26,8 @@ module.exports.loadHome = async (req, res) => {
 // load login page
 module.exports.loadLogin = (req, res) => {
   try {
-    res.render("login");
+    const message = req.query.message;
+    res.render("login",{message});
   } catch (error) {
     console.log(error);
   }
