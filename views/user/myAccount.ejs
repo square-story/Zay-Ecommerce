@@ -13,8 +13,12 @@
       href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <link rel="apple-touch-icon" href="assets2/img/apple-icon.png">
-    <link rel="shortcut icon" type="image/x-icon" href="assets2/img/favicon.ico">
+    <link rel="apple-touch-icon" href="assets2/img/apple-icon.png" />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="assets2/img/favicon.ico"
+    />
 
     <!-- Css Styles -->
     <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
@@ -305,7 +309,8 @@
                     onclick="showForm()"
                     role="button"
                     class="btn btn-dark button-3"
-                  >Click Here
+                  >
+                    Click Here
                   </button>
                 </div>
                 <div id="passwords" style="margin-top: 2rem; display: none">
@@ -382,6 +387,13 @@
                   </div>
                 </div>
               </div>
+              <div class="mt-4">
+                <h5>Wallet Transactions</h5>
+                <button onclick="showWalletTransactions()" class="btn btn-dark">View Transactions</button>
+              </div>
+              <div id="walletTransactions" style="margin-top: 2rem;">
+                <!-- Transactions will be loaded here -->
+              </div>
             </div>
           </div>
         </div>
@@ -396,7 +408,25 @@
     ></script>
   </body>
 </html>
+<script>
+  function loadTransactions(page) {
+    $.ajax({
+      url: '/transactions?page=' + page,
+      method: 'GET',
+      success: function(data) {
+        $('#walletTransactions').html(data);
+      },
+      error: function(err) {
+        console.error('Error loading transactions:', err);
+      }
+    });
+  }
 
+  function showWalletTransactions() {
+    loadTransactions(1); // Load the first page by default
+    $('#walletTransactions').show(); // Ensure the transactions div is displayed
+  }
+</script>
 <script>
   function showForm() {
     document.getElementById("passwords").style.display = "block";

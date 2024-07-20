@@ -229,7 +229,7 @@ userRoute.put("/change-password", userController.changePassword);
 
 userRoute.post("/change-details", userController.personalDetails);
 
-
+userRoute.get("/transactions",userController.transactionHistroy)
 
 
 

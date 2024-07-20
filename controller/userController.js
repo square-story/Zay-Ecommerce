@@ -752,3 +752,39 @@ module.exports.personalDetails = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.transactionHistroy = async(req,res)=>{
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10; // Number of transactions per page
+  const skip = (page - 1) * limit;
+
+  try {
+    // Find the wallet for the authenticated user
+    const wallet = await Wallet.findOne({ user: req.session.user?._id });
+
+    if (!wallet) {
+      console.log('Wallet not found for user:', req.session.user?._id);
+      return res.status(404).send('Wallet not found');
+    }
+
+    // Get the total number of transactions for pagination
+    const totalTransactions = wallet.transactions.length;
+
+    // Get the transactions for the current page
+    const transactions = wallet.transactions.slice(skip, skip + limit);
+
+    const totalPages = Math.ceil(totalTransactions / limit);
+
+    console.log('Transactions:', transactions);
+    console.log('Current Page:', page, 'Total Pages:', totalPages);
+
+    res.render('transactions', {
+      transactions: transactions,
+      currentPage: page,
+      totalPages: totalPages
+    });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).send('Error fetching transactions');
+  }
+}
