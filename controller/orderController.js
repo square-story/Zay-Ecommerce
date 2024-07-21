@@ -9,6 +9,7 @@ const { updateWallet } = require("./walletController");
 const Razorpay = require("razorpay");
 
 const crypto = require("crypto");
+const order = require("../models/order");
 require("dotenv").config();
 
 // Initialize Razorpay instance with your key ID and key secret
@@ -31,7 +32,7 @@ module.exports.loadMyOrder = async (req, res) => {
     const orderLength = await Order.countDocuments({ user: userid });
     const orders = await Order.find({
       user: userid,
-      status: { $nin: ["pending", "failed"] },
+      status: { $nin: ["pending"] },
     })
       .populate("user")
       .sort({ date: -1 }) // Ensure orders are sorted by creation date
@@ -333,8 +334,10 @@ module.exports.verifyPayment = async (req, res) => {
 
     if (status === "failed") {
       // Update order status to "failed"
-      await Order.updateOne({ razorpayOrderId: order_id }, { status: "failed", failureReason: reason });
-      
+      console.log("failed message content: ",req.body)
+      const order = await Order.findOne({ razorpayOrderId: order_id });
+      await Order.updateOne({ razorpayOrderId: order_id }, { status: "failed", failureReason: reason ,paymentStatus:"failed"});
+      await handleCOD(order, order.user, order.products);
       // Send response
       return res.json({ success: false, message: "Payment failed. Please try again." });
     }
@@ -348,11 +351,12 @@ module.exports.verifyPayment = async (req, res) => {
       }
 
       order.status = "placed";
+      order.paymentStatus = "completed";
       await order.save();
 
       await handleCOD(order, order.user, order.products);
 
-      res.json({ success: true });
+      res.json({ success: true,orderId:order._id });
     } else {
       res
         .status(400)
@@ -520,5 +524,40 @@ module.exports.loadSingleProduct = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+  }
+};
+
+
+module.exports.retryPayment = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(400).json({ success: false, message: "Order not found" });
+    }
+
+    // Create a new Razorpay order
+    const razorpayInstance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const options = {
+      amount: order.totalAmount * 100, // Amount in paisa
+      currency: "INR",
+      receipt: `order_rcptid_${Date.now()}`,
+    };
+
+    const razorpayOrder = await razorpayInstance.orders.create(options);
+
+    // Update the order with the new Razorpay order ID
+    order.razorpayOrderId = razorpayOrder.id;
+    await order.save();
+
+    res.json({ success: true, razorpayOrderId: razorpayOrder.id });
+  } catch (error) {
+    console.error("Error retrying payment:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

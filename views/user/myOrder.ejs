@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="assets2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="assets2/css/templatemo.css" />
     <link rel="stylesheet" href="assets2/css/custom.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -155,7 +156,7 @@
                             <%= order.products.length %> item<%= order.products.length !== 1 ? 's' : '' %>
                           </td>
                           <td style="padding: 16px">
-                            <% const latestStatus = order.products[order.products.length - 1].status; %>
+                            <% const latestStatus = order.status; %>
                             <% const greenStatuses = ['placed', 'outfordelivery', 'shipped', 'delivered']; %>
                             <% const badgeClass = greenStatuses.includes(latestStatus.toLowerCase()) ? 'bg-success' : 'bg-danger'; %>
                             <span class="badge <%= badgeClass %>"><%= latestStatus.toUpperCase() %></span>
@@ -170,8 +171,12 @@
                           }); %>
                           <td style="padding: 16px"><%= formattedDate %></td>
                           <td style="padding: 16px">
-                            <a href="/single-orderDetails?orderId=<%= order._id %>" class="btn btn-sm btn-primary">View Details</a>
-                          </td>
+                            <% if (latestStatus === "failed") { %>
+                              <a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="retryPayment('<%= order._id %>', '<%= order.totalAmount %>')"><i class="bi bi-credit-card-2-back-fill"> </i> Retry Payment</a>
+                            <% } else { %>
+                              <a href="/single-orderDetails?orderId=<%= order._id %>" class="btn btn-sm btn-primary">View Details</a>
+                            <% } %>
+                          </td>                          
                         </tr>
                       <% }) %>
                     <% } else { %>
@@ -227,6 +232,82 @@
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+      function retryPayment(orderId, amount) {
+        fetch('/retry-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ orderId: orderId })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            var options = {
+              "key": "rzp_test_03lybiPDaK7CJ0", 
+              "amount": amount * 100, // Amount in paisa
+              "currency": "INR",
+              "name": "Zay ecommerce",
+              "description": "Order Payment",
+              "order_id": data.razorpayOrderId, // Use the Razorpay order ID from the backend
+              "handler": function (response) {
+                verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
+              },
+              "prefill": {
+                "name": "Customer Name",
+                "email": "customer@example.com",
+                "contact": "9999999999"
+              },
+              "theme": {
+                "color": "#3399cc"
+              }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+          } else {
+            alert('Error initiating payment retry. Please try again later.');
+          }
+        })
+        .catch(error => {
+          console.error('Error initiating payment retry:', error);
+          alert('An error occurred while initiating payment retry.');
+        });
+      }
+    
+      // Verify payment on backend
+      function verifyPayment(orderId, paymentId, signature) {
+        fetch('/verify-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            order_id: orderId,
+            payment_id: paymentId,
+            signature: signature
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Payment successful!');
+            // Redirect to order details or success page
+            window.location.href = '/single-orderDetails?orderId=' + data.orderId;
+          } else {
+            alert('Payment verification failed. Please try again.');
+            // Handle payment failure
+            // Redirect to failure page or display error message
+            window.location.href = '/my-order';
+          }
+        })
+        .catch(error => {
+          console.error('Error verifying payment:', error);
+          alert('An error occurred while verifying payment.');
+        });
+      }
+    </script>
   </body>
   
   

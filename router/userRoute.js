@@ -174,6 +174,8 @@ userRoute.get(
   orderController.loadMyOrder
 );
 
+userRoute.post('/retry-payment', orderController.retryPayment);
+
 userRoute.get(
   "/single-product",
   userMiddleware.userAuth,

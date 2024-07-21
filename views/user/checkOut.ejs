@@ -569,7 +569,7 @@
                   },
                   modal: {
                     ondismiss: function() {
-                      handlePaymentFailure({ error: { reason: "User closed payment window" } });
+                      handlePaymentFailure({ order_id: response.razorpayOrderId, error: { reason: "User closed payment window" } });
                     }
                   },
                   prefill: {
@@ -632,22 +632,16 @@
   
     // Function to handle payment failure
     function handlePaymentFailure(response) {
-      const paymentData = {
-        payment_id: response.razorpay_payment_id,
-        order_id: response.razorpay_order_id,
-        signature: response.razorpay_signature,
-        status: "failed",
-        reason: response.error.reason || "Payment failed"
-      };
   
       $.ajax({
         type: 'POST',
         url: '/verify-payment',
-        data: JSON.stringify(paymentData),
+        data: JSON.stringify({ order_id: response.order_id, reason: response.error.reason , status:"failed"}),
         contentType: 'application/json',
         success: (response) => {
           if (!response.success) {
-            fireSwal(response.message || "Payment verification failed. Please contact support.");
+            alert('Payment verification failed. Please contact support.')
+            location.href = '/my-order';
           }
         },
         error: (xhr, status, error) => {
