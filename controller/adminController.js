@@ -517,18 +517,32 @@ module.exports.loadSalesReport = async (req, res) => {
     let currentPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemsPerPage = 20; // Define items per page
 
-    if (req.query.startDate) {
-      const { startDate, endDate } = req.query;
-      const sDate = new Date(startDate);
-      const eDate = new Date(endDate);
-      query = { date: { $gte: sDate, $lt: eDate } };
+    const currentDate = new Date();
+    let startDate, endDate;
+
+    if (req.query.startDate && req.query.endDate) {
+      startDate = new Date(req.query.startDate);
+      endDate = new Date(req.query.endDate);
+    } else {
+      // Default to the last month
+      endDate = currentDate;
+      startDate = new Date();
+      startDate.setMonth(currentDate.getMonth() - 1);
     }
+
+    // Validate date inputs
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      throw new Error('Invalid date format');
+    }
+
+    query = { date: { $gte: startDate, $lte: endDate } };
 
     const totalOrders = await Order.countDocuments(query);
     const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
     const report = await Order.find(query)
       .populate("user")
+      .sort({ date: -1 }) // Sort by date descending
       .skip((currentPage - 1) * itemsPerPage)
       .limit(itemsPerPage);
 
@@ -537,11 +551,12 @@ module.exports.loadSalesReport = async (req, res) => {
       currentPage,
       totalPages,
       itemsPerPage,
-      startDate: req.query.startDate || "",
-      endDate: req.query.endDate || "",
+      startDate: req.query.startDate || startDate.toISOString().split('T')[0],
+      endDate: req.query.endDate || endDate.toISOString().split('T')[0],
     });
   } catch (error) {
     console.log(error);
+    res.status(500).send('Internal Server Error');
   }
 };
 

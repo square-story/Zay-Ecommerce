@@ -53,24 +53,65 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h5 class="card-title text-center">Sales Report</h5>
-    <form action="/admin/sales-report" method="get">
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="startDate">Start Date</label>
-          <input type="date" class="form-control" name="startDate" id="startDate" value="<%= startDate %>">
+
+  <section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4><a href="/admin/" style="text-decoration: none;">Back</a></h4>
+                </div>
+            </div>
         </div>
-        <div class="form-group col-md-6">
-          <label for="endDate">End Date</label>
-          <input type="date" class="form-control" name="endDate" id="endDate" value="<%= endDate %>">
+    </div>
+</section>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title text-center mb-4">Sales Report</h5>
+  
+            <form action="/admin/sales-report" method="get">
+              <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  name="startDate"
+                  id="startDate"
+                  value="<%= startDate %>"
+                />
+              </div>
+              <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input
+                  type="date"
+                  name="endDate"
+                  class="form-control"
+                  id="endDate"
+                  value="<%= endDate %>"
+                />
+              </div>
+              <button type="submit" class="btn btn-success btn-block">
+                Apply Filter
+              </button>
+              <button type="button" onclick="download()" class="btn btn-secondary btn-block">
+                Download
+              </button>
+            </form>
+  
+            <div class="mt-3">
+              <button onclick="applyFilter('daily')" class="btn btn-dark">Daily</button>
+              <button onclick="applyFilter('weekly')" class="btn btn-dark">Weekly</button>
+              <button onclick="applyFilter('yearly')" class="btn btn-dark">Yearly</button>
+            </div>
+          </div>
         </div>
       </div>
-      <button type="submit" class="btn btn-success btn-block">Apply Filter</button>
-      <button type="button" onclick="download()" class="btn btn-secondary btn-block">Download</button>
-    </form>
-
-    <div id="salesReport">
+    </div>
+  
+    <div id="salesReport" class="mt-4">
       <h6 class="text-center">SALE REPORT - Page <%= currentPage %></h6>
       <table class="table">
         <thead>
@@ -97,7 +138,7 @@
         </tbody>
       </table>
     </div>
-
+  
     <div class="pagination">
       <% if (currentPage > 1) { %>
       <a href="/admin/sales-report?page=<%= currentPage - 1 %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="btn btn-dark">Previous</a>
@@ -116,6 +157,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <script>
     function download() {
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -127,6 +169,30 @@
         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
         pdf.save('sales_report.pdf');
       });
+    }
+  
+    function applyFilter(filterType) {
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      const currentDate = new Date();
+  
+      let startDate, endDate;
+  
+      if (filterType === 'daily') {
+        startDate = new Date(currentDate);
+        endDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
+      } else if (filterType === 'weekly') {
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
+        endDate = new Date();
+      } else if (filterType === 'yearly') {
+        startDate = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1));
+        endDate = new Date();
+      }
+  
+      startDateInput.value = startDate.toISOString().split('T')[0];
+      endDateInput.value = endDate.toISOString().split('T')[0];
+  
+      startDateInput.form.submit();
     }
   </script>
 </body>
