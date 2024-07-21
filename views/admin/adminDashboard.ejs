@@ -126,6 +126,68 @@
           </div>
         </div>
       </section>
+      <section>
+        <div class="container mt-5">
+          <h1 class="mb-4">Top 10 Best Selling Products</h1>
+          <div class="row">
+            <% name.forEach((el, i) => { %>
+              <div class="col-md-4 mb-4">
+                <div class="card <%= i < 3 ? 'highlight' : '' %>" style="width: 18rem">
+                  <img src="/img/productImage/sharp/<%= el.data.products.variant[0].images[0] %>" 
+                       style="width: 300px; height: 300px" 
+                       class="card-img-top" alt="Product 1" />
+                  <div class="card-body">
+                    <h5 class="card-title"><%= el.data.products.name %></h5>
+                    <p class="card-text">Price: <%= el.data.products.variant[0].price %></p>
+                    <p class="card-text">Brand: <%= el.data.products.brand %></p>
+                    <p class="card-text">Orders: <%= el.count %></p>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+      
+          <h1 class="mb-4">Top 10 Best Selling Brands</h1>
+          <div class="row">
+            <% brand.forEach((el, i) => { %>
+              <div class="col-md-4 mb-4">
+                <div class="card <%= i < 3 ? 'highlight' : '' %>">
+                  <div class="card-body">
+                    <h5 class="card-title"><%= el._id.category %></h5>
+                    <p class="card-text">Orders: <%= el.count %></p>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+      
+          <h1 class="mb-4">Top 10 Best Selling Categories</h1>
+          <div class="row">
+            <% topTenCategory.forEach((el, i) => { %>
+              <div class="col-md-4 mb-4">
+                <div class="card <%= i < 3 ? 'highlight' : '' %>">
+                  <div class="card-body">
+                    <h5 class="card-title"><%= el %></h5>
+                    <!-- Add order count if available -->
+                    <% const count = brand.find(b => b._id.category === el)?.count; %>
+                    <% if (count) { %>
+                      <p class="card-text">Orders: <%= count %></p>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+      
+      <style>
+        .highlight {
+          border: 2px solid red; /* Example: highlight with red border */
+          background-color: #f8d7da; /* Example: light red background */
+        }
+      </style>
+      
       <!-- content-main end// -->
       <%- include('../partials/adminFooter.ejs') -%>
     </main>
