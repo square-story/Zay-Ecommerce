@@ -288,7 +288,7 @@ module.exports.productdetiles = async (req, res) => {
   try {
     const { id, index } = req.query;
     console.log(id, index);
-
+    const related = await Product.find({ isListed: true }).populate("cetagory");
     const product = await Product.findOne({ _id: id });
     if (req.xhr) {
       console.log("ajax");
@@ -301,6 +301,7 @@ module.exports.productdetiles = async (req, res) => {
         index: index,
         image: product.variant[index].images[0],
         totalRating,
+        related
       });
     }
   } catch (error) {

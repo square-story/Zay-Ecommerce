@@ -329,153 +329,88 @@
         <!-- Shop Details Section End -->
 
         <!-- Related Section Begin -->
-        <section class="related spad">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h3 class="related-title">Related Product</h3>
+        <section class="bg-light">
+            <div class="container py-5">
+                <div class="row text-center py-3">
+                    <div class="col-lg-6 m-auto">
+                        <h1 class="h1">Related Products</h1>
+                        <p>
+                            Reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                            Excepteur sint occaecat cupidatat non proident.
+                        </p>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                        <div class="product__item">
-                            <div class="product__item__pic set-bg" data-setbg="img/product/product-1.jpg">
-                                <span class="label">New</span>
-                                <ul class="product__hover">
-                                    <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                    <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a>
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="card h-100">
+                            <%const length = related.length%>
+                            <a href="/productDetails?id=<%= related[length - 2]._id%>&index=0">
+                                <img src="/img/productImage/sharp/<%= related[length - 2].variant[0].images[0]%>" class="card-img-top" alt="...">
+                            </a>
+                            <div class="card-body">
+                                <ul class="list-unstyled d-flex justify-content-between">
+                                    <li>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-muted fa fa-star"></i>
+                                        <i class="text-muted fa fa-star"></i>
                                     </li>
-                                    <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
+                                    <li class="text-muted text-right"><%=related[length - 2].brand%></li>
                                 </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6>Piqué Biker Jacket</h6>
-                                <a href="#" class="add-cart">+ Add To Cart</a>
-                                <div class="rating">
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>$67.24</h5>
-                                <div class="product__color__select">
-                                    <label for="pc-1">
-                                        <input type="radio" id="pc-1">
-                                    </label>
-                                    <label class="active black" for="pc-2">
-                                        <input type="radio" id="pc-2">
-                                    </label>
-                                    <label class="grey" for="pc-3">
-                                        <input type="radio" id="pc-3">
-                                    </label>
-                                </div>
+                                <a href="/productDetails?id=<%= related[length - 2]._id%>&index=0" class="h2 text-decoration-none text-dark"><%=related[length - 2].name%></a>
+                                <p class="card-text">
+                                    <%=related[length - 2].description%>
+                                </p>
+                                <p class="text-muted">Reviews (24)</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                        <div class="product__item">
-                            <div class="product__item__pic set-bg" data-setbg="img/product/product-2.jpg">
-                                <ul class="product__hover">
-                                    <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                    <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a>
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="card h-100">
+                            <a href="/productDetails?id=<%= related[length - 1]._id%>&index=0">
+                                <img src="/img/productImage/sharp/<%= related[length - 1].variant[0].images[0]%>"  class="card-img-top" alt="...">
+                            </a>
+                            <div class="card-body">
+                                <ul class="list-unstyled d-flex justify-content-between">
+                                    <li>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-muted fa fa-star"></i>
+                                        <i class="text-muted fa fa-star"></i>
                                     </li>
-                                    <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
+                                    <li class="text-muted text-right"><%=related[length - 1].brand%></li>
                                 </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6>Piqué Biker Jacket</h6>
-                                <a href="#" class="add-cart">+ Add To Cart</a>
-                                <div class="rating">
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>$67.24</h5>
-                                <div class="product__color__select">
-                                    <label for="pc-4">
-                                        <input type="radio" id="pc-4">
-                                    </label>
-                                    <label class="active black" for="pc-5">
-                                        <input type="radio" id="pc-5">
-                                    </label>
-                                    <label class="grey" for="pc-6">
-                                        <input type="radio" id="pc-6">
-                                    </label>
-                                </div>
+                                <a href="shop-single.html" class="h2 text-decoration-none text-dark"><%=related[length - 1].name%></a>
+                                <p class="card-text">
+                                    <%=related[length - 1].description%>
+                                </p>
+                                <p class="text-muted">Reviews (48)</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                        <div class="product__item sale">
-                            <div class="product__item__pic set-bg" data-setbg="img/product/product-3.jpg">
-                                <span class="label">Sale</span>
-                                <ul class="product__hover">
-                                    <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                    <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a>
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="card h-100">
+                            <a href="/productDetails?id=<%= related[length - 3]._id%>&index=0">
+                                <img src="/img/productImage/sharp/<%= related[length - 3].variant[0].images[0]%>"class="card-img-top" alt="...">
+                            </a>
+                            <div class="card-body">
+                                <ul class="list-unstyled d-flex justify-content-between">
+                                    <li>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-warning fa fa-star"></i>
+                                        <i class="text-warning fa fa-star"></i>
                                     </li>
-                                    <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
+                                    <li class="text-muted text-right"><%=related[length - 3].brand%></li>
                                 </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6>Multi-pocket Chest Bag</h6>
-                                <a href="#" class="add-cart">+ Add To Cart</a>
-                                <div class="rating">
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>$43.48</h5>
-                                <div class="product__color__select">
-                                    <label for="pc-7">
-                                        <input type="radio" id="pc-7">
-                                    </label>
-                                    <label class="active black" for="pc-8">
-                                        <input type="radio" id="pc-8">
-                                    </label>
-                                    <label class="grey" for="pc-9">
-                                        <input type="radio" id="pc-9">
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                        <div class="product__item">
-                            <div class="product__item__pic set-bg" data-setbg="img/product/product-4.jpg">
-                                <ul class="product__hover">
-                                    <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                    <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a>
-                                    </li>
-                                    <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                                </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6>Diagonal Textured Cap</h6>
-                                <a href="#" class="add-cart">+ Add To Cart</a>
-                                <div class="rating">
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>$60.9</h5>
-                                <div class="product__color__select">
-                                    <label for="pc-10">
-                                        <input type="radio" id="pc-10">
-                                    </label>
-                                    <label class="active black" for="pc-11">
-                                        <input type="radio" id="pc-11">
-                                    </label>
-                                    <label class="grey" for="pc-12">
-                                        <input type="radio" id="pc-12">
-                                    </label>
-                                </div>
+                                <a href="/productDetails?id=<%= related[length - 3]._id%>&index=0" class="h2 text-decoration-none text-dark"><%=related[length - 3].name%></a>
+                                <p class="card-text">
+                                    <%=related[length - 3].description%>
+                                </p>
+                                <p class="text-muted">Reviews (74)</p>
                             </div>
                         </div>
                     </div>
