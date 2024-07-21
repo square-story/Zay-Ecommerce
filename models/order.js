@@ -110,6 +110,9 @@ const orderSchema = new mongoose.Schema({
   failureReason: {
     type: String, // Add this field to store the reason for payment failure
   },
+  couponCode: {
+    type: String, // Add this field to store the applied coupon code
+  },
 });
 
 module.exports = mongoose.model("Order", orderSchema);

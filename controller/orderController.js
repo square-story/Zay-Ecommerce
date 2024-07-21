@@ -178,6 +178,7 @@ module.exports.placeOrder = async (req, res) => {
           product.totalPrice -= productDiscount;
           product.coupon = productDiscount;
         }
+        couponCode = isCoupon;
       } else {
         return res.json({ fail: true, message: "Coupon limit exceeds" });
       }
@@ -212,6 +213,7 @@ module.exports.placeOrder = async (req, res) => {
       paymentMethod: payment_method,
       razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
       paymentStatus: payment_method === "COD" ? "completed" : "pending", // Added paymentStatus
+      couponCode: couponCode, // Save the coupon code used
     });
 
     const orderDetails = await order.save();
@@ -336,6 +338,15 @@ module.exports.verifyPayment = async (req, res) => {
       // Update order status to "failed"
       console.log("failed message content: ",req.body)
       const order = await Order.findOne({ razorpayOrderId: order_id });
+      console.log("this is from order order failed to check the coupon applied : ",order);
+      if (order) {
+        const coupon = await Coupon.findOne({ couponCode: order.couponCode });
+        console.log("hello from coupon opened :",coupon)
+        if (coupon) {
+          coupon.userUsed = coupon.userUsed.filter(userId => userId.toString() !== order.user.toString());
+          await coupon.save();
+        }
+      }
       await Order.updateOne({ razorpayOrderId: order_id }, { status: "failed", failureReason: reason ,paymentStatus:"failed"});
       await handleCOD(order, order.user, order.products);
       // Send response

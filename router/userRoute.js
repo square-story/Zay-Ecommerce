@@ -217,8 +217,6 @@ userRoute.post("/product-return", orderController.productReturn);
 
 userRoute.post("/check-coupon", couponController.checkCoupon);
 
-userRoute.post("/check-coupon", couponController.checkCoupon);
-
 userRoute.get("/my-coupon", couponController.loadMyCoupon);
 
 userRoute.get("/invoice", orderController.loadInvoice);
