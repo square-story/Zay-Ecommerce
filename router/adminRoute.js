@@ -63,8 +63,21 @@ adminRoute.post("/listCetagory", cetagoryContorller.listCetagory);
 
 adminRoute.post("/editCetagory", cetagoryContorller.editCetagory);
 
-// add-product
 
+//offer offers
+adminRoute.get('/offer-management',adminAuth.islogin,offerController.loadAdminOfferPage)
+
+
+//create Offer
+adminRoute.post('/create-offer',adminAuth.islogin,offerController.createOfferPost)
+
+//edit Offer
+adminRoute.put('/edit-offer',adminAuth.islogin,offerController.editOfferPost)
+
+//delete Offer
+adminRoute.delete('/delete-offer',adminAuth.islogin,offerController.deleteOffer)
+
+// add-product
 adminRoute.post(
   "/add-product",
   multer.array("images"),
