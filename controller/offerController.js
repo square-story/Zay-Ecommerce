@@ -2,6 +2,8 @@ const Offer = require('../models/offerModel')
 const Product = require("../models/product")
 const Category = require('../models/cetagory')
 
+
+//offer operation page render
 module.exports.loadAdminOfferPage = async(req,res)=>{
     try {
         const offers = await Offer.find({});
@@ -14,7 +16,7 @@ module.exports.loadAdminOfferPage = async(req,res)=>{
     }
 }
 
-
+//offer create
 module.exports.createOfferPost = async (req, res) => {
     const { name, adate, edate, limit, damount, type, productId, categoryId } = req.body;
     const newOffer = new Offer({ name, adate, edate, limit, damount, type, productId, categoryId });
@@ -29,7 +31,7 @@ module.exports.createOfferPost = async (req, res) => {
 };
 
 
-
+//edit offer
 module.exports.editOfferPost = async (req, res) => {
     const { id, name, adate, edate, limit, damount, type, productId, categoryId } = req.body;
     try {
@@ -47,7 +49,7 @@ module.exports.editOfferPost = async (req, res) => {
     }
 };
 
-
+//delete offer
 module.exports.deleteOffer = async (req, res) => {
     try {
         const { id } = req.body;
@@ -64,7 +66,7 @@ module.exports.deleteOffer = async (req, res) => {
 };
 
 
-
+//apply offers if the offer amount existing in the add varient 
   const applyOfferToProducts = async (offer) => {
     if (offer.type === 'product') {
         const product = await Product.findById(offer.productId);

@@ -162,6 +162,7 @@ module.exports.placeOrder = async (req, res) => {
 
     let deliveryCharge = subtotal < 500 ? 80 : 0;
     let discount = 0;
+    let couponCode = null;
 
     // Apply coupon if available
     if (isCoupon) {
@@ -213,7 +214,7 @@ module.exports.placeOrder = async (req, res) => {
       paymentMethod: payment_method,
       razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
       paymentStatus: payment_method === "COD" ? "completed" : "pending", // Added paymentStatus
-      couponCode: couponCode, // Save the coupon code used
+      couponCode, // Save the coupon code used
     });
 
     const orderDetails = await order.save();
