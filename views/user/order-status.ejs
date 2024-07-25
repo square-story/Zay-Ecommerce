@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Order Status</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Your custom styles go here -->
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+
+      .container {
+        margin-top: 50px;
+        text-align: center;
+      }
+
+      .status-icon {
+        font-size: 100px;
+      }
+
+      .success-icon {
+        color: #69bb7e;
+      }
+
+      .failure-icon {
+        color: #e74c3c;
+      }
+
+      h2.success {
+        color: #69bb7e;
+      }
+
+      h2.failure {
+        color: #e74c3c;
+      }
+
+      p {
+        font-size: 18px;
+      }
+
+      .btn-back,
+      .btn-order-details {
+        margin-top: 20px;
+      }
+
+      .additional-info {
+        margin-top: 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="status-icon">
+        <% if (orderStatus === 'success') { %>
+        <i class="bi bi-check-circle success-icon"></i>
+        <% } else { %>
+        <i class="bi bi-x-circle failure-icon"></i>
+        <% } %>
+      </div>
+      <h2 class="<%= orderStatus === 'success' ? 'success' : 'failure' %>">
+        <%= orderStatus === 'success' ? 'Your order is confirmed!' : 'Payment failed!' %>
+      </h2>
+      <p>
+        <%= orderStatus === 'success'
+          ? 'Thank you for shopping with us. Your order has been confirmed and will be shipped soon.'
+          : 'Unfortunately, your payment could not be processed. Please try again or contact support.' %>
+      </p>
+      <div class="additional-info">
+        <% if (orderStatus === 'success') { %>
+        <p><strong>Order Number:</strong> <%= orderNumber %></p>
+        <p><strong>Estimated Delivery Date:</strong> <%= deliveryDate %></p>
+        <% } %>
+      </div>
+      <a href="/shop" class="btn btn-success btn-back">Continue Shopping</a>
+      <% if (orderStatus === 'success') { %>
+      <a href="/my-order" class="btn btn-primary btn-order-details">Order Details</a>
+      <% } else { %>
+      <a href="/my-order" class="btn btn-primary btn-order-details">Retry Payment</a>
+      <% } %>
+    </div>
+    <!-- Bootstrap JS (optional, but recommended for certain features) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -13,7 +13,7 @@ const app = express();
 
 // Session middleware setup
 app.use(session({
-  secret: 'your_secret_key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false } // Set secure to true if using HTTPS
@@ -61,7 +61,7 @@ app.use("*", (req, res) => {
 });
 
 // DB connection
-mongoose.connect("mongodb://localhost:27017/zaydb")
+mongoose.connect(process.env.MONGODB_URL)
   .then(() => {
     console.log("DB connected");
   })

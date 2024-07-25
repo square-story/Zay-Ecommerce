@@ -73,6 +73,7 @@
                       <th>name</th>
                       <th>Quantity</th>
                       <th>Unit Price</th>
+                      <th>TAX</th>
                       <th>Total</th>
                   </tr>
               </thead>
@@ -82,6 +83,7 @@
                       <td><%= order.productId.name%></td>
                       <td><%= order.quantity%></td>
                       <td>₹<%= order.price%></td>
+                      <td>₹<%= (order.price * order.quantity)-18/100%></td>
                       <td>₹<%= order.price * order.quantity%></td>
                   </tr>
                   <!-- Add more rows as needed -->

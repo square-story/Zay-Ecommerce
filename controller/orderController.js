@@ -382,7 +382,16 @@ module.exports.verifyPayment = async (req, res) => {
 
 module.exports.loadOrderSucces = (req, res) => {
   try {
-    res.render("orderSucces");
+    const orderStatus = req.query.status; // 'success' or 'failure'
+  const orderNumber = '123456';
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 7); // Estimated delivery in 7 days
+
+  res.render('order-status', {
+    orderStatus,
+    orderNumber,
+    deliveryDate: deliveryDate.toDateString()
+  });
   } catch (error) {
     console.log(error);
   }
