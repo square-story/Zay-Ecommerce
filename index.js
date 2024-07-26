@@ -11,6 +11,7 @@ const Wishlist = require("./models/wishlistModel");
 
 const app = express();
 
+//for offer date operation
 const cron = require('./helpers/cronFile');
 
 // Session middleware setup
@@ -72,6 +73,6 @@ mongoose.connect(process.env.MONGODB_URL)
   });
 
 // Server listening on port 3000
-app.listen(3000, () => {
-  console.log("http://localhost:3000");
+app.listen(process.env.PORT, () => {
+  console.log(`http://localhost:${process.env.PORT}`);
 });
