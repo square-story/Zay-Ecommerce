@@ -5,6 +5,7 @@ const productController = require("../controller/product");
 const cetagoryContorller = require("../controller/cetagoryController");
 const couponController = require("../controller/couponController");
 const offerController = require("../controller/offerController")
+const reportController = require("../controller/reportController")
 const nocache = require("nocache");
 
 adminRoute.use(nocache());
@@ -168,7 +169,9 @@ adminRoute.post("/order-filter", adminController.filterDashboard);
 adminRoute.get(
   "/sales-report",
   adminAuth.islogin,
-  adminController.loadSalesReport
+  reportController.loadSalesReport
 );
+
+adminRoute.get("/download-sales-report",adminAuth.islogin,reportController.downloadSalesReport)
 
 module.exports = adminRoute;

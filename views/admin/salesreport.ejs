@@ -96,9 +96,7 @@
               <button type="submit" class="btn btn-success btn-block">
                 Apply Filter
               </button>
-              <button type="button" onclick="download()" class="btn btn-secondary btn-block">
-                Download
-              </button>
+              <button type="button" onclick="downloadPDF()" class="btn btn-secondary btn-block">Download PDF</button>
             </form>
   
             <div class="mt-3">
@@ -159,17 +157,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <script>
-    function download() {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      html2canvas(document.getElementById('salesReport')).then(function (canvas) {
-        const imgData = canvas.toDataURL('image/jpeg');
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save('sales_report.pdf');
-      });
-    }
+    function downloadPDF() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const startDate = urlParams.get('startDate');
+    const endDate = urlParams.get('endDate');
+    window.location.href = `/admin/download-sales-report?startDate=${startDate}&endDate=${endDate}`;
+  }
   
     function applyFilter(filterType) {
       const startDateInput = document.getElementById('startDate');
