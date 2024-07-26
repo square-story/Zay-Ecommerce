@@ -388,10 +388,17 @@
                 </div>
               </div>
               <div class="mt-4">
-                <h5>Wallet Transactions</h5>
-                <button onclick="showWalletTransactions()" class="btn btn-dark">View Transactions</button>
+                <h4>Wallet Transactions</h4>
+                <button
+                id="toggleTransactionsButton"
+                onclick="toggleWalletTransactions()"
+                class="btn btn-dark button-3"
+              >
+                Show Transactions
+              </button>
+                <div id="walletTransactions" style="display: none"></div>
               </div>
-              <div id="walletTransactions" style="margin-top: 2rem;">
+              <div id="walletTransactions" style="margin-top: 2rem">
                 <!-- Transactions will be loaded here -->
               </div>
             </div>
@@ -411,20 +418,29 @@
 <script>
   function loadTransactions(page) {
     $.ajax({
-      url: '/transactions?page=' + page,
-      method: 'GET',
-      success: function(data) {
-        $('#walletTransactions').html(data);
+      url: "/transactions?page=" + page,
+      method: "GET",
+      success: function (data) {
+        $("#walletTransactions").html(data);
       },
-      error: function(err) {
-        console.error('Error loading transactions:', err);
-      }
+      error: function (err) {
+        console.error("Error loading transactions:", err);
+      },
     });
   }
 
-  function showWalletTransactions() {
-    loadTransactions(1); // Load the first page by default
-    $('#walletTransactions').show(); // Ensure the transactions div is displayed
+  function toggleWalletTransactions() {
+    const transactionsDiv = $("#walletTransactions");
+    const button = $("#toggleTransactionsButton");
+
+    if (transactionsDiv.is(":visible")) {
+      transactionsDiv.hide();
+      button.text("Show Transactions");
+    } else {
+      loadTransactions(1); // Load the first page by default
+      transactionsDiv.show();
+      button.text("Hide Transactions");
+    }
   }
 </script>
 <script>
