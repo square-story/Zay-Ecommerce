@@ -1,14 +1,13 @@
 const mongoose = require('mongoose');
 
 const offerSchema = new mongoose.Schema({
-  name: String,
-  adate: String,
-  edate: String,
-  limit: Number,
-  damount: Number,
+  name: { type: String, required: true },
+  adate: { type: Date, required: true },
+  edate: { type: Date, required: true },
+  damount: { type: Number, required: true },
   type: { type: String, enum: ['product', 'category'], required: true },
-  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: function() { return this.type === 'product'; }},
-  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'cetagory', required: function() { return this.type === 'category'; }}
+  applicableToProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  applicableToCategories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'cetagory' }]
 });
 
 const Offer = mongoose.model('Offer', offerSchema);
