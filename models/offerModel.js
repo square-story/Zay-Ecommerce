@@ -10,6 +10,9 @@ const offerSchema = new mongoose.Schema({
   applicableToCategories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'cetagory' }]
 });
 
+// Add index for `edate` field
+offerSchema.index({ edate: 1 });
+
 const Offer = mongoose.model('Offer', offerSchema);
 
 module.exports = Offer;
