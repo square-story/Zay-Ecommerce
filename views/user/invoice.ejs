@@ -9,16 +9,17 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      
     }
 
     .invoice-header {
-      background-color: #f8f9fa;
+      background-color: #343a40;
       padding: 20px;
+      color: white;
     }
 
     .invoice-body {
       padding: 20px;
+      background-color: #f8f9fa;
     }
 
     .invoice-footer {
@@ -26,12 +27,10 @@
       background-color: #f8f9fa;
     }
 
-    /* Center the button */
     .download-button {
       display: flex;
       justify-content: center;
       margin-top: 20px;
-     
     }
   </style>
 </head>
@@ -41,117 +40,93 @@
   <div class="container mt-5" id="invoice">
     <div class="row">
       <div class="col-md-12">
-        <div class="invoice-header bg-dark">
-          <h2 class="text-center" style="color: #f8f9fa;">Invoice</h2>
+        <div class="invoice-header text-center">
+          <h2>Invoice</h2>
         </div>
       </div>
     </div>
 
     <div class="row">
       <div class="col-md-12">
-        <div class="invoice-body" style="background-color: rgb(231, 224, 224);">
+        <div class="invoice-body">
           <h4>Bill To:</h4>
-          <p>Zay fashion<br>
-            <br>
-              calicut, kerala, 673001<br>
-              Email: Zay e-commerce<br>
-              Phone: +91-90488-34867
+          <p>
+            Zay Fashion<br>
+            Calicut, Kerala, 673001<br>
+            Email: Zay e-commerce<br>
+            Phone: +91-90488-34867<br>
+            GSTIN: 29ABCDE1234F2Z5
           </p>
-        
-          <hr>
-        
-          <h4>Invoice Details:</h4>
-          <p>Invoice Number: <%=order._id%><br>
-            <%const invoiceDate = new Date()%>
-            <%const formattedDate = invoiceDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long',day: 'numeric'})%>
-              Invoice Date:<%= formattedDate%>
-          </p>
-        
-          <table class="table table-bordered">
-              <thead>
-                  <tr>
-                      <th>name</th>
-                      <th>Quantity</th>
-                      <th>Unit Price</th>
-                      <th>TAX</th>
-                      <th>Total</th>
-                  </tr>
-              </thead>
-              <tbody>
-        
-                  <tr>
-                      <td><%= order.productId.name%></td>
-                      <td><%= order.quantity%></td>
-                      <td>₹<%= order.price%></td>
-                      <td>₹<%= (order.price * order.quantity)-18/100%></td>
-                      <td>₹<%= order.price * order.quantity%></td>
-                  </tr>
-                  <!-- Add more rows as needed -->
-              </tbody>
-          </table>
-        
-          <hr>
-        
-          <h4>Total Amount: ₹<%= order.totalPrice%></h4>
-        </div>
-        </div>
 
-        <!-- Centered download button -->
-       
+          <h4>Ship To:</h4>
+          <p>
+            <%= deliveryAddress.fullName %><br>
+            <%= deliveryAddress.address %>, <%= deliveryAddress.city %>, <%= deliveryAddress.state %>, <%= deliveryAddress.pincode %><br>
+            Phone: <%= deliveryAddress.phone %><br>
+            Email: <%= deliveryAddress.email %>
+          </p>
+
+          <hr>
+
+          <h4>Invoice Details:</h4>
+          <p>
+            Invoice Number: <%= order._id %><br>
+            <% const invoiceDate = new Date() %>
+            <% const formattedDate = invoiceDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+            Invoice Date: <%= formattedDate %>
+          </p>
+
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Unit Price (excluding tax)</th>
+                <th>TAX (18%)</th>
+                <th>Total (including tax)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (order.products && order.products.length > 0 && order.products[index]) { %>
+                <% const product = order.products[index]; %>
+                <% const preTaxPrice = (product.price / 1.18).toFixed(2); %>
+                <% const taxAmount = (product.price - preTaxPrice) * product.quantity; %>
+                <% const totalAmount = (product.price * product.quantity).toFixed(2); %>
+                <tr>
+                  <td><%= product.productId.name %></td>
+                  <td><%= product.quantity %></td>
+                  <td>₹<%= preTaxPrice %></td>
+                  <td>₹<%= taxAmount.toFixed(2) %></td>
+                  <td>₹<%= totalAmount %></td>
+                </tr>
+              <% } else { %>
+                <tr>
+                  <td colspan="5">Product details not available.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+
+          <hr>
+
+          <h4>Total Amount (including tax): ₹<%= order.totalAmount.toFixed(2) %></h4>
+        </div>
       </div>
     </div>
-    <div class="download-button text-start">
+
+    <div class="download-button">
       <button type="button" class="btn btn-primary mb-3" onclick="downloadPdf()">Download</button>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <!-- <script>
-    function downloadPdf() {
-      const element = document.getElementById('invoice');
-      html2canvas(element).then(function(canvas) {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4', true);
-        pdf.addImage(imgData, 'PNG', 0, 0, 310, 297); // Adjust the dimensions as needed
-        pdf.save('invoice.pdf');
-      });
-    }
-  </script> -->
   <script>
     function downloadPdf() {
-      const element = document.getElementById('invoice');
-      html2canvas(element, { scrollY: 0 }).then(function(canvas) {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth(); // Get the width of the PDF
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // Get the height of the PDF
-        const imgAspectRatio = canvas.width / canvas.height;
-  
-        // Calculate the new width and height to maintain aspect ratio
-        let imgWidth = pdfWidth;
-        let imgHeight = pdfWidth / imgAspectRatio;
-  
-        // Adjust if the calculated height is greater than the height of the PDF
-        if (imgHeight > pdfHeight) {
-          imgHeight = pdfHeight;
-          imgWidth = pdfHeight * imgAspectRatio;
-        }
-  
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        pdf.save('invoice.pdf');
-      });
+      const orderId = '<%= order._id %>';
+      const index = '<%= index %>' || 0; // Make sure you pass the index correctly
+      window.open(`/downloadInvoice?orderId=${orderId}&index=${index}`);
     }
   </script>
-  
-  
 
 </body>
 
 </html>
-
-
-
-
-

@@ -515,15 +515,22 @@ module.exports.loadInvoice = async (req, res) => {
     const order = await Order.findOne({ _id: orderId })
       .populate("user")
       .populate("products.productId");
-    console.log(order[index], order);
+
+    if (!order || !order.products || order.products.length === 0) {
+      return res.status(404).send('Order not found or no products in order');
+    }
+
     res.render("invoice", {
-      order: order.products[index],
+      order,
       deliveryAddress: order.deliveryDetails,
+      index: index || 0
     });
   } catch (error) {
     console.log(error);
+    res.status(500).send('An error occurred while loading the invoice');
   }
 };
+
 
 module.exports.loadSingleProduct = async (req, res) => {
   try {

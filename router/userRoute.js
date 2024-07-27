@@ -12,11 +12,13 @@ const orderController = require("../controller/orderController");
 const review_Controller = require("../controller/reviewContoller");
 const couponController = require("../controller/couponController");
 const wishlistController = require("../controller/wishlistController");
+const reportController = require('../controller/reportController')
 const userMiddleware = require("../middleware/userAuth");
 const passport = require('passport'); 
 const nocache = require("nocache");
 const fetchCartMiddleware = require('../middleware/fetchCartMiddleware');
 const checkBlockedStatus = require('../middleware/checkBlockedStatus');
+
 require('../passport');
 
 userRoute.use(nocache());
@@ -230,6 +232,8 @@ userRoute.put("/change-password", userController.changePassword);
 userRoute.post("/change-details", userController.personalDetails);
 
 userRoute.get("/transactions",userController.transactionHistroy)
+
+userRoute.get("/downloadInvoice",reportController.downloadInvoice)
 
 
 

@@ -142,3 +142,60 @@ module.exports.downloadSalesReport = async (req, res) => {
       res.status(500).send('Internal Server Error');
     }
   };
+
+
+  module.exports.downloadInvoice = async (req, res) => {
+    try {
+      const { orderId, index } = req.query;
+      const order = await Order.findOne({ _id: orderId })
+        .populate("user")
+        .populate("products.productId");
+  
+      const doc = new PDFDocument();
+  
+      // Set response to application/pdf
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
+  
+      // Pipe the document to the response
+      doc.pipe(res);
+  
+      // Add content to the PDF
+      doc.fontSize(25).text('Invoice', { align: 'center' });
+  
+      doc.fontSize(18).text('Bill To:', { underline: true });
+      doc.text(`Zay Fashion\nCalicut, Kerala, 673001\nEmail: Zay e-commerce\nPhone: +91-90488-34867\nGSTIN: 29ABCDE1234F2Z5`);
+  
+      doc.moveDown();
+      doc.fontSize(18).text('Ship To:', { underline: true });
+      doc.text(`${order.user.name}\n${order.deliveryDetails.address}\n${order.deliveryDetails.city}, ${order.deliveryDetails.state} ${order.deliveryDetails.pincode}, ${order.deliveryDetails.country}\nPhone: ${order.deliveryDetails.phone}\nEmail: ${order.deliveryDetails.email}`);
+  
+      doc.moveDown();
+      doc.fontSize(18).text('Invoice Details:', { underline: true });
+      doc.text(`Invoice Number: ${order._id}`);
+      const invoiceDate = new Date(order.date);
+      const formattedDate = invoiceDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      doc.text(`Invoice Date: ${formattedDate}`);
+  
+      doc.moveDown();
+      doc.fontSize(18).text('Products:');
+      doc.fontSize(14);
+      const product = order.products[index];
+      if (product) {
+        const preTaxPrice = product.price / 1.18; // Remove 18% tax
+        const taxAmount = (product.price - preTaxPrice) * product.quantity;
+        const totalAmount = product.price * product.quantity;
+        doc.text(`Name: ${product.productId.name}\nQuantity: ${product.quantity}\nUnit Price (excluding tax): ${preTaxPrice.toFixed(2)}\nTAX (18%): ${taxAmount.toFixed(2)}\nTotal (including tax): ${totalAmount.toFixed(2)}`);
+      }
+  
+      doc.moveDown();
+      doc.fontSize(18).text(`Total Amount (including tax): ${order.totalAmount.toFixed(2)}`);
+  
+      // Finalize the PDF and end the stream
+      doc.end();
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('An error occurred while generating the invoice');
+    }
+  };
+  
