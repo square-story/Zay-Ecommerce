@@ -4,8 +4,8 @@ const adminController = require("../controller/adminController");
 const productController = require("../controller/product");
 const cetagoryContorller = require("../controller/cetagoryController");
 const couponController = require("../controller/couponController");
-const offerController = require("../controller/offerController")
-const reportController = require("../controller/reportController")
+const offerController = require("../controller/offerController");
+const reportController = require("../controller/reportController");
 const nocache = require("nocache");
 
 adminRoute.use(nocache());
@@ -64,19 +64,29 @@ adminRoute.post("/listCetagory", cetagoryContorller.listCetagory);
 
 adminRoute.post("/editCetagory", cetagoryContorller.editCetagory);
 
-
 //offer offers
-adminRoute.get('/offer-management',adminAuth.islogin,offerController.loadAdminOfferPage)
-
+adminRoute.get(
+  "/offer-management",
+  adminAuth.islogin,
+  offerController.loadAdminOfferPage
+);
 
 //create Offer
-adminRoute.post('/create-offer',adminAuth.islogin,offerController.createOfferPost)
+adminRoute.post(
+  "/create-offer",
+  adminAuth.islogin,
+  offerController.createOfferPost
+);
 
 //edit Offer
-adminRoute.put('/edit-offer',adminAuth.islogin,offerController.editOfferPost)
+adminRoute.put("/edit-offer", adminAuth.islogin, offerController.editOfferPost);
 
 //delete Offer
-adminRoute.delete('/delete-offer',adminAuth.islogin,offerController.deleteOffer)
+adminRoute.delete(
+  "/delete-offer",
+  adminAuth.islogin,
+  offerController.deleteOffer
+);
 
 // add-product
 adminRoute.post(
@@ -143,10 +153,13 @@ adminRoute.get(
   adminController.loadSingleCancelation
 );
 
-
 adminRoute.post("/change-orderStatus", adminController.changeOrderStatus);
 
-adminRoute.get("/cancel-request", adminAuth.islogin, adminController.loadCancel);
+adminRoute.get(
+  "/cancel-request",
+  adminAuth.islogin,
+  adminController.loadCancel
+);
 
 adminRoute.post("/cancel-request", adminController.controlCancelation);
 
@@ -162,7 +175,7 @@ adminRoute.post("/create-coupon", couponController.createCoupon);
 
 adminRoute.put("/edit-coupon", couponController.createCoupon);
 
-adminRoute.delete("/deleteCoupon",couponController.deleteCoupon)
+adminRoute.delete("/deleteCoupon", couponController.deleteCoupon);
 
 adminRoute.post("/order-filter", adminController.filterDashboard);
 
@@ -172,6 +185,10 @@ adminRoute.get(
   reportController.loadSalesReport
 );
 
-adminRoute.get("/download-sales-report",adminAuth.islogin,reportController.downloadSalesReport)
+adminRoute.get(
+  "/download-sales-report",
+  adminAuth.islogin,
+  reportController.downloadSalesReport
+);
 
 module.exports = adminRoute;

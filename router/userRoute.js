@@ -12,14 +12,14 @@ const orderController = require("../controller/orderController");
 const review_Controller = require("../controller/reviewContoller");
 const couponController = require("../controller/couponController");
 const wishlistController = require("../controller/wishlistController");
-const reportController = require('../controller/reportController')
+const reportController = require("../controller/reportController");
 const userMiddleware = require("../middleware/userAuth");
-const passport = require('passport'); 
+const passport = require("passport");
 const nocache = require("nocache");
-const fetchCartMiddleware = require('../middleware/fetchCartMiddleware');
-const checkBlockedStatus = require('../middleware/checkBlockedStatus');
+const fetchCartMiddleware = require("../middleware/fetchCartMiddleware");
+const checkBlockedStatus = require("../middleware/checkBlockedStatus");
 
-require('../passport');
+require("../passport");
 
 userRoute.use(nocache());
 
@@ -40,10 +40,10 @@ userRoute.use(
 );
 
 userRoute.use(fetchCartMiddleware);
-userRoute.use(checkBlockedStatus)
+userRoute.use(checkBlockedStatus);
 
 //passport verify
-userRoute.use(passport.initialize()); 
+userRoute.use(passport.initialize());
 userRoute.use(passport.session());
 
 userRoute.use(express.json());
@@ -106,24 +106,26 @@ userRoute.post("/logout", userController.userLogout);
 //the resend the otp again for create another request to generate the new otp
 userRoute.post("/resend", userController.resend);
 
-//Google Auth 
-userRoute.get('/auth/google',
-  passport.authenticate('google', { scope: 
-	[ 'email', 'profile' ] 
-}))
+//Google Auth
+userRoute.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["email", "profile"] })
+);
 
 // Google Auth Callback
-userRoute.get( '/auth/google/callback', 
-	passport.authenticate( 'google', { 
-		successRedirect: '/success', 
-		failureRedirect: '/failure'
-}));
+userRoute.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    successRedirect: "/success",
+    failureRedirect: "/failure",
+  })
+);
 
-// Success 
-userRoute.get('/success' , userController.successGoogleLogin); 
+// Success
+userRoute.get("/success", userController.successGoogleLogin);
 
-// failure 
-userRoute.get('/failure' , userController.failureGoogleLogin);
+// failure
+userRoute.get("/failure", userController.failureGoogleLogin);
 
 userRoute.get("/productDetails", productController.productdetiles);
 
@@ -137,12 +139,16 @@ userRoute.get("/about", userController.loadAbout);
 userRoute.get("/contact", userController.loadContact);
 
 //forget
-userRoute.get('/forget-password',userController.loadForget)
+userRoute.get("/forget-password", userController.loadForget);
 
-userRoute.post('/forget',userController.forgetVerify)
+userRoute.post("/forget", userController.forgetVerify);
 
-userRoute.get('/change-password/:userId/:token', userMiddleware.isLogined, userController.verifyUser);
-userRoute.post('/change-password',userController.resetPassword);
+userRoute.get(
+  "/change-password/:userId/:token",
+  userMiddleware.isLogined,
+  userController.verifyUser
+);
+userRoute.post("/change-password", userController.resetPassword);
 
 //account details section
 userRoute.get(
@@ -176,7 +182,7 @@ userRoute.get(
   orderController.loadMyOrder
 );
 
-userRoute.post('/retry-payment', orderController.retryPayment);
+userRoute.post("/retry-payment", orderController.retryPayment);
 
 userRoute.get(
   "/single-product",
@@ -189,7 +195,6 @@ userRoute.post("/add-Address", orderController.addAddress);
 userRoute.post("/place-order", orderController.placeOrder);
 
 userRoute.post("/payment-failure", orderController.handlePaymentFailure);
-
 
 userRoute.get("/order-status", orderController.loadOrderSucces);
 
@@ -214,7 +219,6 @@ userRoute.post("/addReview", review_Controller.addReview);
 
 userRoute.post("/verify-payment", orderController.verifyPayment);
 
-
 userRoute.post("/product-return", orderController.productReturn);
 
 userRoute.post("/check-coupon", couponController.checkCoupon);
@@ -231,12 +235,8 @@ userRoute.put("/change-password", userController.changePassword);
 
 userRoute.post("/change-details", userController.personalDetails);
 
-userRoute.get("/transactions",userController.transactionHistroy)
+userRoute.get("/transactions", userController.transactionHistroy);
 
-userRoute.get("/downloadInvoice",reportController.downloadInvoice)
-
-
-
-
+userRoute.get("/downloadInvoice", reportController.downloadInvoice);
 
 module.exports = userRoute;
