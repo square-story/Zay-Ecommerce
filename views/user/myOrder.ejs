@@ -45,6 +45,9 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <style>
       * {
@@ -246,7 +249,7 @@
         .then(data => {
           if (data.success) {
             var options = {
-              "key": "rzp_test_03lybiPDaK7CJ0", 
+              "key": "rzp_test_03lybiPDaK7CJ0",
               "amount": amount * 100, // Amount in paisa
               "currency": "INR",
               "name": "Zay ecommerce",
@@ -267,12 +270,20 @@
             var rzp1 = new Razorpay(options);
             rzp1.open();
           } else {
-            alert('Error initiating payment retry. Please try again later.');
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Error initiating payment retry. Please try again later.',
+            });
           }
         })
         .catch(error => {
           console.error('Error initiating payment retry:', error);
-          alert('An error occurred while initiating payment retry.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'An error occurred while initiating payment retry.',
+          });
         });
       }
     
@@ -292,22 +303,40 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            alert('Payment successful!');
-            // Redirect to order details or success page
-            window.location.href = '/single-orderDetails?orderId=' + data.orderId;
+            Swal.fire({
+              icon: 'success',
+              title: 'Payment Successful',
+              text: 'You will be redirected shortly.',
+              showConfirmButton: false, // Remove the confirm button
+              timer: 2000, // Time in milliseconds (2 seconds)
+              willClose: () => {
+                // Redirect to order details or success page
+                window.location.href = '/single-orderDetails?orderId=' + data.orderId;
+              }
+            });
           } else {
-            alert('Payment verification failed. Please try again.');
-            // Handle payment failure
-            // Redirect to failure page or display error message
-            window.location.href = '/my-order';
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Payment verification failed. Please try again.',
+            }).then(() => {
+              // Handle payment failure
+              // Redirect to failure page or display error message
+              window.location.href = '/my-order';
+            });
           }
         })
         .catch(error => {
           console.error('Error verifying payment:', error);
-          alert('An error occurred while verifying payment.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'An error occurred while verifying payment.',
+          });
         });
       }
     </script>
+    
   </body>
   
   
