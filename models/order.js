@@ -90,7 +90,16 @@ const orderSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ["pending","placed", "outfordelivery", "shipped", "delivered", "canceled", "returned", "failed"], // Added "failed"
+    enum: [
+      "pending",
+      "placed",
+      "outfordelivery",
+      "shipped",
+      "delivered",
+      "canceled",
+      "returned",
+      "failed",
+    ], // Added "failed"
   },
   paymentMethod: {
     type: String,

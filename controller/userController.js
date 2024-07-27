@@ -7,14 +7,13 @@ const Product = require("../models/product");
 const Address = require("../models/address");
 require("dotenv").config();
 
-
 // load home page
 module.exports.loadHome = async (req, res) => {
   try {
     const product = await Product.find({ isListed: true }).populate("cetagory");
 
     if (product) {
-      res.render("home", { product: product ,title:"Zay fashion"});
+      res.render("home", { product: product, title: "Zay fashion" });
     }
   } catch (error) {
     console.log(error);
@@ -27,7 +26,7 @@ module.exports.loadHome = async (req, res) => {
 module.exports.loadLogin = (req, res) => {
   try {
     const message = req.query.message;
-    res.render("login",{message});
+    res.render("login", { message });
   } catch (error) {
     console.log(error);
   }
@@ -138,7 +137,6 @@ const sentOtp = async (email) => {
       auth: {
         user: process.env.USER_AUTH,
         pass: process.env.USER_AUTH_PASS,
-
       },
     });
 
@@ -204,14 +202,17 @@ module.exports.verifyOTP = async (req, res) => {
   try {
     const email = req.query.email;
     console.log("otp verify email", email);
-    const user = await User.findOne({email:email})
+    const user = await User.findOne({ email: email });
     const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
     const verify = await verifyOtp.findOne({ Email: email });
 
     if (user && user.isBlocked) {
-      req.flash("blocked", "Your account is currently blocked. Please contact support.");
+      req.flash(
+        "blocked",
+        "Your account is currently blocked. Please contact support."
+      );
       return res.redirect(`/login`); // Replace with your login page path
-    }else if(verify) {
+    } else if (verify) {
       const { otp: hashed } = verify;
       const compare = await bcrypt.compare(otp, hashed);
       console.log(compare);
@@ -253,7 +254,6 @@ module.exports.verifyOTP = async (req, res) => {
   }
 };
 
-
 // Login with otp
 module.exports.otpLogin = async (req, res) => {
   try {
@@ -266,7 +266,10 @@ module.exports.otpLogin = async (req, res) => {
     }
 
     if (user.isBlocked) {
-      req.flash("blocked", "Your account is currently blocked. Please contact support.");
+      req.flash(
+        "blocked",
+        "Your account is currently blocked. Please contact support."
+      );
       return res.redirect(`/login`); // Redirect to the login page if the user is blocked
     }
 
@@ -279,7 +282,7 @@ module.exports.otpLogin = async (req, res) => {
     }
 
     const compare = await bcrypt.compare(otp, find.otp);
-    
+
     if (compare) {
       req.session.user = {
         _id: user._id,
@@ -298,37 +301,37 @@ module.exports.otpLogin = async (req, res) => {
 };
 
 //the success route control of google auth
-module.exports.successGoogleLogin = async (req,res)=>{
-  const name = req.user.name.givenName
-	const email = req.user.email;
+module.exports.successGoogleLogin = async (req, res) => {
+  const name = req.user.name.givenName;
+  const email = req.user.email;
   const user = await User.findOne({ email }, {});
   if (user) {
-		req.session.user = {
+    req.session.user = {
       _id: user._id,
       name: user.name,
       email: user.email,
     };
-		return res.redirect('/');
-	}else{
-    const hashedPassword = ' ';
+    return res.redirect("/");
+  } else {
+    const hashedPassword = " ";
     const createNewUser = await User.create({
-      name:name,
-			email: email,
-			password: hashedPassword
-		});
+      name: name,
+      email: email,
+      password: hashedPassword,
+    });
     req.session.user = {
       _id: createNewUser._id,
       name: user.name,
       email: user.email,
     };
-    res.redirect('/');
+    res.redirect("/");
   }
-}
+};
 
 //google auth failure route controller
-module.exports.failureGoogleLogin = async (req,res)=>{
-  res.send("Error"); 
-}
+module.exports.failureGoogleLogin = async (req, res) => {
+  res.send("Error");
+};
 // ============================================ User sign up ends =============================================\\
 
 // user logout
@@ -340,7 +343,6 @@ module.exports.userLogout = async (req, res) => {
     console.log(error);
   }
 };
-
 
 module.exports.resend = async (req, res) => {
   try {
@@ -371,7 +373,6 @@ module.exports.checkSession = (req, res) => {
   }
 };
 
-
 module.exports.loadAbout = (req, res) => {
   try {
     res.render("aboutUs");
@@ -385,13 +386,13 @@ module.exports.loadContact = (req, res) => {
 };
 
 //load forget password page
-module.exports.loadForget = (req,res)=>{
+module.exports.loadForget = (req, res) => {
   try {
-    res.render('forgetPassword')
+    res.render("forgetPassword");
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
 // Function to generate a random reset token
 function generateResetToken() {
@@ -406,25 +407,25 @@ async function sendVerificationEmail(user, token) {
     secure: true,
     auth: {
       user: process.env.USER_AUTH,
-      pass: process.env.USER_AUTH_PASS
-    }
+      pass: process.env.USER_AUTH_PASS,
+    },
   });
 
   const mailOptions = {
     from: process.env.USER_AUTH,
     to: user.email,
-    subject: 'Account Verification',
+    subject: "Account Verification",
     html: `
       <p>Click on the link below to verify your account:</p>
       <a href="http://localhost:3000/change-password/${user._id}/${token}">Verify Account</a>
-    `
+    `,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Verification email sent to:', user.email);
+    console.log("Verification email sent to:", user.email);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
   }
 }
 
@@ -436,19 +437,19 @@ exports.verifyUser = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) {
       req.flash("blocked", "Not Found This User");
-      res.redirect('/forget-password')
+      res.redirect("/forget-password");
     }
-    console.log(user)
+    console.log(user);
     // // Check if token matches and is not expired (implement expiration logic)
     // if (user.verificationToken !== token) {
     //   return res.status(401).json({ message: 'Invalid verification token' });
     // }
 
     // User verified, perform actions (e.g., set verified flag)
-    res.render('forgetPasswordByUser', { user_id:user._id }); 
+    res.render("forgetPasswordByUser", { user_id: user._id });
   } catch (error) {
     console.error(error);
-    res.status(500)
+    res.status(500);
   }
 };
 
@@ -458,7 +459,7 @@ module.exports.resetPassword = async (req, res) => {
 
     if (!user_id || !password) {
       req.flash("error", "Invalid request. Missing user ID or password.");
-      return res.redirect('/forget-password');
+      return res.redirect("/forget-password");
     }
 
     const passHash = await bcrypt.hash(password, 10);
@@ -471,39 +472,41 @@ module.exports.resetPassword = async (req, res) => {
 
     if (!updatedData) {
       req.flash("error", "User not found or invalid user ID.");
-      return res.redirect('/forget-password');
+      return res.redirect("/forget-password");
     }
 
     req.flash("pass", "Password reset successfully");
-    res.redirect('/login');
+    res.redirect("/login");
   } catch (error) {
-    console.error('Error resetting password:', error);
-    req.flash("error", "An error occurred while resetting the password. Please try again.");
-    res.redirect('/forget-password');
+    console.error("Error resetting password:", error);
+    req.flash(
+      "error",
+      "An error occurred while resetting the password. Please try again."
+    );
+    res.redirect("/forget-password");
   }
 };
 
-module.exports.forgetVerify = async(req,res)=>{
+module.exports.forgetVerify = async (req, res) => {
   try {
-    const email = req.body.email
-    const user = await User.findOne({email:email})
-    
-    if(user){
+    const email = req.body.email;
+    const user = await User.findOne({ email: email });
+
+    if (user) {
       const resetToken = generateResetToken();
       user.passwordResetToken = resetToken;
       await user.save();
       await sendVerificationEmail(user, resetToken);
-      req.flash("pass","Password reset instructions sent to your email");
-      res.redirect('/forget-password')
-    }else{
+      req.flash("pass", "Password reset instructions sent to your email");
+      res.redirect("/forget-password");
+    } else {
       req.flash("blocked", "Not Found This User");
-      res.redirect('/forget-password')
+      res.redirect("/forget-password");
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
-
+};
 
 //user details
 module.exports.loadMyAccount = async (req, res) => {
@@ -512,7 +515,7 @@ module.exports.loadMyAccount = async (req, res) => {
     const userDetails = await User.findById({ _id: userId });
     const wallet = await Wallet.findOne({ user: userId });
     const walletBalance = wallet ? wallet.balance : 0;
-    res.render("myAccount", { userDetails , walletBalance});
+    res.render("myAccount", { userDetails, walletBalance });
   } catch (error) {
     console.log(error);
   }
@@ -530,13 +533,12 @@ module.exports.loadManageAddress = async (req, res) => {
     if (!addresses) {
       // res.status(404).render('oops');
     }
-    res.render("manageAddress", { address: addresses.address ,walletBalance});
+    res.render("manageAddress", { address: addresses.address, walletBalance });
   } catch (error) {
     console.log(error);
     // res.status(404).render('oops');
   }
 };
-
 
 module.exports.editAddress = async (req, res) => {
   try {
@@ -618,12 +620,12 @@ module.exports.deleteAddress = async (req, res) => {
 module.exports.changePassword = async (req, res) => {
   try {
     console.log("Starting password change process");
-    
+
     const userId = req.session.user?._id;
     const { oldPassword, newPassword, confirmPassword } = req.body;
-    
+
     console.log(req.body);
-    
+
     if (!userId) {
       return res.status(400).send("User not found");
     }
@@ -633,25 +635,36 @@ module.exports.changePassword = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+    const isOldPasswordCorrect = await bcrypt.compare(
+      oldPassword,
+      user.password
+    );
     if (!isOldPasswordCorrect) {
       return res.status(400).json({ error: "Incorrect old password" });
     }
 
     if (oldPassword === newPassword) {
-      return res.status(400).json({ error: "New password cannot be the same as the old password" });
+      return res
+        .status(400)
+        .json({ error: "New password cannot be the same as the old password" });
     }
 
     if (newPassword !== confirmPassword) {
-      return res.status(400).json({ error: "New password and confirm password do not match" });
+      return res
+        .status(400)
+        .json({ error: "New password and confirm password do not match" });
     }
 
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{6,}$/.test(newPassword)) {
+    if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{6,}$/.test(
+        newPassword
+      )
+    ) {
       return res.status(400).json({ error: "Password must be stronger" });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    
+
     user.password = hashedPassword;
     await user.save();
 
@@ -661,7 +674,6 @@ module.exports.changePassword = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 module.exports.personalDetails = async (req, res) => {
   try {
@@ -753,7 +765,7 @@ module.exports.personalDetails = async (req, res) => {
   }
 };
 
-module.exports.transactionHistroy = async(req,res)=>{
+module.exports.transactionHistroy = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10; // Number of transactions per page
   const skip = (page - 1) * limit;
@@ -763,8 +775,8 @@ module.exports.transactionHistroy = async(req,res)=>{
     const wallet = await Wallet.findOne({ user: req.session.user?._id });
 
     if (!wallet) {
-      console.log('Wallet not found for user:', req.session.user?._id);
-      return res.status(404).send('Wallet not found');
+      console.log("Wallet not found for user:", req.session.user?._id);
+      return res.status(404).send("Wallet not found");
     }
 
     // Get the total number of transactions for pagination
@@ -775,16 +787,16 @@ module.exports.transactionHistroy = async(req,res)=>{
 
     const totalPages = Math.ceil(totalTransactions / limit);
 
-    console.log('Transactions:', transactions);
-    console.log('Current Page:', page, 'Total Pages:', totalPages);
+    console.log("Transactions:", transactions);
+    console.log("Current Page:", page, "Total Pages:", totalPages);
 
-    res.render('transactions', {
+    res.render("transactions", {
       transactions: transactions,
       currentPage: page,
-      totalPages: totalPages
+      totalPages: totalPages,
     });
   } catch (error) {
-    console.error('Error fetching transactions:', error);
-    res.status(500).send('Error fetching transactions');
+    console.error("Error fetching transactions:", error);
+    res.status(500).send("Error fetching transactions");
   }
-}
+};

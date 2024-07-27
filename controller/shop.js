@@ -4,34 +4,36 @@ const Product = require("../models/product");
 //products page rendering
 module.exports.loadShop = async (req, res) => {
   try {
-    const sortOption = req.query.sort || 'increasing'; // Default to 'increasing'
+    const sortOption = req.query.sort || "increasing"; // Default to 'increasing'
     const page = parseInt(req.query.page) || 1; // Default to page 1
     const limit = 6; // Number of products per page
     const skip = (page - 1) * limit;
-    const searchQuery = req.query.search || ''; // Extract search query from request query params
+    const searchQuery = req.query.search || ""; // Extract search query from request query params
     const categoryFilter = req.query.category || null;
     const brandFilter = req.query.brand || null;
-    const priceRange = req.query.price ? req.query.price.split('-').map(Number) : null;
+    const priceRange = req.query.price
+      ? req.query.price.split("-").map(Number)
+      : null;
 
     let sortOrder;
     switch (sortOption) {
-      case 'increasing':
-        sortOrder = { 'variant.0.offerPrice': 1 };
+      case "increasing":
+        sortOrder = { "variant.0.offerPrice": 1 };
         break;
-      case 'decreasing':
-        sortOrder = { 'variant.0.offerPrice': -1 };
+      case "decreasing":
+        sortOrder = { "variant.0.offerPrice": -1 };
         break;
-      case 'Aa-Zz':
+      case "Aa-Zz":
         sortOrder = { name: 1 };
         break;
-      case 'Zz-Aa':
+      case "Zz-Aa":
         sortOrder = { name: -1 };
         break;
-      case 'newArrival':
-        sortOrder = { 'variant.0.created': -1 };
+      case "newArrival":
+        sortOrder = { "variant.0.created": -1 };
         break;
       default:
-        sortOrder = { 'variant.0.offerPrice': 1 };
+        sortOrder = { "variant.0.offerPrice": 1 };
     }
 
     let filter = { isListed: true };
@@ -44,13 +46,13 @@ module.exports.loadShop = async (req, res) => {
     }
 
     if (priceRange) {
-      filter['variant.offerPrice'] = {
+      filter["variant.offerPrice"] = {
         $gte: priceRange[0],
         $lte: priceRange[1],
       };
     }
     if (searchQuery) {
-      filter.name = new RegExp(searchQuery, 'i'); // Case-insensitive search by product name
+      filter.name = new RegExp(searchQuery, "i"); // Case-insensitive search by product name
     }
 
     const categories = await Catagery.find({ isListed: true });
@@ -58,13 +60,13 @@ module.exports.loadShop = async (req, res) => {
       .sort(sortOrder)
       .skip(skip)
       .limit(limit)
-      .populate('cetagory'); // Ensure 'cetagory' matches the field in your Product model
+      .populate("cetagory"); // Ensure 'cetagory' matches the field in your Product model
 
-    const brands = await Product.distinct('brand', filter);
+    const brands = await Product.distinct("brand", filter);
     const totalResults = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalResults / limit);
 
-    res.render('shop', {
+    res.render("shop", {
       categories,
       product: products,
       brands,
@@ -79,8 +81,8 @@ module.exports.loadShop = async (req, res) => {
       searchQuery, // Pass searchQuery to template for rendering
     });
   } catch (error) {
-    console.error('Error loading shop:', error);
-    res.status(500).send('Server Error');
+    console.error("Error loading shop:", error);
+    res.status(500).send("Server Error");
   }
 };
 

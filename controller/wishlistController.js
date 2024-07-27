@@ -1,5 +1,5 @@
 const Wishlist = require("../models/wishlistModel");
-const Wallet =require("../models/walletModel")
+const Wallet = require("../models/walletModel");
 
 module.exports.loadWhislist = async (req, res) => {
   try {
@@ -20,12 +20,11 @@ module.exports.loadWhislist = async (req, res) => {
     }
 
     const wishlistProducts = products[0].products; // Access only if products exists
-    res.render("wishlist", { wishlistProducts,walletBalance });
+    res.render("wishlist", { wishlistProducts, walletBalance });
   } catch (error) {
     console.log(error);
   }
 };
-
 
 module.exports.addTOWhishlist = async (req, res) => {
   try {

@@ -7,7 +7,6 @@ const Wallet = require("../models/walletModel");
 const adminHelpers = require("../helpers/adminHelper");
 require("dotenv").config();
 
-
 // load admin home page
 module.exports.loadAdmin = async (req, res) => {
   try {
@@ -28,32 +27,39 @@ module.exports.loadAdmin = async (req, res) => {
 
     // Calculate various metrics
     const orderCount = orders.length;
-    const monthlyEarning = orders.reduce((acc, order) => 
-      order.status === 'placed' ? acc + order.totalAmount : acc,
+    const monthlyEarning = orders.reduce(
+      (acc, order) =>
+        order.status === "placed" ? acc + order.totalAmount : acc,
       0
     );
-    const revenue = allOrders.reduce((acc, order) => acc + order.totalAmount, 0);
-    const productCount = orders.reduce((acc, order) => acc + order.products.length, 0);
+    const revenue = allOrders.reduce(
+      (acc, order) => acc + order.totalAmount,
+      0
+    );
+    const productCount = orders.reduce(
+      (acc, order) => acc + order.products.length,
+      0
+    );
 
     // Aggregate monthly ordered count
     const monthlyOrderedCount = await Order.aggregate([
       {
         $match: {
-          status: 'placed',
+          status: "placed",
           date: { $gte: startDate, $lt: currentDate },
         },
       },
       {
         $group: {
-          _id: { $month: '$date' },
-          totalAmount: { $sum: '$totalAmount' },
+          _id: { $month: "$date" },
+          totalAmount: { $sum: "$totalAmount" },
         },
       },
     ]);
 
     // Prepare monthly data array
     const monthlyData = Array.from({ length: 12 }).fill(0);
-    monthlyOrderedCount.forEach(item => {
+    monthlyOrderedCount.forEach((item) => {
       const monthIndex = item._id - 1;
       if (monthIndex >= 0 && monthIndex < 12) {
         monthlyData[monthIndex] = item.totalAmount;
@@ -61,13 +67,15 @@ module.exports.loadAdmin = async (req, res) => {
     });
 
     // Fetch best selling name, category, and brand
-    const bestSellingName = await adminHelpers.bestSelling('_id');
-    const bestSellingCategory = await adminHelpers.bestSelling('cetagory');
-    const bestSellingBrand = await adminHelpers.bestSelling('brand');
-    const topTenCategories = await adminHelpers.mapCategory(bestSellingCategory);
+    const bestSellingName = await adminHelpers.bestSelling("_id");
+    const bestSellingCategory = await adminHelpers.bestSelling("cetagory");
+    const bestSellingBrand = await adminHelpers.bestSelling("brand");
+    const topTenCategories = await adminHelpers.mapCategory(
+      bestSellingCategory
+    );
 
     // Render admin dashboard with data
-    res.render('adminDashboard', {
+    res.render("adminDashboard", {
       monthlyData,
       userCount,
       monthlyEarning,
@@ -81,7 +89,7 @@ module.exports.loadAdmin = async (req, res) => {
   } catch (error) {
     console.log(error);
     // Handle errors appropriately, maybe render an error page
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -277,7 +285,6 @@ module.exports.logout = (req, res) => {
   }
 };
 
-
 module.exports.loadOrder = async (req, res) => {
   try {
     const page = req.query.page;
@@ -336,7 +343,9 @@ module.exports.changeOrderStatus = async (req, res) => {
     );
 
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     if (status === "canceled") {
@@ -360,7 +369,7 @@ module.exports.changeOrderStatus = async (req, res) => {
     res.json({ success: true, status: status });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
@@ -379,7 +388,7 @@ module.exports.controlCancelation = async (req, res) => {
   console.log("cancelation");
   try {
     const { orderId, productId, index, decision } = req.body;
-    
+
     if (decision === "accepted") {
       return Order.findByIdAndUpdate(
         { _id: orderId, "products.productId": productId },
@@ -393,24 +402,25 @@ module.exports.controlCancelation = async (req, res) => {
           new: true,
         }
       )
-      .then(async (data) => {
-        const amount = data.products[index].coupon > 0
-          ? data.products[index].coupon
-          : data.products[index].price;
-        console.log(typeof amount, amount);
-        const quantity = data.products[index].quantity;
-        return product.findOneAndUpdate(
-          { _id: productId },
-          {
-            $inc: {
-              [`variant.${index}.stock`]: quantity,
-            },
-          }
-        );
-      })
-      .then(() => {
-        res.json({ success: true });
-      });
+        .then(async (data) => {
+          const amount =
+            data.products[index].coupon > 0
+              ? data.products[index].coupon
+              : data.products[index].price;
+          console.log(typeof amount, amount);
+          const quantity = data.products[index].quantity;
+          return product.findOneAndUpdate(
+            { _id: productId },
+            {
+              $inc: {
+                [`variant.${index}.stock`]: quantity,
+              },
+            }
+          );
+        })
+        .then(() => {
+          res.json({ success: true });
+        });
     } else if (decision === "denied") {
       await Order.findByIdAndUpdate(
         { _id: orderId, "products.productId": productId },
@@ -429,7 +439,6 @@ module.exports.controlCancelation = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 
 module.exports.loadSingleCancelation = async (req, res) => {
   try {
@@ -510,6 +519,3 @@ module.exports.returns = async (req, res) => {
     console.log(error);
   }
 };
-
-
-

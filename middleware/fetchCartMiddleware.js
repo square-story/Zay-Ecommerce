@@ -1,4 +1,4 @@
-const Cart = require('../models/cartModel');
+const Cart = require("../models/cartModel");
 
 const fetchCartMiddleware = async (req, res, next) => {
   if (req.session.user) {
@@ -7,7 +7,7 @@ const fetchCartMiddleware = async (req, res, next) => {
       const cart = await Cart.findOne({ user: userId });
       res.locals.cart = cart;
     } catch (error) {
-      console.error('Error fetching cart data:', error);
+      console.error("Error fetching cart data:", error);
       res.locals.cart = null;
     }
   } else {

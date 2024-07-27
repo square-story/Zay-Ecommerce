@@ -56,7 +56,7 @@ module.exports.addproduct = async (req, res) => {
     const isSave = await product.save();
 
     if (isSave) {
-      req.flash('pass',"product listed sucessfully")
+      req.flash("pass", "product listed sucessfully");
       res.redirect("/admin/addProduct");
     }
   } catch (error) {
@@ -301,7 +301,7 @@ module.exports.productdetiles = async (req, res) => {
         index: index,
         image: product.variant[index].images[0],
         totalRating,
-        related
+        related,
       });
     }
   } catch (error) {

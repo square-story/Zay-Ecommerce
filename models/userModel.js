@@ -37,7 +37,7 @@ const userSchema = mongoose.Schema({
   },
   wallet: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Wallet',
+    ref: "Wallet",
   },
 });
 

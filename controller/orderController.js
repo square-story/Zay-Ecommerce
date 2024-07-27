@@ -273,8 +273,6 @@ module.exports.placeOrder = async (req, res) => {
   }
 };
 
-
-
 // Handle payment failure
 module.exports.handlePaymentFailure = async (req, res) => {
   try {
@@ -288,12 +286,12 @@ module.exports.handlePaymentFailure = async (req, res) => {
       return res.status(400).json({ error: "Order not found" });
     }
 
-    if (order.status !== 'pending') {
+    if (order.status !== "pending") {
       return res.status(400).json({ error: "Order is not in pending state" });
     }
 
     // Update order status to "failed"
-    order.status = 'failed';
+    order.status = "failed";
     await order.save();
 
     res.json({ success: true });
@@ -302,7 +300,6 @@ module.exports.handlePaymentFailure = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 // Handle COD (Cash on Delivery) payment
 const handleCOD = async (orderDetails, userId, products) => {
@@ -337,21 +334,32 @@ module.exports.verifyPayment = async (req, res) => {
 
     if (status === "failed") {
       // Update order status to "failed"
-      console.log("failed message content: ",req.body)
+      console.log("failed message content: ", req.body);
       const order = await Order.findOne({ razorpayOrderId: order_id });
-      console.log("this is from order order failed to check the coupon applied : ",order);
+      console.log(
+        "this is from order order failed to check the coupon applied : ",
+        order
+      );
       if (order) {
         const coupon = await Coupon.findOne({ couponCode: order.couponCode });
-        console.log("hello from coupon opened :",coupon)
+        console.log("hello from coupon opened :", coupon);
         if (coupon) {
-          coupon.userUsed = coupon.userUsed.filter(userId => userId.toString() !== order.user.toString());
+          coupon.userUsed = coupon.userUsed.filter(
+            (userId) => userId.toString() !== order.user.toString()
+          );
           await coupon.save();
         }
       }
-      await Order.updateOne({ razorpayOrderId: order_id }, { status: "failed", failureReason: reason ,paymentStatus:"failed"});
+      await Order.updateOne(
+        { razorpayOrderId: order_id },
+        { status: "failed", failureReason: reason, paymentStatus: "failed" }
+      );
       await handleCOD(order, order.user, order.products);
       // Send response
-      return res.json({ success: false, message: "Payment failed. Please try again." });
+      return res.json({
+        success: false,
+        message: "Payment failed. Please try again.",
+      });
     }
 
     if (generatedSignature === signature) {
@@ -368,7 +376,7 @@ module.exports.verifyPayment = async (req, res) => {
 
       await handleCOD(order, order.user, order.products);
 
-      res.json({ success: true,orderId:order._id });
+      res.json({ success: true, orderId: order._id });
     } else {
       res
         .status(400)
@@ -383,15 +391,15 @@ module.exports.verifyPayment = async (req, res) => {
 module.exports.loadOrderSucces = (req, res) => {
   try {
     const orderStatus = req.query.status; // 'success' or 'failure'
-  const orderNumber = '123456';
-  const deliveryDate = new Date();
-  deliveryDate.setDate(deliveryDate.getDate() + 7); // Estimated delivery in 7 days
+    const orderNumber = "123456";
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 7); // Estimated delivery in 7 days
 
-  res.render('order-status', {
-    orderStatus,
-    orderNumber,
-    deliveryDate: deliveryDate.toDateString()
-  });
+    res.render("order-status", {
+      orderStatus,
+      orderNumber,
+      deliveryDate: deliveryDate.toDateString(),
+    });
   } catch (error) {
     console.log(error);
   }
@@ -469,8 +477,8 @@ module.exports.productReturn = async (req, res) => {
     const order = await Order.findById(orderId);
     if (
       order.paymentMethod === "wallet" ||
-      order.paymentMethod === "razorpay"||
-      order.paymentMethod ==="COD"
+      order.paymentMethod === "razorpay" ||
+      order.paymentMethod === "COD"
     ) {
       await updateWallet(
         userId,
@@ -517,20 +525,19 @@ module.exports.loadInvoice = async (req, res) => {
       .populate("products.productId");
 
     if (!order || !order.products || order.products.length === 0) {
-      return res.status(404).send('Order not found or no products in order');
+      return res.status(404).send("Order not found or no products in order");
     }
 
     res.render("invoice", {
       order,
       deliveryAddress: order.deliveryDetails,
-      index: index || 0
+      index: index || 0,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send('An error occurred while loading the invoice');
+    res.status(500).send("An error occurred while loading the invoice");
   }
 };
-
 
 module.exports.loadSingleProduct = async (req, res) => {
   try {
@@ -555,14 +562,15 @@ module.exports.loadSingleProduct = async (req, res) => {
   }
 };
 
-
 module.exports.retryPayment = async (req, res) => {
   try {
     const { orderId } = req.body;
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res.status(400).json({ success: false, message: "Order not found" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Order not found" });
     }
 
     // Create a new Razorpay order

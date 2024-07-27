@@ -1,6 +1,6 @@
 const Cart = require("../models/cartModel");
 const Coupon = require("../models/couponModel");
-const Wallet =require("../models/walletModel")
+const Wallet = require("../models/walletModel");
 
 module.exports.loadCoupon = async (req, res) => {
   try {
@@ -24,10 +24,9 @@ module.exports.loadCoupon = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
-
 
 module.exports.createCoupon = async (req, res) => {
   const { name, adate, edate, limit, damount } = req.body;
@@ -88,12 +87,14 @@ module.exports.checkCoupon = async (req, res) => {
       const limitOfCoupon = coupon.limit === -1 ? false : count >= coupon.limit;
 
       let dateStrings = [coupon.activationDate, coupon.expiresDate];
-      let isoDateStrings = dateStrings.map(dateString => {
+      let isoDateStrings = dateStrings.map((dateString) => {
         let dateArray = dateString.split("-");
         return `${dateArray[2]}-${dateArray[1]}-${dateArray[0]}T00:00:00.000Z`;
       });
 
-      let convertedDates = isoDateStrings.map(dateString => new Date(dateString));
+      let convertedDates = isoDateStrings.map(
+        (dateString) => new Date(dateString)
+      );
 
       const today = new Date();
       const active = new Date(coupon.activationDate);
@@ -109,7 +110,10 @@ module.exports.checkCoupon = async (req, res) => {
         const cart = await Cart.findOne({ user: userId });
 
         let discount = 0;
-        const total = cart.products.reduce((acc, crr) => acc + crr.totalPrice, 0);
+        const total = cart.products.reduce(
+          (acc, crr) => acc + crr.totalPrice,
+          0
+        );
 
         if (coupon.percentage) {
           discount = (coupon.percentage / 100) * total;
@@ -133,30 +137,26 @@ module.exports.checkCoupon = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
-
-
 
 module.exports.loadMyCoupon = async (req, res) => {
   try {
     const userId = req.session.user?._id;
     if (!userId) {
-      res.redirect('/')
+      res.redirect("/");
     }
     const wallet = await Wallet.findOne({ user: userId });
     const walletBalance = wallet ? wallet.balance : 0;
     const coupon = await Coupon.find();
-    res.render("myCoupon", { coupon: coupon , walletBalance });
+    res.render("myCoupon", { coupon: coupon, walletBalance });
   } catch (error) {
     console.log(error);
   }
 };
 
-module.exports.deleteCoupon = async (req,res)=>{
+module.exports.deleteCoupon = async (req, res) => {
   const { id } = req.body;
 
   try {
@@ -170,10 +170,10 @@ module.exports.deleteCoupon = async (req,res)=>{
 
       res.json({ success: true, totalPages: totalPages });
     } else {
-      res.json({ success: false, message: 'Coupon not found' });
+      res.json({ success: false, message: "Coupon not found" });
     }
   } catch (error) {
-    console.error('Error deleting coupon:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    console.error("Error deleting coupon:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
-}
+};
