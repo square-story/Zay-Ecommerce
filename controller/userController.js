@@ -34,8 +34,16 @@ module.exports.loadLogin = (req, res) => {
 
 module.exports.userLogin = async (req, res) => {
   try {
-    const email = req.body.email;
-    const user = await User.findOne({ email: req.body.email });
+    const email = req.body.email.trim();
+    const password = req.body.password.trim();
+
+    // Validate email and password presence
+    if (!email || !password) {
+      req.flash("blocked", "Email and password are required");
+      return res.redirect("/login");
+    }
+
+    const user = await User.findOne({ email });
     if (user) {
       if (user.verified) {
         if (user.isBlocked) {
@@ -43,9 +51,7 @@ module.exports.userLogin = async (req, res) => {
           res.redirect("/login");
           console.log("User is blocked");
         } else {
-          const enteredPass = req.body.password;
-          const databasePass = user.password;
-          const pass = await bcrypt.compare(enteredPass, databasePass);
+          const pass = await bcrypt.compare(password, user.password);
           console.log(pass);
           if (pass) {
             req.session.user = {
@@ -53,25 +59,26 @@ module.exports.userLogin = async (req, res) => {
               name: user.name,
               email: user.email,
             };
-
             res.redirect(`/`);
           } else {
-            req.flash("pass", "Enter correct password");
+            req.flash("blocked", "Enter correct password");
             res.redirect("/login");
-            console.log("enter correct password");
+            console.log("Incorrect password");
           }
         }
       } else {
         res.redirect(`/otp?email=${email}&is=${true}&first=${true}`);
-        console.log("user not verified");
+        console.log("User not verified");
       }
     } else {
       req.flash("found", "Email not found");
       res.redirect("/login");
-      console.log("user not found");
+      console.log("User not found");
     }
   } catch (error) {
     console.log(error);
+    req.flash("error", "An error occurred during login");
+    res.redirect("/login");
   }
 };
 
@@ -89,39 +96,67 @@ module.exports.loadRegister = (req, res) => {
 // register user
 module.exports.insertUser = async (req, res) => {
   try {
-    const uname = await User.findOne({ name: req.body.uname });
-    const email = await User.findOne({ email: req.body.email });
+    const { uname, email, phone, password, conform } = req.body;
 
-    if (uname) {
+    // Check if username or email already exists
+    const existingUserByName = await User.findOne({ name: uname });
+    const existingUserByEmail = await User.findOne({ email: email });
+
+    if (existingUserByName) {
       req.flash("uname", "Username already exists");
-      res.redirect("/signUp");
-    } else if (email) {
-      req.flash("email", "Email already exists");
-      res.redirect("/signUp");
-    } else {
-      const passHash = await bcrypt.hash(req.body.password, 10);
+      return res.redirect("/signUp");
+    }
 
-      const user = new User({
-        name: req.body.uname,
-        email: req.body.email,
-        mobile: req.body.phone,
-        password: passHash,
-        verified: false,
-      });
-      const wallet = new Wallet({ user: user._id });
-      user.wallet = wallet._id;
-      await wallet.save();
-      const save = await user.save();
-      // console.log(user.email);
-      if (save) {
-        sentOtp(user.email);
-        res.redirect(`/otp?email=${user.email}`);
-      } else {
-        console.log("not saved....");
-      }
+    if (existingUserByEmail) {
+      req.flash("email", "Email already exists");
+      return res.redirect("/signUp");
+    }
+
+    // Validate password
+    if (!password || password.trim() === "") {
+      req.flash("password", "Password cannot be empty");
+      return res.redirect("/signUp");
+    }
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
+    if (!passwordRegex.test(password.trim())) {
+      req.flash("password", "Password must be at least 6 characters long, contain at least one uppercase letter, and one special character");
+      return res.redirect("/signUp");
+    }
+
+    if (password !== conform) {
+      req.flash("password", "Passwords should be the same");
+      return res.redirect("/signUp");
+    }
+
+    // Hash password
+    const passHash = await bcrypt.hash(password, 10);
+
+    // Create and save user
+    const user = new User({
+      name: uname,
+      email: email,
+      mobile: phone,
+      password: passHash,
+      verified: false,
+    });
+
+    const wallet = new Wallet({ user: user._id });
+    user.wallet = wallet._id;
+
+    await wallet.save();
+    const savedUser = await user.save();
+
+    if (savedUser) {
+      sentOtp(user.email);
+      res.redirect(`/otp?email=${user.email}`);
+    } else {
+      console.log("User not saved.");
+      res.status(500).send("User registration failed.");
     }
   } catch (error) {
-    console.log(error);
+    console.error("Error in user registration:", error);
+    res.status(500).send("Server error");
   }
 };
 
@@ -171,22 +206,27 @@ const sentOtp = async (email) => {
 // load otp page
 module.exports.loadotp = async (req, res) => {
   try {
-    console.log(req.query.is, "is");
-    if (req.query.is && req.query.first) {
-      sentOtp(req.query.email);
+    const email = req.query.email;
+
+    // Check if email is provided
+    if (!email) {
+      return res.render('error', { message: "Email parameter is missing" });
     }
-    console.log(req.query.email);
-    const email = req.query.email || "******gmail.com";
 
     const user1 = await User.findOne({ email: email });
-    console.log(user1);
+
+    if (!user1) {
+      return res.render('error', { message: "User not found" });
+    }
+
     const verify = user1.verified;
-    console.log(verify);
     res.render("otp", { email: email, verify: verify });
   } catch (error) {
     console.log(error);
+    res.render('error', { message: "An unexpected error occurred" });
   }
 };
+
 
 // load login with otp page
 
@@ -257,23 +297,31 @@ module.exports.verifyOTP = async (req, res) => {
 // Login with otp
 module.exports.otpLogin = async (req, res) => {
   try {
-    const email = req.query.email;
-    const user = await User.findOne({ email: email });
+    const email = req.query.email.trim();
+    const otp1 = req.body.otp1.trim();
+    const otp2 = req.body.otp2.trim();
+    const otp3 = req.body.otp3.trim();
+    const otp4 = req.body.otp4.trim();
+
+    // Validate email and OTP presence
+    if (!email || !otp1 || !otp2 || !otp3 || !otp4) {
+      req.flash("error", "Email and OTP are required");
+      return res.redirect(`/otp?email=${email}&is=${true}`);
+    }
+
+    const user = await User.findOne({ email });
 
     if (!user) {
       req.flash("error", "User not found");
-      return res.redirect(`/login`); // Redirect to the login page if the user is not found
+      return res.redirect(`/login`);
     }
 
     if (user.isBlocked) {
-      req.flash(
-        "blocked",
-        "Your account is currently blocked. Please contact support."
-      );
-      return res.redirect(`/login`); // Redirect to the login page if the user is blocked
+      req.flash("blocked", "Your account is currently blocked. Please contact support.");
+      return res.redirect(`/login`);
     }
 
-    const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
+    const otp = otp1 + otp2 + otp3 + otp4;
     const find = await verifyOtp.findOne({ Email: email });
 
     if (!find) {
@@ -297,6 +345,8 @@ module.exports.otpLogin = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    req.flash("error", "An error occurred during OTP login");
+    res.redirect(`/otp?email=${email}&is=${true}`);
   }
 };
 

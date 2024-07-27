@@ -7,6 +7,8 @@ function alert(id) {
 }
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
+
 function validate() {
   let username = document.getElementById("uname");
   let password = document.getElementById("password");
@@ -14,55 +16,58 @@ function validate() {
   let userphone = document.getElementById("phone");
   let email = document.getElementById("email");
 
+  // Username validation
   if (!/^\w+$/.test(username.value)) {
     username.style.border = "solid 1px red";
-    userError.textContent = "Please enter valid username";
-    setTimeout(function () {
-      username.style.border = "";
-      userError.textContent = "";
-    }, 3000);
-
+    userError.textContent = "Please enter a valid username";
+    alert(userError);
     return false;
-  } else if (
-    email.value.indexOf("@") == -1 ||
-    !emailRegex.test(email.value.trim()) ||
-    email.value.trim() === ""
-  ) {
+  }
+
+  // Email validation
+  if (!emailRegex.test(email.value.trim())) {
     email.style.border = "solid 1px red";
     emailError.textContent = "Please enter a valid email address";
-
-    setTimeout(() => {
-      email.style.border = "";
-      emailError.textContent = "";
-    }, 3000);
-
+    alert(emailError);
     return false;
-  } else if (
-    userphone.value.trim().length < 10 ||
-    !/^\d+$/.test(userphone.value)
-  ) {
-    userphone.style.border = "solid 1px red";
-    phoneErr.textContent = "Mobile number should be an Number with  10 digits";
-    setTimeout(function () {
-      userphone.style.border = "";
-      phoneErr.textContent = "";
-    }, 3000);
-    return false;
-  }  else if (password.value !== passwordconf.value) {
-    passwordconf.style.border = "solid 1px red";
-    passwordError2.textContent = "Password should be same";
-    setTimeout(function () {
-      passwordconf.style.border = "";
-      passwordError2.textContent = "";
-    }, 3000);
-    return false;
-  } else {
-    true;
   }
+
+  // Phone number validation
+  if (userphone.value.trim().length !== 10 || !/^\d+$/.test(userphone.value)) {
+    userphone.style.border = "solid 1px red";
+    phoneErr.textContent = "Mobile number should be a number with 10 digits";
+    alert(phoneErr);
+    return false;
+  }
+
+  // Password validation
+  if (password.value.trim() === "") {
+    password.style.border = "solid 1px red";
+    passwordError.textContent = "Password cannot be empty";
+    alert(passwordError);
+    return false;
+  } else if (!passwordRegex.test(password.value.trim())) {
+    password.style.border = "solid 1px red";
+    passwordError.textContent = "Password must be at least 6 characters long, contain at least one uppercase letter, and one special character";
+    alert(passwordError);
+    return false;
+  }
+
+  // Password confirmation validation
+  if (password.value !== passwordconf.value) {
+    passwordconf.style.border = "solid 1px red";
+    passwordError2.textContent = "Passwords should be the same";
+    alert(passwordError2);
+    return false;
+  }
+
+  return true;
 }
 
 const serverError = document.querySelector(".serverError");
 
 setTimeout(() => {
-  serverError.style.display = "none";
+  if (serverError) {
+    serverError.style.display = "none";
+  }
 }, 3000);
