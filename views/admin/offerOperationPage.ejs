@@ -18,6 +18,11 @@
     .btn-group .btn {
       min-width: 80px; /* Ensure buttons have a minimum width for uniformity */
     }
+    .validation-error {
+      color: red;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
   </style>
 
 <script>
@@ -30,182 +35,178 @@
 <body>
   <%- include('../partials/sidenav.ejs') -%>
   <main class="main-wrap">
+    <% if (successMessages.length > 0) { %>
+      <div class="alert alert-success">
+        <% successMessages.forEach(msg => { %>
+          <p><%= msg %></p>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (errorMessages.length > 0) { %>
+      <div class="alert alert-danger">
+        <% errorMessages.forEach(msg => { %>
+          <p><%= msg %></p>
+        <% }) %>
+      </div>
+    <% } %>
     <!-- Create Offer Modal -->
     <div class="modal fade" id="createOfferModal" tabindex="-1" aria-labelledby="createOfferModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="createOfferModalLabel">Create Offer</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form action="/admin/create-offer" method="post" id="createOfferForm">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="createOfferModalLabel">Create Offer</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="/admin/create-offer" method="post" id="createOfferForm">
+              <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
-                <input type="text" name="name" placeholder="Enter offer name" class="form-control" required />
-      
-                <div class="mb-3">
-                  <label for="adate" class="form-label">Activation Date</label>
-                  <input
-                    type="date"
-                    name="adate"
-                    class="form-control"
-                    required
-                  />
-                </div>
+                <input type="text" name="name" placeholder="Enter offer name" class="form-control" />
+                <div class="validation-error" id="nameError"></div>
+              </div>
 
-                <div class="mb-3">
-                  <label for="edate" class="form-label">Expire Date</label>
-                  <input
-                    type="date"
-                    name="edate"
-                    class="form-control"
-                    required
-                  />
+              <div class="mb-3">
+                <label for="adate" class="form-label">Activation Date</label>
+                <input type="date" name="adate" class="form-control" />
+                <div class="validation-error" id="adateError"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="edate" class="form-label">Expire Date</label>
+                <input type="date" name="edate" class="form-control" />
+                <div class="validation-error" id="edateError"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="damount" class="form-label">Discount Amount (%)</label>
+                <input type="number" name="damount" placeholder="Enter discount percentage" class="form-control" />
+                <div class="validation-error" id="damountError"></div>
+              </div>
+
+              <label for="type" class="form-label">Offer Type</label>
+              <select name="type" class="form-select" onchange="toggleOfferTypeFields(this.value)">
+                <option value="product">Product</option>
+                <option value="category">Category</option>
+              </select>
+
+              <div id="productOfferFields" class="mt-3" style="display: none;">
+                <label class="form-label">Select Products</label>
+                <div>
+                  <% products.forEach(product => { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="productIds" value="<%= product._id %>" id="product_<%= product._id %>">
+                      <label class="form-check-label" for="product_<%= product._id %>">
+                        <%= product.name %>
+                      </label>
+                    </div>
+                  <% }) %>
                 </div>
-      
-                <div class="mb-3">
-                  <label for="damount" class="form-label">Discount Percentage</label>
-                  <input
-                    type="number"
-                    name="damount"
-                    placeholder="Enter discount percentage"
-                    class="form-control"
-                    required
-                  />
+              </div>
+
+              <div id="categoryOfferFields" class="mt-3" style="display: none;">
+                <label class="form-label">Select Categories</label>
+                <div>
+                  <% categories.forEach(category => { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="categoryIds" value="<%= category._id %>" id="category_<%= category._id %>">
+                      <label class="form-check-label" for="category_<%= category._id %>">
+                        <%= category.name %>
+                      </label>
+                    </div>
+                  <% }) %>
                 </div>
-                <label for="type" class="form-label">Offer Type</label>
-                <select name="type" class="form-select" onchange="toggleOfferTypeFields(this.value)">
-                  <option value="product">Product</option>
-                  <option value="category">Category</option>
-                </select>
-      
-                <div id="productOfferFields" class="mt-3" style="display: none;">
-                  <label class="form-label">Select Products</label>
-                  <div>
-                    <% products.forEach(product => { %>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="productIds" value="<%= product._id %>" id="product_<%= product._id %>">
-                        <label class="form-check-label" for="product_<%= product._id %>">
-                          <%= product.name %>
-                        </label>
-                      </div>
-                    <% }) %>
-                  </div>
-                </div>
-      
-                <div id="categoryOfferFields" class="mt-3" style="display: none;">
-                  <label class="form-label">Select Categories</label>
-                  <div>
-                    <% categories.forEach(category => { %>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="categoryIds" value="<%= category._id %>" id="category_<%= category._id %>">
-                        <label class="form-check-label" for="category_<%= category._id %>">
-                          <%= category.name %>
-                        </label>
-                      </div>
-                    <% }) %>
-                  </div>
-                </div>
-      
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Save changes</button>
-                </div>
-              </form>
-            </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create Offer</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
+    </div>
+
 
     <!-- Edit Offer Modal -->
     <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="editOfferModalLabel">Edit Offer</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form action="/admin/edit-offer?_method=PUT" method="post" id="editOfferForm">
-                <input type="hidden" id="editOfferId" name="id" />
-      
-                <label for="name" class="form-label">Name</label>
-                <input type="text" id="editName" name="name" placeholder="Enter offer name" class="form-control" required />
-      
-                <div class="mb-3">
-                  <label for="adate" class="form-label">Activation Date</label>
-                  <input
-                    type="date"
-                    name="adate"
-                    class="form-control"
-                    required
-                  />
-                </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="editOfferModalLabel">Edit Offer</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="/admin/edit-offer?_method=PUT" method="post" id="editOfferForm">
+              <input type="hidden" id="editOfferId" name="id" />
+              <div class="mb-3">
+                <label for="editName" class="form-label">Name</label>
+                <input type="text" id="editName" name="name" placeholder="Enter offer name" class="form-control" />
+                <div class="validation-error" id="editNameError"></div>
+              </div>
 
-                <div class="mb-3">
-                  <label for="edate" class="form-label">Expire Date</label>
-                  <input
-                    type="date"
-                    name="edate"
-                    class="form-control"
-                    required
-                  />
-                </div>
-      
-                <div class="mb-3">
-                  <label for="damount" class="form-label">Discount Percentage</label>
-                  <input
-                    type="number"
-                    name="damount"
-                    placeholder="Enter discount percentage"
-                    class="form-control"
-                    required
-                  />
-                </div>
-                <label for="type" class="form-label">Offer Type</label>
-                <select id="editType" name="type" class="form-select" onchange="toggleEditOfferTypeFields(this.value)">
-                  <option value="product">Product</option>
-                  <option value="category">Category</option>
-                </select>
-      
-                <div id="editProductOfferFields" class="mt-3" style="display: none;">
-                  <label class="form-label">Select Products</label>
-                  <div>
-                    <% products.forEach(product => { %>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="productIds" value="<%= product._id %>" id="edit_product_<%= product._id %>">
-                        <label class="form-check-label" for="edit_product_<%= product._id %>">
-                          <%= product.name %>
-                        </label>
-                      </div>
-                    <% }) %>
-                  </div>
-                </div>
-      
+              <div class="mb-3">
+                <label for="editAdate" class="form-label">Activation Date</label>
+                <input type="date" id="editAdate" name="adate" class="form-control" />
+                <div class="validation-error" id="editAdateError"></div>
+              </div>
 
-                <div id="editCategoryOfferFields" class="mt-3" style="display: none;">
-                  <label class="form-label">Select Categories</label>
-                  <div>
-                    <% categories.forEach(category => { %>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="categoryIds" value="<%= category._id %>" id="edit_category_<%= category._id %>">
-                        <label class="form-check-label" for="edit_category_<%= category._id %>">
-                          <%= category.name %>
-                        </label>
-                      </div>
-                    <% }) %>
-                  </div>
+              <div class="mb-3">
+                <label for="editEdate" class="form-label">Expire Date</label>
+                <input type="date" id="editEdate" name="edate" class="form-control" />
+                <div class="validation-error" id="editEdateError"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="editDamount" class="form-label">Discount Amount (%)</label>
+                <input type="number" id="editDamount" name="damount" placeholder="Enter discount percentage" class="form-control" />
+                <div class="validation-error" id="editDamountError"></div>
+              </div>
+
+              <label for="editType" class="form-label">Offer Type</label>
+              <select id="editType" name="type" class="form-select" onchange="toggleEditOfferTypeFields(this.value)">
+                <option value="product">Product</option>
+                <option value="category">Category</option>
+              </select>
+
+              <div id="editProductOfferFields" class="mt-3" style="display: none;">
+                <label class="form-label">Select Products</label>
+                <div>
+                  <% products.forEach(product => { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="productIds" value="<%= product._id %>" id="edit_product_<%= product._id %>">
+                      <label class="form-check-label" for="edit_product_<%= product._id %>">
+                        <%= product.name %>
+                      </label>
+                    </div>
+                  <% }) %>
                 </div>
-      
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+
+              <div id="editCategoryOfferFields" class="mt-3" style="display: none;">
+                <label class="form-label">Select Categories</label>
+                <div>
+                  <% categories.forEach(category => { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="categoryIds" value="<%= category._id %>" id="edit_category_<%= category._id %>">
+                      <label class="form-check-label" for="edit_category_<%= category._id %>">
+                        <%= category.name %>
+                      </label>
+                    </div>
+                  <% }) %>
                 </div>
-              </form>
-            </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
+    </div>
 
     <section class="content-main">
       <div class="content-header">
@@ -226,6 +227,7 @@
                   <th>Activation Date</th>
                   <th>Expiration Date</th>
                   <th>Discount</th>
+                  <th>Type</th>
                   <th class="text-end">Actions</th>
                 </tr>
               </thead>
@@ -236,6 +238,7 @@
                     <td><script>document.write(formatDate('<%= offer.adate %>'));</script></td>
                     <td><script>document.write(formatDate('<%= offer.edate %>'));</script></td>
                     <td><%= offer.damount %>%</td>
+                    <td><%= offer.type %></td>
                     <td class="text-end">
                       <div class="btn-group">
                         <button class="btn btn-primary" onclick="editOffer('<%= offer._id %>', '<%= offer.name %>', '<%= offer.adate %>', '<%= offer.edate %>', '<%= offer.damount %>')" data-bs-toggle="modal" data-bs-target="#editOfferModal">Edit</button>
@@ -261,7 +264,91 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.28/dist/sweetalert2.all.min.js"></script>
   <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
 
-  <script>  
+  <script>
+    document.getElementById('createOfferForm').addEventListener('submit', function(event) {
+      if (!validateForm('createOfferForm')) {
+        event.preventDefault();
+      }
+    });
+
+    document.getElementById('editOfferForm').addEventListener('submit', function(event) {
+      if (!validateForm('editOfferForm')) {
+        event.preventDefault();
+      }
+    });
+
+    function validateForm(formId) {
+      var isValid = true;
+      var form = document.getElementById(formId);
+
+      var name = form.querySelector('input[name="name"]');
+      var adate = form.querySelector('input[name="adate"]');
+      var edate = form.querySelector('input[name="edate"]');
+      var damount = form.querySelector('input[name="damount"]');
+
+      if (name.value.trim() === '') {
+        document.getElementById(formId === 'createOfferForm' ? 'nameError' : 'editNameError').innerText = 'Please enter a name.';
+        isValid = false;
+      } else {
+        document.getElementById(formId === 'createOfferForm' ? 'nameError' : 'editNameError').innerText = '';
+      }
+
+      if (adate.value === '') {
+        document.getElementById(formId === 'createOfferForm' ? 'adateError' : 'editAdateError').innerText = 'Please select an activation date.';
+        isValid = false;
+      } else {
+        document.getElementById(formId === 'createOfferForm' ? 'adateError' : 'editAdateError').innerText = '';
+      }
+
+      if (edate.value === '') {
+        document.getElementById(formId === 'createOfferForm' ? 'edateError' : 'editEdateError').innerText = 'Please select an expire date.';
+        isValid = false;
+      } else {
+        document.getElementById(formId === 'createOfferForm' ? 'edateError' : 'editEdateError').innerText = '';
+      }
+
+      if (damount.value === '' || damount.value <= 0) {
+        document.getElementById(formId === 'createOfferForm' ? 'damountError' : 'editDamountError').innerText = 'Please enter a valid discount amount.';
+        isValid = false;
+      } else {
+        document.getElementById(formId === 'createOfferForm' ? 'damountError' : 'editDamountError').innerText = '';
+      }
+
+      return isValid;
+    }
+
+    function toggleOfferTypeFields(value) {
+      document.getElementById('productOfferFields').style.display = value === 'product' ? 'block' : 'none';
+      document.getElementById('categoryOfferFields').style.display = value === 'category' ? 'block' : 'none';
+    }
+
+    function toggleEditOfferTypeFields(value) {
+      document.getElementById('editProductOfferFields').style.display = value === 'product' ? 'block' : 'none';
+      document.getElementById('editCategoryOfferFields').style.display = value === 'category' ? 'block' : 'none';
+    }
+
+    function editOffer(id, name, adate, edate, damount, type, productIds, categoryIds) {
+      document.getElementById('editOfferId').value = id;
+      document.getElementById('editName').value = name;
+      document.getElementById('editAdate').value = adate;
+      document.getElementById('editEdate').value = edate;
+      document.getElementById('editDamount').value = damount;
+      document.getElementById('editType').value = type;
+
+      toggleEditOfferTypeFields(type);
+
+      if (type === 'product') {
+        document.querySelectorAll('#editProductOfferFields input[type="checkbox"]').forEach(checkbox => {
+          checkbox.checked = productIds.includes(checkbox.value);
+        });
+      } else if (type === 'category') {
+        document.querySelectorAll('#editCategoryOfferFields input[type="checkbox"]').forEach(checkbox => {
+          checkbox.checked = categoryIds.includes(checkbox.value);
+        });
+      }
+    }
+
+
     function deleteOffer(id) {
       const data = { id: id };
 
@@ -300,44 +387,6 @@
           });
         }
       });
-    }
-
-    function editOffer(id, name, adate, edate, damount, limit) {
-      document.getElementById("editOfferId").value = id;
-      document.getElementById("editName").value = name;
-      document.getElementById("editAdate").value = adate;
-      document.getElementById("editEdate").value = edate;
-      document.getElementById("editDamount").value = damount;
-      document.getElementById("editLimit").value = limit;
-    }
-  </script>
-
-<script>
-function toggleOfferTypeFields(value) {
-  document.getElementById('productOfferFields').style.display = value === 'product' ? 'block' : 'none';
-  document.getElementById('categoryOfferFields').style.display = value === 'category' ? 'block' : 'none';
-}
-  
-function toggleEditOfferTypeFields(value) {
-  document.getElementById('editProductOfferFields').style.display = value === 'product' ? 'block' : 'none';
-  document.getElementById('editCategoryOfferFields').style.display = value === 'category' ? 'block' : 'none';
-}
-  
-    function editOffer(id, name, adate, edate, damount, limit, type, productId, categoryId) {
-      document.getElementById('editOfferId').value = id;
-      document.getElementById('editName').value = name;
-      document.getElementById('editAdate').value = adate;
-      document.getElementById('editEdate').value = edate;
-      document.getElementById('editDamount').value = damount;
-      document.getElementById('editType').value = type;
-  
-      toggleEditOfferTypeFields(type);
-  
-      if (type === 'product') {
-        document.getElementById('editProductId').value = productId;
-      } else if (type === 'category') {
-        document.getElementById('editCategoryId').value = categoryId;
-      }
     }
   </script>
 </body>

@@ -3,15 +3,41 @@ const Offer = require("../models/offerModel");
 const Product = require("../models/product");
 const Category = require("../models/cetagory");
 
-//offer operation page render
+const formatDate = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${year}-${month}-${day}`;
+};
+
 module.exports.loadAdminOfferPage = async (req, res) => {
   try {
     const offers = await Offer.find({});
     const products = await Product.find({});
     const categories = await Category.find({});
-    res.render("offerOperationPage", { offers, products, categories });
+
+    // Format the dates before passing them to the template
+    const formattedOffers = offers.map((offer) => ({
+      ...offer.toObject(),
+      adate: formatDate(offer.adate),
+      edate: formatDate(offer.edate),
+    }));
+
+    // Load flash messages
+    const successMessages = req.flash('successMessages');
+    const errorMessages = req.flash('errorMessages');
+
+    res.render("offerOperationPage", { 
+      offers: formattedOffers, 
+      products, 
+      categories, 
+      successMessages, 
+      errorMessages 
+    });
   } catch (error) {
-    res.status(500).send("Failed to retrieve offers");
+    req.flash('errorMessages', 'Failed to retrieve offers');
+    res.status(500).redirect("/admin/offer-management");
     console.log(error);
   }
 };
@@ -21,20 +47,34 @@ module.exports.createOfferPost = async (req, res) => {
   try {
     const { name, adate, edate, damount, type, productIds, categoryIds } =
       req.body;
+      const discountAmount = parseFloat(damount);
+      if (isNaN(discountAmount) || discountAmount <= 0) {
+        return res.status(400).json({ error: 'Invalid discount amount' });
+      }
+      console.log(typeof damount)
+
+        // Check if the discount amount is more than 100%
+      if (damount > 100) {
+        req.flash('errorMessages', 'Discount amount cannot exceed 100%.');
+        return res.redirect('/admin/offer-management');
+      }
+
     const offer = new Offer({
       name,
-      adate,
-      edate,
-      damount,
+      adate:new Date(adate),
+      edate: new Date(edate),
+      damount:discountAmount,
       type,
       applicableToProducts: type === "product" ? productIds : [],
       applicableToCategories: type === "category" ? categoryIds : [],
     });
     await offer.save();
     await applyOfferToProducts(offer);
+    req.flash('successMessages', 'Offer created successfully.');
     res.redirect("/admin/offer-management");
   } catch (error) {
-    res.status(500).send(error.message);
+    req.flash('errorMessages', 'Failed to create offer.');
+    res.redirect('/admin/offer-management');
   }
 };
 
@@ -43,20 +83,42 @@ module.exports.editOfferPost = async (req, res) => {
   try {
     const { id, name, adate, edate, damount, type, productIds, categoryIds } =
       req.body;
+
+        // Convert damount to a number
+  const discountAmount = parseFloat(damount);
+  if (isNaN(discountAmount) || discountAmount <= 0) {
+    return res.status(400).json({ error: 'Invalid discount amount' });
+  }
+
+    // Check if the discount amount is more than 100%
+    if (damount > 100) {
+      req.flash('errorMessages', 'Discount amount cannot exceed 100%.');
+      return res.redirect('/admin/offer-management');
+    }
+
+
     const offer = await Offer.findById(id);
+
+    if (!offer) {
+      req.flash('errorMessages', 'Offer not found.');
+      return res.redirect('/admin/offers');
+    }
     await removeOfferFromProducts(offer); // Remove old offer
+
     offer.name = name;
-    offer.adate = adate;
-    offer.edate = edate;
-    offer.damount = damount;
+    offer.adate = new Date(adate);
+    offer.edate = new Date(edate);
+    offer.damount = discountAmount;
     offer.type = type;
     offer.applicableToProducts = type === "product" ? productIds : [];
     offer.applicableToCategories = type === "category" ? categoryIds : [];
     await offer.save();
     await applyOfferToProducts(offer); // Apply new offer
+    req.flash('successMessages', 'Offer updated successfully.');
     res.redirect("/admin/offer-management");
   } catch (error) {
-    res.status(500).send(error.message);
+    req.flash('errorMessages', 'Failed to update offer.');
+    res.redirect("/admin/offer-management");
   }
 };
 
