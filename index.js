@@ -11,9 +11,6 @@ const Wishlist = require("./models/wishlistModel");
 
 const app = express();
 
-//for offer date operation
-const cron = require('./helpers/cronFile');
-
 // Session middleware setup
 app.use(session({
   secret: process.env.SESSION_SECRET,
