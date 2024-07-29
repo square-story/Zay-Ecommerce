@@ -90,63 +90,75 @@
         </div>
     </div>
     
-          <div class="col-lg-9">
-            <div class="row" id="productContainer">
-              <% product.forEach((item, i) => { %>
-                <% if (item.cetagory.isListed) { %>
-                  <div class="col-md-4">
-                    <div class="card mb-4 product-wap rounded-0">
-                      <div class="card rounded-0 position-relative">
-                        <img class="card-img rounded-0 img-fluid" src="/img/productImage/sharp/<%= item.variant[0].images[0] %>" alt="<%= item.name %>">
-                        <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
-                          <ul class="list-unstyled">
-                            <li><a class="btn btn-success text-white" onclick="addToWishlist('<%= item._id %>')" href="/wishlist"><i class="far fa-heart"></i></a></li>
-                            <li><a class="btn btn-success text-white mt-2" href="/productDetails?id=<%= item._id %>&index=0"><i class="far fa-eye"></i></a></li>
-                          </ul>
-                        </div>
-                        <% if (item.variant[0].stock === 0) { %>
-                          <div class="badge bg-danger text-white position-absolute m-2">Out of Stock</div>
-                        <% } else { %>
-                          <% if (item.variant[0].stock < 10) { %>
-                            <div class="badge bg-warning text-white position-absolute m-2">Few stocks left</div>
-                          <% } %>
-                          <% const fiveDaysAgo = new Date(); fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5); %>
-                          <% if (new Date(item.variant[0].created) > fiveDaysAgo) { %>
-                            <div class="badge bg-success text-white position-absolute m-2">New Arrival Grab Now</div>
-                          <% } %>
-                        <% } %>
-                      </div>
-                      <div class="card-body">
-                        <a href="/productDetails?id=<%= item._id %>&index=0" class="h3 text-decoration-none"><%= item.name %></a>
-                        <ul class="w-100 list-unstyled d-flex justify-content-between mb-0">
-                          <li><%= item.size %></li>
-                        </ul>
-                        <ul class="list-unstyled d-flex justify-content-center mb-1">
-                          <li>
-                            <i class="text-warning fa fa-star"></i>
-                            <i class="text-warning fa fa-star"></i>
-                            <i class="text-warning fa fa-star"></i>
-                            <i class="text-muted fa fa-star"></i>
-                            <i class="text-muted fa fa-star"></i>
-                          </li>
-                        </ul>
-                        <p class="text-center mb-0">₹<%= item.variant[0].offerPrice %></p>
-                      </div>
+    <div class="col-lg-9">
+        <div class="row" id="productContainer">
+          <% product.forEach((item, i) => { %>
+            <% if (item.cetagory.isListed) { %>
+              <div class="col-md-4">
+                <div class="card mb-4 product-wap rounded-0">
+                  <div class="card rounded-0 position-relative">
+                    <img class="card-img rounded-0 img-fluid" src="/img/productImage/sharp/<%= item.variant[0].images[0] %>" alt="<%= item.name %>">
+                    <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
+                      <ul class="list-unstyled">
+                        <li><a class="btn btn-success text-white" onclick="addToWishlist('<%= item._id %>')" href="/wishlist"><i class="far fa-heart"></i></a></li>
+                        <li><a class="btn btn-success text-white mt-2" href="/productDetails?id=<%= item._id %>&index=0"><i class="far fa-eye"></i></a></li>
+                      </ul>
                     </div>
+                    <% if (item.variant[0].stock === 0) { %>
+                      <div class="badge bg-danger text-white position-absolute m-2">Out of Stock</div>
+                    <% } else { %>
+                      <% if (item.variant[0].stock < 10) { %>
+                        <div class="badge bg-warning text-white position-absolute m-2">Few stocks left</div>
+                      <% } %>
+                      <% const fiveDaysAgo = new Date(); fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5); %>
+                      <% if (new Date(item.variant[0].created) > fiveDaysAgo) { %>
+                        <div class="badge bg-success text-white position-absolute m-2">New Arrival Grab Now</div>
+                      <% } %>
+                    <% } %>
                   </div>
-                <% } %>
-              <% }) %>
-            </div>
-            <div class="row">
-              <ul class="pagination pagination-lg justify-content-end">
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                  <li class="page-item <%= i === currentPage ? 'disabled' : '' %>">
-                    <a class="page-link <%= i === currentPage ? 'active' : '' %> rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="/shop?page=<%= i %>&sort=<%= sortOption %>"><%= i %></a>
-                  </li>
-                <% } %>
-              </ul>
-            </div>
-          </div>
+                  <div class="card-body">
+                    <a href="/productDetails?id=<%= item._id %>&index=0" class="h3 text-decoration-none"><%= item.name %></a>
+                    <ul class="w-100 list-unstyled d-flex justify-content-between mb-0">
+                      <li><%= item.size %></li>
+                    </ul>
+                    <ul class="list-unstyled d-flex justify-content-center mb-1">
+                      <li>
+                        <i class="text-warning fa fa-star"></i>
+                        <i class="text-warning fa fa-star"></i>
+                        <i class="text-warning fa fa-star"></i>
+                        <i class="text-muted fa fa-star"></i>
+                        <i class="text-muted fa fa-star"></i>
+                      </li>
+                    </ul>
+                    <p class="text-center mb-0">
+                      <% if (item.variant[0].offerPrice < item.variant[0].price) { %>
+                        <span class="text-muted text-decoration-line-through">₹<%= item.variant[0].price %></span><br>
+                        <span class="text-danger">₹<%= item.variant[0].offerPrice %></span><br>
+                        <% 
+                          const offerPercentage = Math.round(((item.variant[0].price - item.variant[0].offerPrice) / item.variant[0].price) * 100);
+                        %>
+                        <span class="badge bg-danger">Save <%= offerPercentage %>%</span>
+                      <% } else { %>
+                        ₹<%= item.variant[0].price %>
+                      <% } %>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            <% } %>
+          <% }) %>
+        </div>
+        <div class="row">
+          <ul class="pagination pagination-lg justify-content-end">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= i === currentPage ? 'disabled' : '' %>">
+                <a class="page-link <%= i === currentPage ? 'active' : '' %> rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="/shop?page=<%= i %>&sort=<%= sortOption %>"><%= i %></a>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+      
           
           
         
