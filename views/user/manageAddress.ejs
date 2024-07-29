@@ -522,26 +522,70 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Your code here
+    // Initialization code here
   });
-  const myForm = document.getElementById("form");
-  const btn = document.getElementById("address");
+
+  const addForm = document.getElementById("form");
+  const addBtn = document.getElementById("address");
+
   function addAddress() {
-    btn.addEventListener("click", () => {
-      myForm.style.display = "block";
-      btn.style.display = "none";
+    addBtn.addEventListener("click", () => {
+      addForm.style.display = "block";
+      addBtn.style.display = "none";
     });
   }
 
   document.getElementById("cancel").addEventListener("click", () => {
-    myForm.style.display = "none";
-    btn.style.display = "block";
+    addForm.style.display = "none";
+    addBtn.style.display = "block";
   });
 
   const editForm = document.getElementById("editForm");
   document.getElementById("editCancel").addEventListener("click", () => {
     editForm.style.display = "none";
-    btn.style.display = "block";
+    addBtn.style.display = "block";
+  });
+
+  // Address form validation function
+  function validateAddressForm(form) {
+    const firstName = form.querySelector('[name="fname"]').value.trim();
+    const lastName = form.querySelector('[name="lname"]').value.trim();
+    const email = form.querySelector('[name="email"]').value.trim();
+    const phone = form.querySelector('[name="phone"]').value.trim();
+    const address = form.querySelector('[name="address"]').value.trim();
+    const city = form.querySelector('[name="city"]').value.trim();
+    const state = form.querySelector('[name="state"]').value.trim();
+    const pin = form.querySelector('[name="pin"]').value.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phonePattern = /^\d{10}$/;
+
+    if (!firstName || !lastName || !email || !phone || !address || !city || !state || !pin) {
+      Swal.fire("Error", "All fields marked with * are required.", "error");
+      return false;
+    }
+    if (!emailPattern.test(email)) {
+      Swal.fire("Error", "Please enter a valid email address.", "error");
+      return false;
+    }
+    if (!phonePattern.test(phone)) {
+      Swal.fire("Error", "Please enter a valid 10-digit phone number.", "error");
+      return false;
+    }
+    return true;
+  }
+
+  // Submit handler for add address form
+  addForm.querySelector("form").addEventListener("submit", function (e) {
+    if (!validateAddressForm(addForm)) {
+      e.preventDefault();
+    }
+  });
+
+  // Submit handler for edit address form
+  editForm.querySelector("form").addEventListener("submit", function (e) {
+    if (!validateAddressForm(editForm)) {
+      e.preventDefault();
+    }
   });
 
   const action = document.querySelectorAll(".dot");
@@ -564,23 +608,19 @@
   });
 
   function editAddress(index) {
-    console.log("revice");
     const addresses = JSON.parse(
       document.getElementById("addressArray").getAttribute("data-address")
     );
 
     const address = addresses[index];
-    console.log("adresss", address);
-    const myForm = document.getElementById("editForm");
-    myForm.style.display = "block";
-    btn.style.display = "none";
-    const [fisrtName, lastName] = address.fullName.split(" ");
-    console.log(fisrtName);
-    document.getElementById("editFirstname").value = fisrtName;
+    const editForm = document.getElementById("editForm");
+    editForm.style.display = "block";
+    addBtn.style.display = "none";
+    const [firstName, lastName] = address.fullName.split(" ");
+    document.getElementById("editFirstname").value = firstName;
     document.getElementById("editLastName").value = lastName;
     document.getElementById("country").value = address.country;
     document.getElementById("editAddress").value = address.address;
-    document.getElementById("editCity").value = address.city;
     document.getElementById("editCity").value = address.city;
     document.getElementById("editState").value = address.state;
     document.getElementById("editPin").value = address.pincode;
@@ -590,14 +630,13 @@
   }
 
   function deleteAddress(index) {
-    console.log("delete");
     if (!index) {
       return;
     }
 
     Swal.fire({
-      title: "Are you sure",
-      text: `do you want to delete address ${parseInt(index) + 1}!`,
+      title: "Are you sure?",
+      text: `Do you want to delete address ${parseInt(index) + 1}!`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
