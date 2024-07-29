@@ -265,7 +265,14 @@ module.exports.loadAddProduct = (req, res) => {
     return Catagery.find()
       .then((data) => {
         console.log(data[1].name);
-        res.render("addProduct", { cetagory: data });
+        res.render("addProduct", { cetagory: data ,
+          messages: {
+          blocked: req.flash('blocked'),
+          pass: req.flash('pass'),
+          found: req.flash('found')
+        },
+        data: req.flash('data')[0] || {}
+      });
       })
       .catch((err) => {
         console.log(err);

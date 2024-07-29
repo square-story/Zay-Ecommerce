@@ -29,25 +29,30 @@
           <div class="col-9">
             <div class="content-header">
               <h2 class="content-title">Add New Product</h2>
-              <%if(messages.blocked) {%>
-
-              <div class="alert alert-danger" role="alert">
-                <%= messages.blocked %>
-              </div>
-
-              <%}%> <%if(messages.pass) {%>
-
-              <div class="alert alert-success" role="alert">
-                <%= messages.pass %>
-              </div>
-
-              <%}%> <%if(messages.found) {%>
-
-              <div class="alert alert-danger" role="alert">
-                <%= messages.found %>
-              </div>
-
-              <%}%>
+              
+              <% if (messages.blocked && messages.blocked.length > 0) { %>
+                <div class="alert alert-danger" role="alert">
+                  <% messages.blocked.forEach(function(message) { %>
+                    <p><%= message %></p>
+                  <% }) %>
+                </div>
+              <% } %>
+              
+              <% if (messages.pass && messages.pass.length > 0) { %>
+                <div class="alert alert-success" role="alert">
+                  <% messages.pass.forEach(function(message) { %>
+                    <p><%= message %></p>
+                  <% }) %>
+                </div>
+              <% } %>
+              
+              <% if (messages.found && messages.found.length > 0) { %>
+                <div class="alert alert-danger" role="alert">
+                  <% messages.found.forEach(function(message) { %>
+                    <p><%= message %></p>
+                  <% }) %>
+                </div>
+              <% } %>
             </div>
           </div>
           <div class="col-lg-8">

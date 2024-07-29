@@ -7,10 +7,56 @@ const sharp = require("sharp");
 
 module.exports.addproduct = async (req, res) => {
   try {
-    const cetagory = await Catagery.findOne({ name: req.body.cetagory });
+    const { pname, description, price, offer, color, stock, brand, cetagory, size } = req.body;
+    let errors = [];
+
+    // Server-side validation
+    if (!pname || pname.trim() === '') {
+      errors.push('Product name is required');
+    }
+
+    if (!description || description.trim().length < 20) {
+      errors.push('Description must be at least 20 characters long');
+    }
+
+    if (!price || isNaN(price) || parseFloat(price) <= 0) {
+      errors.push('Price must be a positive number');
+    }
+
+    if (!offer || isNaN(offer) || parseFloat(offer) <= 0) {
+      errors.push('Offer price must be a positive number');
+    }
+
+    if (parseFloat(price) < parseFloat(offer)) {
+      errors.push('Price must be greater than or equal to the offer price');
+    }
+
+    if (!color || color.trim() === '') {
+      errors.push('Color is required');
+    }
+
+    if (!stock || isNaN(stock) || parseInt(stock) <= 0) {
+      errors.push('Stock must be a positive integer');
+    }
+
+    if (!brand || brand.trim() === '') {
+      errors.push('Brand is required');
+    }
+
+    if (!cetagory || cetagory.trim() === '') {
+      errors.push('Category is required');
+    }
+
+    if (errors.length > 0) {
+      req.flash('blocked', errors);
+      req.flash('data', req.body);
+      return res.redirect('/admin/add-product');
+    }
+
+    const category = await Catagery.findOne({ name: cetagory });
     const images = [];
 
-    // pushing images to array
+    // Pushing images to array
     for (let i = 0; i < req.files.length; i++) {
       images.push(req.files[i].filename);
 
@@ -27,40 +73,39 @@ module.exports.addproduct = async (req, res) => {
       await sharp(req.files[i].path).resize(500, 500).toFile(selectedPath);
     }
 
-    const sizes = [];
-    for (let i = 0; i < req.body.size.length; i++) {
-      sizes.push(req.body.size[i]);
-    }
-    console.log(images);
-    console.log(sizes);
-    const price = parseInt(req.body.price);
-    const offerPrice = parseInt(req.body.offer);
-    const stock = parseInt(req.body.stock);
+    const sizes = size ? (Array.isArray(size) ? size : [size]) : [];
+    
+    const parsedPrice = parseInt(price);
+    const parsedOfferPrice = parseInt(offer);
+    const parsedStock = parseInt(stock);
+    
     const variant = {
-      price: price,
-      offerPrice: offerPrice,
-      color: req.body.color,
+      price: parsedPrice,
+      offerPrice: parsedOfferPrice,
+      color,
       size: sizes,
-      images: images,
-      stock: stock,
+      images,
+      stock: parsedStock,
     };
 
     const product = new Product({
-      name: req.body.pname,
-      description: req.body.description,
-      cetagory: cetagory._id,
-      brand: req.body.brand,
-      variant: variant,
+      name: pname,
+      description,
+      cetagory: category._id,
+      brand,
+      variant,
     });
 
     const isSave = await product.save();
 
     if (isSave) {
-      req.flash("pass", "product listed sucessfully");
+      req.flash("pass", "Product listed successfully");
       res.redirect("/admin/addProduct");
     }
   } catch (error) {
     console.log(error);
+    req.flash('found', 'An error occurred while adding the product');
+    res.redirect('/admin/addProduct');
   }
 };
 
