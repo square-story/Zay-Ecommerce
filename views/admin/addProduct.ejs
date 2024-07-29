@@ -307,86 +307,125 @@
     <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>
 
 <script>
-function productValidation() {
-  let pname = document.getElementById("product_name");
-  let pdescription = document.getElementById("description");
-  let price = document.getElementById("price");
-  let oprice = document.getElementById("offerPrice");
-  let brand = document.getElementById("brand");
-  let color = document.getElementById("color");
-  let stock = document.getElementById("stock");
-  let category = document.getElementById("category");
+  function productValidation() {
+    let pname = document.getElementById("product_name");
+    let pdescription = document.getElementById("description");
+    let price = document.getElementById("price");
+    let oprice = document.getElementById("offerPrice");
+    let brand = document.getElementById("brand");
+    let color = document.getElementById("color");
+    let stock = document.getElementById("stock");
+    let category = document.getElementById("category");
 
-  if (pname.value.trim() === "") {
-    pname.style.border = "solid 1px red";
-    setTimeout(function () {
-      pname.style.border = "";
-    }, 3000);
-    return false;
-  }
-  if (pdescription.value.trim() === "" || pdescription.value.trim().length < 20) {
-    pdescription.style.border = "solid 1px red";
-    setTimeout(function () {
-      pdescription.style.border = "";
-    }, 3000);
-    return false;
-  }
-  if (price.value.trim() === "" || Number(price.value) <= 0 || isNaN(price.value)) {
-    price.style.border = "solid 1px red";
-    setTimeout(function () {
-      price.style.border = "";
-    }, 3000);
-    return false;
-  }
-  if (oprice.value.trim() === "" || Number(oprice.value) <= 0 || isNaN(oprice.value)) {
-    oprice.style.border = "solid 1px red";
-    setTimeout(function () {
-      oprice.style.border = "";
-    }, 3000);
-    return false;
-  }
-  if (Number(price.value) < Number(oprice.value)) {
-    price.style.border = "solid 1px red";
-    oprice.style.border = "solid 1px red";
-    setTimeout(function () {
-      price.style.border = "";
-      oprice.style.border = "";
-    }, 3000);
-    return false;
-  }
-  if (color.value.trim() === "") {
-    color.style.border = "solid 1px red";
-    setTimeout(function () {
-      color.style.border = "";
-    }, 3000);
-    return false;
-  }
-  if (stock.value.trim() === "" || Number(stock.value) <= 0 || isNaN(stock.value)) {
-    stock.style.border = "solid 1px red";
-    setTimeout(function () {
-      stock.style.border = "";
-    }, 3000);
-    return false;
-  }
-  if (brand.value.trim() === "") {
-    brand.style.border = "solid 1px red";
-    setTimeout(function () {
-      brand.style.border = "";
-    }, 3000);
-    return false;
-  }
-  if (!category.value) {
-    category.style.border = "solid 1px red";
-    setTimeout(function () {
-      category.style.border = "";
-    }, 3000);
-    return false;
-  }
-  return true;
-}
+    if (pname.value.trim() === "") {
+      pname.style.border = "solid 1px red";
+      setTimeout(() => pname.style.border = "", 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Product Name Required',
+        text: 'Please enter the product name.'
+      });
+      return false;
+    }
 
+    if (pdescription.value.trim() === "" || pdescription.value.trim().length < 20) {
+      pdescription.style.border = "solid 1px red";
+      setTimeout(() => pdescription.style.border = "", 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Description Invalid',
+        text: 'Please enter a description of at least 20 characters.'
+      });
+      return false;
+    }
+
+    if (price.value.trim() === "" || Number(price.value) <= 0 || isNaN(price.value)) {
+      price.style.border = "solid 1px red";
+      setTimeout(() => price.style.border = "", 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Price Invalid',
+        text: 'Please enter a valid price greater than 0.'
+      });
+      return false;
+    }
+
+    if (oprice.value.trim() === "" || Number(oprice.value) <= 0 || isNaN(oprice.value)) {
+      oprice.style.border = "solid 1px red";
+      setTimeout(() => oprice.style.border = "", 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Offer Price Invalid',
+        text: 'Please enter a valid offer price greater than 0.'
+      });
+      return false;
+    }
+
+    if (Number(price.value) < Number(oprice.value)) {
+      price.style.border = "solid 1px red";
+      oprice.style.border = "solid 1px red";
+      setTimeout(() => {
+        price.style.border = "";
+        oprice.style.border = "";
+      }, 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Price and Offer Price Mismatch',
+        text: 'The offer price cannot be greater than the regular price.'
+      });
+      return false;
+    }
+
+    if (color.value.trim() === "") {
+      color.style.border = "solid 1px red";
+      setTimeout(() => color.style.border = "", 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Color Required',
+        text: 'Please enter the color of the product.'
+      });
+      return false;
+    }
+
+    if (stock.value.trim() === "" || Number(stock.value) <= 0 || isNaN(stock.value)) {
+      stock.style.border = "solid 1px red";
+      setTimeout(() => stock.style.border = "", 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Stock Invalid',
+        text: 'Please enter a valid stock quantity greater than 0.'
+      });
+      return false;
+    }
+
+    if (brand.value.trim() === "") {
+      brand.style.border = "solid 1px red";
+      setTimeout(() => brand.style.border = "", 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Brand Required',
+        text: 'Please enter the brand of the product.'
+      });
+      return false;
+    }
+
+    if (!category.value) {
+      category.style.border = "solid 1px red";
+      setTimeout(() => category.style.border = "", 3000);
+      Swal.fire({
+        icon: 'error',
+        title: 'Category Required',
+        text: 'Please select a category.'
+      });
+      return false;
+    }
+
+    return true;
+  }
 </script>
+
