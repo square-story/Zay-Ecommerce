@@ -18,6 +18,12 @@
     />
     <!-- Template CSS -->
     <link href="/assets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+    <!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
   </head>
 
   <body>
@@ -423,50 +429,94 @@
     let oprice = document.getElementById("offerPrice");
     let color = document.getElementById("color");
     let stock = document.getElementById("stock");
-    let image = document.getElementById("image1");
 
-    if (
-      price.value.trim() === "" ||
-      Number(price.value) <= 0 ||
-      isNaN(price.value)
-    ) {
+    // Convert input values to numbers
+    let priceValue = Number(price.value);
+    let offerPriceValue = Number(oprice.value);
+    let stockValue = Number(stock.value);
+
+    // Regular price validation
+    if (price.value.trim() === "" || isNaN(priceValue) || priceValue <= 0) {
       price.style.border = "solid 1px red";
-
       setTimeout(function () {
         price.style.border = "";
       }, 3000);
-      return false;
-    } else if (
-      oprice.value.trim() === "" ||
-      Number(oprice.value) <= 0 ||
-      isNaN(oprice.value)
-    ) {
-      oprice.style.border = "solid 1px red";
 
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Regular Price',
+        text: 'Please enter a valid regular price.'
+      });
+
+      return false;
+    } 
+
+    // Offer price validation
+    if (oprice.value.trim() === "" || isNaN(offerPriceValue) || offerPriceValue <= 0) {
+      oprice.style.border = "solid 1px red";
       setTimeout(function () {
         oprice.style.border = "";
       }, 3000);
-      return false;
-    } else if (color.value.trim() === "") {
-      color.style.border = "solid 1px red";
 
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Offer Price',
+        text: 'Please enter a valid offer price.'
+      });
+
+      return false;
+    }
+
+    // Check if offer price is greater than regular price
+    if (offerPriceValue > priceValue) {
+      oprice.style.border = "solid 1px red";
+      setTimeout(function () {
+        oprice.style.border = "";
+      }, 3000);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Price Error',
+        text: 'Offer price cannot be greater than the regular price.'
+      });
+
+      return false;
+    }
+
+    // Color validation
+    if (color.value.trim() === "") {
+      color.style.border = "solid 1px red";
       setTimeout(function () {
         color.style.border = "";
       }, 3000);
-      return false;
-    } else if (
-      stock.value.trim() === "" ||
-      Number(stock.value) <= 0 ||
-      isNaN(stock.value)
-    ) {
-      stock.style.border = "solid 1px red";
 
+      Swal.fire({
+        icon: 'error',
+        title: 'Color Required',
+        text: 'Color is required.'
+      });
+
+      return false;
+    }
+
+    // Stock validation
+    if (stock.value.trim() === "" || isNaN(stockValue) || stockValue <= 0) {
+      stock.style.border = "solid 1px red";
       setTimeout(function () {
         stock.style.border = "";
       }, 3000);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Stock Quantity',
+        text: 'Please enter a valid stock quantity.'
+      });
+
       return false;
-    } else {
-      true;
     }
+
+    return true;
   }
 </script>
+
+
