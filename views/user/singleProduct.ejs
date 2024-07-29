@@ -412,12 +412,13 @@
                       
                         <div class="col-8">
                             <div class="d-flex">
-                                <%if(product.status === 'delivered') {%>
-                                    <a style="margin-left: 30rem;"  href="/invoice?orderId=<%= orderId%>&index=<%=index%>" class="btn btn-primary col-3 "><span>Download invoice</span></a>
-                                <%}%>
-                                </div>
-                            
-                        </div>
+                              <% if (order.status !== 'failed' && order.status !== "cancelled" && order.status !== "returned" && (order.paymentMethod === 'razorpay' || order.paymentMethod === 'wallet' || (order.paymentMethod === 'COD' && product.status === 'delivered'))) { %>
+                                <a style="margin-left: 30rem;" href="/invoice?orderId=<%= orderId %>&index=<%= index %>" class="btn btn-primary col-3">
+                                  <span>Download invoice</span>
+                                </a>
+                              <% } %>
+                            </div>
+                          </div>                          
                     </div>
 
                 </div>
