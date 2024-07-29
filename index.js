@@ -69,7 +69,7 @@ mongoose.connect(process.env.MONGODB_URL)
     console.log(err);
   });
 
-// Server listening on port 3000
+// Server listening on port number
 app.listen(process.env.PORT, () => {
   console.log(`http://localhost:${process.env.PORT}`);
 });
