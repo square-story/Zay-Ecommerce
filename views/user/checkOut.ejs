@@ -96,75 +96,76 @@
                 </div>
                 <div class="modal-body">
 
-                    <div class="checkout__form">
-                        <form id="addressForm" action="/add-Address" method="post">
-                          <div class="row">
+                  <div class="checkout__form">
+                    <form id="addressForm" action="/add-Address" method="post">
+                        <div class="row">
                             <div class="col-lg-12 col-md-">
-                              <h6 class="checkout__title">Billing Details</h6>
-                              <div class="row">
-                                <div class="col-lg-6">
-                                  <div class="checkout__input">
-                                    <p>First Name<span>*</span></p>
-                                    <input type="text" id="firstname" name="fname" required>
-                                    <div class="invalid-feedback">First Name is required.</div>
-                                  </div>
+                                <h6 class="checkout__title">Billing Details</h6>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="checkout__input">
+                                            <p>First Name</p>
+                                            <input type="text" id="firstname" name="fname">
+                                            <div class="invalid-feedback">First Name is required.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="checkout__input">
+                                            <p>Last Name</p>
+                                            <input type="text" id="lastName" name="lname">
+                                            <div class="invalid-feedback">Last Name is required.</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-6">
-                                  <div class="checkout__input">
-                                    <p>Last Name<span>*</span></p>
-                                    <input type="text" id="lastName" name="lname" required>
-                                    <div class="invalid-feedback">Last Name is required.</div>
-                                  </div>
+                                <div class="checkout__input">
+                                    <p>Country</p>
+                                    <input type="text" name="country" value="India">
+                                    <div class="invalid-feedback">Country is required.</div>
                                 </div>
-                              </div>
-                              <div class="checkout__input">
-                                <p>Country<span>*</span></p>
-                                <input type="text" name="country" value="India" required>
-                                <div class="invalid-feedback">Country is required.</div>
-                              </div>
-                              <div class="checkout__input">
-                                <p>Address<span>*</span></p>
-                                <input type="text" id="address" name="address" placeholder="Street Address" class="checkout__input__add" required>
-                                <div class="invalid-feedback">Address is required.</div>
-                              </div>
-                              <div class="checkout__input">
-                                <p>Town/City<span>*</span></p>
-                                <input type="text" id="city" name="city" required>
-                                <div class="invalid-feedback">City is required.</div>
-                              </div>
-                              <div class="checkout__input">
-                                <p>State<span>*</span></p>
-                                <input type="text" id="state" name="state" required>
-                                <div class="invalid-feedback">State is required.</div>
-                              </div>
-                              <div class="checkout__input">
-                                <p>Postcode / ZIP<span>*</span></p>
-                                <input type="text" id="pin" name="pin" required pattern="\d{6}">
-                                <div class="invalid-feedback">Pincode is required and should be a 6-digit number.</div>
-                              </div>
-                              <div class="row">
-                                <div class="col-lg-6">
-                                  <div class="checkout__input">
-                                    <p>Phone<span>*</span></p>
-                                    <input type="text" id="phone" name="phone" required pattern="\d{10}">
-                                    <div class="invalid-feedback">Phone is required and should be a 10-digit number.</div>
-                                  </div>
+                                <div class="checkout__input">
+                                    <p>Address</p>
+                                    <input type="text" id="address" name="address" placeholder="Street Address" class="checkout__input__add">
+                                    <div class="invalid-feedback">Address is required.</div>
                                 </div>
-                                <div class="col-lg-6">
-                                  <div class="checkout__input">
-                                    <p>Email<span>*</span></p>
-                                    <input type="email" id="email" name="email" required>
-                                    <div class="invalid-feedback">A valid Email is required.</div>
-                                  </div>
+                                <div class="checkout__input">
+                                    <p>Town/City</p>
+                                    <input type="text" id="city" name="city">
+                                    <div class="invalid-feedback">City is required.</div>
                                 </div>
-                              </div>
+                                <div class="checkout__input">
+                                    <p>State</p>
+                                    <input type="text" id="state" name="state">
+                                    <div class="invalid-feedback">State is required.</div>
+                                </div>
+                                <div class="checkout__input">
+                                    <p>Postcode / ZIP</p>
+                                    <input type="text" id="pin" name="pin" pattern="\d{6}">
+                                    <div class="invalid-feedback">Pincode should be a 6-digit number.</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="checkout__input">
+                                            <p>Phone</p>
+                                            <input type="text" id="phone" name="phone" pattern="\d{10}">
+                                            <div class="invalid-feedback">Phone number should be a 10-digit number.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="checkout__input">
+                                            <p>Email</p>
+                                            <input type="email" id="email" name="email">
+                                            <div class="invalid-feedback">A valid Email is required.</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div style="align-self: flex-end;">
-                              <button type="submit" class="btn btn-dark">Add</button>
+                                <button type="submit" class="btn btn-dark">Add</button>
                             </div>
-                          </div>
-                        </form>
-                      </div>
+                        </div>
+                    </form>
+                </div>
+                
                       
                 </div>
 
@@ -468,7 +469,100 @@
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 </html>
-
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('addressForm');
+  
+      form.addEventListener('submit', function(event) {
+          event.preventDefault(); // Prevent the default form submission
+  
+          // Clear previous errors
+          const inputs = form.querySelectorAll('input');
+          inputs.forEach(input => {
+              input.classList.remove('is-invalid');
+              const feedback = input.nextElementSibling;
+              if (feedback) feedback.style.display = 'none';
+          });
+  
+          // Validate fields
+          let isValid = true;
+  
+          // Validate first name
+          const firstName = document.getElementById('firstname');
+          if (!firstName.value.trim()) {
+              showError(firstName, 'First Name is required.');
+              isValid = false;
+          }
+  
+          // Validate last name
+          const lastName = document.getElementById('lastName');
+          if (!lastName.value.trim()) {
+              showError(lastName, 'Last Name is required.');
+              isValid = false;
+          }
+  
+          // Validate address
+          const address = document.getElementById('address');
+          if (!address.value.trim()) {
+              showError(address, 'Address is required.');
+              isValid = false;
+          }
+  
+          // Validate city
+          const city = document.getElementById('city');
+          if (!city.value.trim()) {
+              showError(city, 'City is required.');
+              isValid = false;
+          }
+  
+          // Validate state
+          const state = document.getElementById('state');
+          if (!state.value.trim()) {
+              showError(state, 'State is required.');
+              isValid = false;
+          }
+  
+          // Validate postcode
+          const postcode = document.getElementById('pin');
+          const postcodePattern = /^\d{6}$/;
+          if (!postcodePattern.test(postcode.value)) {
+              showError(postcode, 'Pincode should be a 6-digit number.');
+              isValid = false;
+          }
+  
+          // Validate phone
+          const phone = document.getElementById('phone');
+          const phonePattern = /^\d{10}$/;
+          if (!phonePattern.test(phone.value)) {
+              showError(phone, 'Phone number should be a 10-digit number.');
+              isValid = false;
+          }
+  
+          // Validate email
+          const email = document.getElementById('email');
+          if (!email.value.trim() || !email.checkValidity()) {
+              showError(email, 'A valid Email is required.');
+              isValid = false;
+          }
+  
+          // If form is valid, submit it
+          if (isValid) {
+              form.submit();
+          }
+      });
+  
+      function showError(input, message) {
+          input.classList.add('is-invalid');
+          const feedback = input.nextElementSibling;
+          if (feedback) {
+              feedback.textContent = message;
+              feedback.style.display = 'block';
+          }
+      }
+  });
+  </script>
+  
+  
 <script>
     function applyCoupon() {
       const couponCode = document.getElementById('applyCoupon').value;
@@ -683,29 +777,6 @@
       placeOrder();
     });
   </script>
-
-<script>
-    document.getElementById('addressForm').addEventListener('submit', function(event) {
-  event.preventDefault();
-  if (!validateForm()) {
-    return;
-  }
-  this.submit();
-});
-
-function validateForm() {
-  const form = document.getElementById('addressForm');
-  let isValid = true;
-
-  form.classList.add('was-validated');
-
-  if (!form.checkValidity()) {
-    isValid = false;
-  }
-
-  return isValid;
-}
-</script>
 
   <script>
     // JavaScript for copy functionality
