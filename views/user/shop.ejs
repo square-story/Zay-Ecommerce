@@ -169,39 +169,6 @@
     </div>
 </div>
 <!-- End Content -->
-<script>
-    // JavaScript to handle search input change and reset filters
-    document.getElementById('searchQuery').addEventListener('input', debounce(updateFilters, 800));
-
-document.getElementById('resetFilters').addEventListener('click', function(e) {
-  e.preventDefault();
-  document.getElementById('searchQuery').value = '';
-  updateFilters();
-});
-
-function updateFilters() {
-  const searchQuery = document.getElementById('searchQuery').value.trim();
-  let url = `/shop`;
-  if (searchQuery) {
-    url += `?search=${searchQuery}`;
-  }
-  window.location.href = url;
-}
-
-
-    function debounce(func, wait) {
-  let timeout;
-  return function(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
-  </script>
 <!-- Start Brands -->
 <section class="bg-light py-5">
     <div class="container my-4">
@@ -318,6 +285,39 @@ function updateFilters() {
     <script src="assets2/js/templatemo.js"></script>
     <script src="assets2/js/custom.js"></script>
     <!-- <script src="/js/user/filter.js"></script> -->
+    <script>
+        // JavaScript to handle search input change and reset filters
+        document.getElementById('searchQuery').addEventListener('input', debounce(updateFilters, 800));
+    
+    document.getElementById('resetFilters').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('searchQuery').value = '';
+      updateFilters();
+    });
+    
+    function updateFilters() {
+      const searchQuery = document.getElementById('searchQuery').value.trim();
+      let url = `/shop`;
+      if (searchQuery) {
+        url += `?search=${searchQuery}`;
+      }
+      window.location.href = url;
+    }
+    
+    
+        function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+    
+      </script>
     <script>
         document.getElementById('sortby').addEventListener('change', function() {
             const sortOption = this.value;

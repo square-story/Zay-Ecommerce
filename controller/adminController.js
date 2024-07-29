@@ -238,25 +238,45 @@ module.exports.blockUser = (req, res) => {
 
 // load product management page
 module.exports.loadPoduct = async (req, res) => {
+  const search = req.query.search;
+  const page = parseInt(req.query.page) || 0; // Default to 0 if not provided
+  const limit = 4; // Number of products per page
+
+  // Build search query
+  let query = {};
+  if (search) {
+      query = {
+          $or: [
+              { name: new RegExp(search, 'i') }, // Case-insensitive search in name
+              { 'cetagory.name': new RegExp(search, 'i') } // Case-insensitive search in category name
+          ]
+      };
+  }
+
   try {
-    const page = req.query.page;
-    const productLength = await product.find();
-    return product
-      .find()
-      .populate("cetagory")
-      .skip(page * 4)
-      .limit(4)
-      .then((data) => {
-        res.render("adminProducts", {
-          products: data,
-          productLength: productLength.length,
-          page: parseInt(page),
-        });
+      // Get the total number of products matching the search query
+      const totalProducts = await product.countDocuments(query);
+
+      // Get the products with pagination and search query
+      const products = await product.find(query)
+          .populate("cetagory")
+          .skip(page * limit)
+          .limit(limit)
+          .exec();
+
+      res.render("adminProducts", {
+          products,
+          productLength: totalProducts,
+          page,
+          search,
+          limit
       });
   } catch (error) {
-    console.log(error);
+      console.log(error);
+      res.status(500).send("Server Error");
   }
 };
+
 
 // load add product page
 

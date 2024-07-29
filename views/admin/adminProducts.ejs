@@ -24,23 +24,29 @@
                 <div class="content-header">
                     <div>
                         <h2 class="content-title card-title">Products List</h2>
-                        <p>Lorem ipsum dolor sit amet.</p>
+                        <p>Use Search to find the product</p>
                     </div>
                     <div>
-                        <a href="/admin/addProduct" class="btn btn-dark ">Add Product</a>
+                        <a href="/admin/addProduct" class="btn btn-dark">Add Product</a>
                     </div>
                 </div>
+                
+                <form id="searchForm" action="/admin/product" method="get" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search products" value="<%= search || '' %>">
+                        <button class="btn btn-dark" type="submit">Search</button>
+                    </div>
+                </form>
+                
+            
+                <!-- Existing Product List Code -->
                 <div class="card mb-4">
                     <header class="card-header">
                         <div class="row align-items-center">
-                            <div class="col col-check flex-grow-0">
-                               
-                                
-                            </div>
-                           
+                            <div class="col col-check flex-grow-0"></div>
+                        </div>
                     </header>
                     
-                   
                     <div class="card-body">
                         <div class="table-responsive" id="Reload">
                             <table class="table table-hover">
@@ -50,94 +56,68 @@
                                         <th>Product name</th>
                                         <th>Image</th>
                                         <th>Category</th>
-                                       
-                        
                                         <th class="text-end">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody >
-                                    
-                                    
-                                    <% if(Array.isArray(products) && products.length > 0) {%>
-
-                                        <%console.log(products)%>
-
-                                        <% products.map((product, i) => {%>
-
+                                <tbody>
+                                    <% if(Array.isArray(products) && products.length > 0) { %>
+                                        <% products.map((product, i) => { %>
                                             <tr>
                                                 <td><%= i + 1 %></td>
                                                 <td><%= product.name %></td>
                                                 <td width="40%">
                                                     <a href="#" class="itemside">
                                                         <div class="left">
-                                                            
-                                                            <img src="/img/productImage/<%= product.variant[0]?.images[0]%>" class="img-sm" alt="Userpic" />
-                                                            
+                                                            <img src="/img/productImage/<%= product.variant[0]?.images[0] %>" class="img-sm" alt="Userpic" />
                                                         </div>
-                                                        <!-- <div class="info pl-3">
-                                                            <h6 class="mb-0 title" style="text-transform: capitalize;"></h6>
-                                                            <small class="text-muted">Seller ID: #439</small>
-                                                        </div> -->
                                                     </a>
                                                 </td>
                                                 <td><%= product.cetagory.name %></td>
-                                                
-                                                
-                                                
                                                 <td class="text-end">
                                                     <button id="button" class="btn btn-sm btn-dark rounded font-sm mt-15" data-user-id="" data-status="" onclick="listProduct('<%= product._id %>')">
                                                        <%= product.isListed ? 'Unlist' : 'List' %>
                                                     </button>
-                                                    
                                                     <a href="/admin/loadVariant/<%= product._id %>" class="btn btn-sm btn-dark rounded font-sm mt-15" data-user-id="" data-status="">
                                                        variant
                                                     </a>
                                                 </td>
                                             </tr>
-                                            <% }) %>
-                                            <% }else{ %>
-                                                <tr>
-                                                    <td colspan="5">No user found</td>
-                                                </tr>
-                                        <% } %>
-
-<!--                                        
-                                            <tr>
-                                                <td colspan="5">No user found</td>
-                                            </tr> -->
-                                    
+                                        <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5">No products found</td>
+                                        </tr>
+                                    <% } %>
                                 </tbody>
                             </table>
-                            <!-- table-responsive.// -->
                         </div>
                     </div>
-                  
                 </div>
                 <!-- card end// -->
                 <div class="pagination-area mt-15 mb-50">
                     <nav aria-label="Page navigation example">
                         <ul class="pagination">
-                            <%if(page != 0) {%>
-                                <a class="page-link" href="?page=<%= page - 1%>"><i class="material-icons md-chevron_left"></i></a>
-                            <%}%>
-                            <% for (let i = 0; i < productLength; i++) { %>
-                              <% if (i === 0 || i === productLength - 1 || (i >= page - 2 && i <= page + 2)) { %>
-                                <li class="page-item <%= page == i ? 'active' : '' %>">
-                                  <a class="page-link" href="?page=<%= i %>"><%= i + 1 %></a>
-                                </li>
-                              <% } else if (i === page - 3 || i === page + 3) { %>
-                                <li class="page-item disabled">
-                                  <span class="page-link">...</span>
-                                </li>
-                              <% } %>
+                            <% if (page > 0) { %>
+                                <a class="page-link" href="?page=<%= page - 1 %>&search=<%= search || '' %>"><i class="material-icons md-chevron_left"></i></a>
                             <% } %>
-                            <%if(page != productLength ) {%>
-                                <a class="page-link" href="?page=<%= page + 1%>"><i class="material-icons md-chevron_right"></i></a>
-                            <%}%>
-                          </ul>
-                          
+                            <% for (let i = 0; i < Math.ceil(productLength / limit); i++) { %>
+                                <% if (i === 0 || i === Math.ceil(productLength / limit) - 1 || (i >= page - 2 && i <= page + 2)) { %>
+                                    <li class="page-item <%= page === i ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>&search=<%= search || '' %>"><%= i + 1 %></a>
+                                    </li>
+                                <% } else if (i === page - 3 || i === page + 3) { %>
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                <% } %>
+                            <% } %>
+                            <% if (page < Math.ceil(productLength / limit) - 1) { %>
+                                <a class="page-link" href="?page=<%= page + 1 %>&search=<%= search || '' %>"><i class="material-icons md-chevron_right"></i></a>
+                            <% } %>
+                        </ul>
                     </nav>
                 </div>
+                
             </section>
             <!-- content-main end// -->
             <%- include('../partials/adminFooter.ejs') -%>
