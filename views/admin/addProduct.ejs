@@ -178,103 +178,44 @@
                   </div>
 
                   <label class="form-label">Add Size</label>
-
-                  <div
-                    class="row"
-                    style="margin-left: 1rem; margin-bottom: 1rem"
-                  >
+                  <div class="row" style="margin-left: 1rem; margin-bottom: 1rem">
                     <div class="form-check col-lg-2">
-                      <input
-                        class="form-check-input"
-                        name="size"
-                        type="checkbox"
-                        value="S"
-                        id="defaultCheck1"
-                      />
-                      <label class="form-check-label" for="defaultCheck1">
-                        S
-                      </label>
+                      <input class="form-check-input" name="size" type="checkbox" value="S" id="sizeS" />
+                      <label class="form-check-label" for="sizeS">S</label>
                     </div>
                     <div class="form-check col-lg-2">
-                      <input
-                        class="form-check-input"
-                        name="size"
-                        type="checkbox"
-                        value="M"
-                        id="defaultCheck1"
-                      />
-                      <label class="form-check-label" for="defaultCheck1">
-                        M
-                      </label>
+                      <input class="form-check-input" name="size" type="checkbox" value="M" id="sizeM" />
+                      <label class="form-check-label" for="sizeM">M</label>
                     </div>
                     <div class="form-check col-lg-2">
-                      <input
-                        class="form-check-input"
-                        name="size"
-                        type="checkbox"
-                        value="L"
-                        id="defaultCheck1"
-                      />
-                      <label class="form-check-label" for="defaultCheck1">
-                        L
-                      </label>
+                      <input class="form-check-input" name="size" type="checkbox" value="L" id="sizeL" />
+                      <label class="form-check-label" for="sizeL">L</label>
                     </div>
                     <div class="form-check col-lg-2">
-                      <input
-                        class="form-check-input"
-                        name="size"
-                        type="checkbox"
-                        value="XL"
-                        id="defaultCheck1"
-                      />
-                      <label class="form-check-label" for="defaultCheck1">
-                        XL
-                      </label>
+                      <input class="form-check-input" name="size" type="checkbox" value="XL" id="sizeXL" />
+                      <label class="form-check-label" for="sizeXL">XL</label>
                     </div>
                     <div class="form-check col-lg-2">
-                      <input
-                        class="form-check-input"
-                        name="size"
-                        type="checkbox"
-                        value="XXL"
-                        id="defaultCheck1"
-                      />
-                      <label class="form-check-label" for="defaultCheck1">
-                        XXL
-                      </label>
+                      <input class="form-check-input" name="size" type="checkbox" value="XXL" id="sizeXXL" />
+                      <label class="form-check-label" for="sizeXXL">XXL</label>
                     </div>
                   </div>
-
+                
                   <label class="form-label">Add images</label>
-
                   <div class="" style="display: flex; margin: 1rem">
                     <%for(let i=0; i < 4; i++) {%>
-
                     <div class="mb-4 col-lg-3 me-2">
                       <img
                         src=""
-                        id="image + <%= i %>"
+                        id="image<%= i %>"
                         alt="Product image"
-                        style="
-                          width: 100px;
-                          height: 100px;
-                          margin-bottom: 1.5rem;
-                        "
+                        style="width: 100px; height: 100px; margin-bottom: 1.5rem;"
                       />
-
-                      <input
-                        type="file"
-                        accept="image/*"
-                        placeholder="Add image"
-                        name="images"
-                        class="form-control"
-                        id="image<%= i + 1%>"
-                      />
+                      <input type="file" accept="image/*" placeholder="Add image" name="images" class="form-control" id="image<%= i %>" />
                     </div>
-
                     <%}%>
                   </div>
-
+                
                   <button class="btn btn-dark">Add</button>
                 </form>
               </div>
@@ -321,6 +262,8 @@
     let color = document.getElementById("color");
     let stock = document.getElementById("stock");
     let category = document.getElementById("category");
+    let images = document.getElementsByName("images");
+    let sizes = document.getElementsByName("size");
 
     if (pname.value.trim() === "") {
       pname.style.border = "solid 1px red";
@@ -421,6 +364,40 @@
         icon: 'error',
         title: 'Category Required',
         text: 'Please select a category.'
+      });
+      return false;
+    }
+    
+    let imageAdded = false;
+    for (let i = 0; i < images.length; i++) {
+      if (images[i].files.length > 0) {
+        imageAdded = true;
+        break;
+      }
+    }
+
+    if (!imageAdded) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Image Required',
+        text: 'Please add at least one product image.'
+      });
+      return false;
+    }
+
+    let sizeSelected = false;
+    for (let i = 0; i < sizes.length; i++) {
+      if (sizes[i].checked) {
+        sizeSelected = true;
+        break;
+      }
+    }
+
+    if (!sizeSelected) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Size Required',
+        text: 'Please select at least one size.'
       });
       return false;
     }
