@@ -153,19 +153,19 @@ module.exports.changeQuantity = async (req, res) => {
     }
 
     const variant = product.variant[index];
+    if (!variant) {
+      return res.status(400).json({ error: "Invalid product variant" });
+    }
     const stock = variant.stock;
     const price = variant.offerPrice;
 
-    const cart = await Cart.findOne({
-      user: userId,
-      "products.productId": productId,
-    });
+    const cart = await Cart.findOne({ user: userId });
     if (!cart) {
       return res.status(404).json({ error: "Cart not found" });
     }
 
     const cartProduct = cart.products.find(
-      (pro) => pro.product === index && pro.size === size
+      (pro) => pro.productId.toString() === productId && pro.product === index && pro.size === size
     );
     if (!cartProduct) {
       return res.status(404).json({ error: "Cart product not found" });
@@ -227,10 +227,10 @@ module.exports.changeQuantity = async (req, res) => {
         );
         return res.json({ changed: true });
       } else {
-        return res
-          .status(400)
-          .json({ error: "Quantity cannot be less than 1" });
+        return res.status(400).json({ error: "Quantity cannot be less than 1" });
       }
+    } else {
+      return res.status(400).json({ error: "Invalid status value" });
     }
   } catch (error) {
     console.error(error);

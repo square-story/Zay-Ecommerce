@@ -49,9 +49,9 @@ function addToDb(productid, vIndex, isShop) {
     size.textContent = "Please select size";
 
     setTimeout(() => {
-      sizeErrorElement.textContent = "";
       size.style.color = "";
       size.textContent = "";
+      sizeErrorElement.textContent = "";
     }, 6000);
     return;
   }

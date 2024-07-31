@@ -266,9 +266,9 @@
 
 <script>
     function remove_from_cart(productId, index, size) {
-        console.log(productId, index)
-        const data = { productId: productId, index: index, size: size }
-        console.log(data)
+        console.log(productId, index);
+        const data = { productId: productId, index: index, size: size };
+        console.log(data);
         try {
             $.ajax({
                 type: 'POST',
@@ -281,76 +281,76 @@
                             resetQuantityListeners();
                         });
                         $('#price').load('/cart #price');
-                        $('#ReloadArea').load('/cart #ReloadArea');
+                        $('#ReloadArea').load('/cart #ReloadArea', function() {
+                            resetQuantityListeners();
+                        });
                     }
                 }
-            })
+            });
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
-    </script>
-    
 
-    <script>
-        function resetQuantityListeners() {
-            document.querySelectorAll('.pro-qty-2').forEach(parentElement => {
-                parentElement.addEventListener('click', async (event) => {
-                    if (event.target.classList.contains('counter')) {
-                        const input = event.target.closest('.quantity.buttons_added').querySelector('input.qty');
-                        const currentQuantity = parseInt(input.value);
-                        const productId = input.getAttribute('data-productid');
-                        const index = input.getAttribute('data-index');
-                        const size = input.getAttribute('data-size');
-                        const decision = event.target.value === "+" ? 'plus' : 'minus';
-        
-                        // Front-end validation
-                        if (decision === 'plus' && currentQuantity >= 5) {
-                            Swal.fire({
+    function resetQuantityListeners() {
+        document.querySelectorAll('.pro-qty-2').forEach(parentElement => {
+            parentElement.querySelectorAll('.counter').forEach(counterButton => {
+                counterButton.addEventListener('click', async (event) => {
+                    const input = parentElement.querySelector('input.qty');
+                    const currentQuantity = parseInt(input.value);
+                    const productId = input.getAttribute('data-productid');
+                    const index = input.getAttribute('data-index');
+                    const size = input.getAttribute('data-size');
+                    const decision = event.target.value === "+" ? 'plus' : 'minus';
+    
+                    // Front-end validation
+                    if (decision === 'plus' && currentQuantity >= 5) {
+                        Swal.fire({
                             icon: 'warning',
                             title: 'Oops...',
                             text: 'Maximum quantity of 5 reached',
+                        });
+                        return;
+                    }
+    
+                    const data = { status: decision, productId, index, size };
+    
+                    try {
+                        const response = await fetch('/counter', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+    
+                        const result = await response.json();
+    
+                        if (result.changed) {
+                            $('#Reload').load('/cart #Reload', function() {
+                                resetQuantityListeners();
                             });
-                            return;
-                        }
-        
-                        const data = { status: decision, productId, index, size };
-        
-                        try {
-                            const response = await fetch('/counter', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(data)
-                            });
-        
-                            const result = await response.json();
-        
-                            if (result.changed) {
-                                $('#Reload').load('/cart #Reload', function() {
-                                    resetQuantityListeners();
-                                });
-                                $('#price').load('/cart #price');
-                            } else if (result.error) {
+                            $('#price').load('/cart #price');
+                        } else if (result.error) {
                             Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: result.error,
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: result.error,
                             });
-                            } else {
-                                console.log('Error');
-                            }
-                        } catch (error) {
-                            console.log(error);
+                        } else {
+                            console.log('Error');
                         }
+                    } catch (error) {
+                        console.log(error);
                     }
                 });
             });
-        }
-        
-        resetQuantityListeners(); // Initialize listeners on page load
-        </script>
+        });
+    }
+
+    resetQuantityListeners(); // Initialize listeners on page load
+</script>
+
         
  
   
