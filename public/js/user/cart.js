@@ -43,10 +43,13 @@ function addToDb(productid, vIndex, isShop) {
     });
   } else {
     const size = document.getElementById("size");
+    const sizeErrorElement = document.getElementById("size-error-" + productid + "_" + vIndex);
+    sizeErrorElement.textContent = "Please select size";
     size.style.color = "red";
     size.textContent = "Please select size";
 
     setTimeout(() => {
+      sizeErrorElement.textContent = "";
       size.style.color = "";
       size.textContent = "";
     }, 6000);
