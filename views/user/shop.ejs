@@ -124,15 +124,15 @@
                         </ul>
                         <ul class="list-unstyled d-flex justify-content-center mb-1">
                             <li>
-                              <% 
-                                const rating = productRatings[item._id] || 0; 
+                                <% 
+                                const rating = productRatings[item._id.toString()] || 0;
+                                console.log('Product ID:', item._id.toString(), 'Rating:', rating);
                                 for (let i = 1; i <= 5; i++) { 
                               %>
-                                <i class="fa fa-star <%= rating >= i ? 'text-warning' : 'text-muted' %>"></i>
+                                <i class="fa fa-star <%= rating >= i - 0.5 ? 'text-warning' : 'text-muted' %>"></i>
                               <% } %>
                             </li>
                           </ul>
-                          
                           
                         <p class="text-center mb-0">
                           <% if (item.variant[0].offerPrice < item.variant[0].price) { %>
@@ -153,6 +153,7 @@
               <% } %>
             <% }) %>
           </div>
+          
           
           
         <div class="row">

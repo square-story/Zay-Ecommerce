@@ -5,16 +5,14 @@ const Review = require('../models/reviewModal');
 //products page rendering
 module.exports.loadShop = async (req, res) => {
   try {
-    const sortOption = req.query.sort || "increasing"; // Default to 'increasing'
-    const page = parseInt(req.query.page) || 1; // Default to page 1
-    const limit = 6; // Number of products per page
+    const sortOption = req.query.sort || "increasing";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
     const skip = (page - 1) * limit;
-    const searchQuery = req.query.search || ""; // Extract search query from request query params
+    const searchQuery = req.query.search || "";
     const categoryFilter = req.query.category || null;
     const brandFilter = req.query.brand || null;
-    const priceRange = req.query.price
-      ? req.query.price.split("-").map(Number)
-      : null;
+    const priceRange = req.query.price ? req.query.price.split("-").map(Number) : null;
 
     let sortOrder;
     switch (sortOption) {
@@ -33,19 +31,20 @@ module.exports.loadShop = async (req, res) => {
       case "newArrival":
         sortOrder = { "variant.0.created": -1 };
         break;
+      case "rating":
+        sortOrder = { rating: -1 };
+        break;
       default:
         sortOrder = { "variant.0.offerPrice": 1 };
     }
 
     let filter = { isListed: true };
     if (categoryFilter) {
-      filter.cetagory = categoryFilter; // Adjusted to match your schema field name
+      filter.cetagory = categoryFilter;
     }
-
     if (brandFilter) {
       filter.brand = brandFilter;
     }
-
     if (priceRange) {
       filter["variant.offerPrice"] = {
         $gte: priceRange[0],
@@ -53,7 +52,7 @@ module.exports.loadShop = async (req, res) => {
       };
     }
     if (searchQuery) {
-      filter.name = new RegExp(searchQuery, "i"); // Case-insensitive search by product name
+      filter.name = new RegExp(searchQuery, "i");
     }
 
     const categories = await Catagery.find({ isListed: true });
@@ -61,30 +60,35 @@ module.exports.loadShop = async (req, res) => {
       .sort(sortOrder)
       .skip(skip)
       .limit(limit)
-      .populate("cetagory"); // Ensure 'cetagory' matches the field in your Product model
+      .populate("cetagory");  
 
     const brands = await Product.distinct("brand", filter);
     const totalResults = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalResults / limit);
 
-    // Fetch reviews and calculate average rating
-    const productIds = products.map(product => product._id.toString());
-    const reviews = await Review.find({ product: { $in: productIds } });
-
+    const productObjectIds = products.map(product => product._id);
+    const reviews = await Review.find({ productId: { $in: productObjectIds } }).lean();
     const productRatings = {};
-    productIds.forEach(id => {
-      const productReviews = reviews.filter(review => review.product.toString() === id);
+    productObjectIds.forEach(id => {
+      const productReviews = reviews.filter(review => review.productId && review.productId.toString() === id.toString());
       if (productReviews.length > 0) {
         const totalRating = productReviews.reduce((acc, review) => acc + review.rating, 0);
-        productRatings[id] = (totalRating / productReviews.length).toFixed(1);
+        productRatings[id.toString()] = Number((totalRating / productReviews.length).toFixed(1));
       } else {
-        productRatings[id] = 0;
+        productRatings[id.toString()] = 0;
       }
     });
+    console.log('Product Ratings:', JSON.stringify(productRatings, null, 2));
+    
+
+    if (sortOption === "rating") {
+      products.sort((a, b) => (productRatings[b._id] || 0) - (productRatings[a._id] || 0));
+    }
 
     res.render("shop", {
       categories,
       product: products,
+      productRatings,
       brands,
       totalResults,
       totalPages,
@@ -94,14 +98,14 @@ module.exports.loadShop = async (req, res) => {
       categoryFilter,
       brandFilter,
       priceRange,
-      searchQuery, // Pass searchQuery to template for rendering
-      productRatings, // Pass product ratings to the template
+      searchQuery,
     });
   } catch (error) {
     console.error("Error loading shop:", error);
     res.status(500).send("Server Error");
   }
 };
+
 
 
 
