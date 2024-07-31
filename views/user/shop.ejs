@@ -92,10 +92,9 @@
     
     <div class="col-lg-9">
         <div class="row" id="productContainer">
-            <% product.forEach((item, i) => { %>
+            <% product.forEach((item) => { %>
               <% if (item.cetagory.isListed) { %>
                 <div class="col-md-4">
-                  <!-- Wrap the entire card in an anchor tag -->
                   <a href="/productDetails?id=<%= item._id %>&index=0" class="text-decoration-none">
                     <div class="card mb-4 product-wap rounded-0">
                       <div class="card rounded-0 position-relative">
@@ -124,14 +123,17 @@
                           <li><%= item.size %></li>
                         </ul>
                         <ul class="list-unstyled d-flex justify-content-center mb-1">
-                          <li>
-                            <i class="text-warning fa fa-star"></i>
-                            <i class="text-warning fa fa-star"></i>
-                            <i class="text-warning fa fa-star"></i>
-                            <i class="text-muted fa fa-star"></i>
-                            <i class="text-muted fa fa-star"></i>
-                          </li>
-                        </ul>
+                            <li>
+                              <% 
+                                const rating = productRatings[item._id] || 0; 
+                                for (let i = 1; i <= 5; i++) { 
+                              %>
+                                <i class="fa fa-star <%= rating >= i ? 'text-warning' : 'text-muted' %>"></i>
+                              <% } %>
+                            </li>
+                          </ul>
+                          
+                          
                         <p class="text-center mb-0">
                           <% if (item.variant[0].offerPrice < item.variant[0].price) { %>
                             <span class="text-muted text-decoration-line-through">₹<%= item.variant[0].price %></span><br>
@@ -152,6 +154,7 @@
             <% }) %>
           </div>
           
+          
         <div class="row">
           <ul class="pagination pagination-lg justify-content-end">
             <% for (let i = 1; i <= totalPages; i++) { %>
@@ -162,6 +165,7 @@
           </ul>
         </div>
       </div>
+      
       
           
           
@@ -284,6 +288,7 @@
     <script src="assets2/js/templatemo.js"></script>
     <script src="assets2/js/custom.js"></script>
     <!-- <script src="/js/user/filter.js"></script> -->
+     
     <script>
         // JavaScript to handle search input change and reset filters
         document.getElementById('searchQuery').addEventListener('input', debounce(updateFilters, 800));

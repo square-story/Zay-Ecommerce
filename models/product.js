@@ -47,6 +47,7 @@ const ProductSchema = mongoose.Schema({
       stock: {
         type: Number,
         default: 1,
+        min: [0, 'Stock cannot be negative'], // Validation for positive numbers
       },
       created: {
         type: Date,

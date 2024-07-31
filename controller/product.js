@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Review = require('../models/reviewModal');
 const Catagery = require("../models/cetagory");
 const path = require("node:path");
 const sharp = require("sharp");
@@ -334,18 +335,25 @@ module.exports.productdetiles = async (req, res) => {
     const { id, index } = req.query;
     console.log(id, index);
     const related = await Product.find({ isListed: true }).populate("cetagory");
-    const product = await Product.findOne({ _id: id });
+    const product = await Product.findOne({ _id: id }).populate("cetagory");
+    const reviews = await Review.find({ productId: id }).populate("user");
+
+    // Calculate average rating
+    let totalRating = 0;
+    if (reviews.length > 0) {
+      totalRating = (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1);
+    }
+
     if (req.xhr) {
       console.log("ajax");
       res.json({ product: product, index: index });
     } else {
-      let totalRating = 0;
-
       res.render("productDetails", {
         product: product,
         index: index,
         image: product.variant[index].images[0],
         totalRating,
+        reviews,
         related,
       });
     }
@@ -353,3 +361,4 @@ module.exports.productdetiles = async (req, res) => {
     console.log(error);
   }
 };
+

@@ -4,10 +4,12 @@ const reviewSchema = mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'User', // Adding reference to the User model
   },
   productId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'Product', // Adding reference to the Product model
   },
   review: {
     type: String,
@@ -19,8 +21,8 @@ const reviewSchema = mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
 });
 
-module.exports = mongoose.model("review", reviewSchema);
+module.exports = mongoose.model("Review", reviewSchema);

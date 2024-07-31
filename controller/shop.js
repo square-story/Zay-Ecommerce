@@ -1,5 +1,6 @@
 const Catagery = require("../models/cetagory");
 const Product = require("../models/product");
+const Review = require('../models/reviewModal');
 
 //products page rendering
 module.exports.loadShop = async (req, res) => {
@@ -66,6 +67,21 @@ module.exports.loadShop = async (req, res) => {
     const totalResults = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalResults / limit);
 
+    // Fetch reviews and calculate average rating
+    const productIds = products.map(product => product._id.toString());
+    const reviews = await Review.find({ product: { $in: productIds } });
+
+    const productRatings = {};
+    productIds.forEach(id => {
+      const productReviews = reviews.filter(review => review.product.toString() === id);
+      if (productReviews.length > 0) {
+        const totalRating = productReviews.reduce((acc, review) => acc + review.rating, 0);
+        productRatings[id] = (totalRating / productReviews.length).toFixed(1);
+      } else {
+        productRatings[id] = 0;
+      }
+    });
+
     res.render("shop", {
       categories,
       product: products,
@@ -79,12 +95,17 @@ module.exports.loadShop = async (req, res) => {
       brandFilter,
       priceRange,
       searchQuery, // Pass searchQuery to template for rendering
+      productRatings, // Pass product ratings to the template
     });
   } catch (error) {
     console.error("Error loading shop:", error);
     res.status(500).send("Server Error");
   }
 };
+
+
+
+
 
 module.exports.filter = async (req, res) => {
   try {
