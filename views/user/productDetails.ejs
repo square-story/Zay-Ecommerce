@@ -455,30 +455,16 @@
 
 
 
-
+<!-- Variant Selection Script -->
 <script>
-
     function selectVariant(pId, pIndex) {
-        // const data = {
-        //     id: pId,
-        //     index: pIndex,
-
-        // }
         $.ajax({
-            type: "Get",
+            type: "GET",
             url: `/productDetails?index=${pIndex}&id=${pId}`,
-
-
-
-            success: ((response) => {
+            success: (response) => {
                 if (response.product) {
-
-                    document.getElementById('productName')
-                        .setAttribute('data-index', response.index);
-
-                    document.getElementById('quantity').setAttribute('data-stock', response.product.variant[response.index].stock)
-
-
+                    document.getElementById('productName').setAttribute('data-index', response.index);
+                    document.getElementById('quantity').setAttribute('data-stock', response.product.variant[response.index].stock);
 
                     // Update the navigation tabs
                     const navTabs = document.querySelectorAll('.nav-tabs .nav-link');
@@ -486,12 +472,9 @@
                         tab.classList.toggle('active', i === 0); // Activate the first tab
 
                         const img = tab.querySelector('img');
-
-                        console.log(response.index);
                         if (img) {
                             img.setAttribute('src', `/img/productImage/sharp/${response.product.variant[response.index].images[i]}`);
                         }
-
                     });
 
                     // Update the tab content
@@ -500,87 +483,52 @@
                         tab.classList.toggle('active', i === 0); // Show the content of the first tab
                         const img = tab.querySelector('img');
                         if (img) {
-                            console.log('hello')
                             img.setAttribute('src', `/img/productImage/${response.product.variant[response.index].images[i]}`);
                         }
-
                     });
-
-
-
-
                 }
-            })
-        })
+            },
+            error: (xhr) => {
+                console.error("Failed to fetch product details:", xhr);
+                showSnackbar('Failed to load product details. Please try again.');
+            }
+        });
     }
 </script>
 
+<!-- Focus and Variant Border Management -->
 <script>
-
-
-    const div = document.querySelectorAll('.focus');
-    console.log(div)
-
-    div.forEach(function (img, i) {
-        div[0].style.border = '2px solid red';
-        img.style.opacity = 0.5;
-
-        img.addEventListener('click', function (event) {
-
-            for (let i = 0; i < div.length; i++) {
-                div[i].style.opacity = 0.5;
-                div[i].style.border = '';
-
-
-            }
-            div[i].style.opacity = 1;
-            this.style.border = '2px solid red'
-            img.firstChild.style.transform = 'scale(.2)'
-
-
-        });
-        div[0].style.opacity = 1;
-
-        // img.addEventListener('mouseover', () => {
-        //     div[i].style.opacity = 1;
-
-
-        // })
-        // img.addEventListener('mouseleave', () => {
-        //     div[i].style = '';
-        // })
-
-    });
-    const span = document.querySelectorAll('.variant');
-    console.log(div)
-
-    span.forEach(function (img, i) {
-        span[0].style.border = '2px solid red'
-        img.addEventListener('click', function (event) {
-
-            for (let i = 0; i < span.length; i++) {
-                span[i].style.border = '';
+    function addBorderListeners(elements) {
+        elements.forEach((element, i) => {
+            element.style.opacity = 0.5;
+            if (i === 0) {
+                element.style.border = '2px solid red';
+                element.style.opacity = 1;
             }
 
-            this.style.border = '2px solid red'
-            img.firstChild.style.transform = 'scale(.2)'
-
+            element.addEventListener('click', function () {
+                elements.forEach(el => {
+                    el.style.opacity = 0.5;
+                    el.style.border = '';
+                });
+                element.style.opacity = 1;
+                element.style.border = '2px solid red';
+            });
         });
+    }
 
-    });
+    const focusDivs = document.querySelectorAll('.focus');
+    const variantSpans = document.querySelectorAll('.variant');
 
-
-
-
-
+    addBorderListeners(focusDivs);
+    addBorderListeners(variantSpans);
 </script>
 
-
+<!-- Image Zoom Functionality -->
 <script>
-    // Use a class to select all images
     document.querySelectorAll('.zoom-trigger').forEach(function (img) {
         img.addEventListener('mouseover', function () {
-            const myimage = this; // 'this' refers to the current image
+            const myimage = this;
             imageZoom(myimage);
         });
     });
@@ -590,14 +538,13 @@
 
         container.addEventListener('mousemove', function (e) {
             var rect = container.getBoundingClientRect();
-            var x = e.clientX - rect.left; // X position within the container
-            var y = e.clientY - rect.top; // Y position within the container
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
 
             var percentX = (x / container.offsetWidth) * 100;
             var percentY = (y / container.offsetHeight) * 100;
 
             img.style.transformOrigin = percentX + '% ' + percentY + '%';
-
             img.style.transform = 'scale(2)';
         });
 
@@ -607,79 +554,79 @@
     }
 </script>
 
+<!-- Quantity and Add to Cart Functionality -->
 <script>
-    var quantityInput = document.getElementById('quantity');
-    var decBtn = document.querySelector('.dec');
-    var incBtn = document.querySelector('.inc');
-    var addToCartBtn = document.querySelector('.primary-btn'); // Assuming this is your add to cart button
-    const stock = quantityInput.getAttribute('data-stock');
-    var maxStock = parseInt(stock);
+    document.addEventListener('DOMContentLoaded', function () {
+        var quantityInput = document.getElementById('quantity');
+        var decBtn = document.querySelector('.dec');
+        var incBtn = document.querySelector('.inc');
+        var addToCartBtn = document.querySelector('.primary-btn');
+        var maxStock = parseInt(quantityInput.getAttribute('data-stock'));
 
-    // Set the max attribute of the input field
-    quantityInput.max = maxStock;
+        // Set the max attribute of the input field
+        quantityInput.max = maxStock;
 
-    // Event listener for decrement button
-    decBtn.addEventListener('click', function () {
-        var currentValue = parseInt(quantityInput.value) || 1;
-
-        if (currentValue > 1) {
-            quantityInput.value = currentValue - 1;
-        }
-    });
-
-    // Event listener for increment button
-    incBtn.addEventListener('click', function () {
-        var currentValue = parseInt(quantityInput.value) || 0;
-
-        if (currentValue < maxStock) {
-            quantityInput.value = currentValue + 1;
-        } else {
-            showSnackbar('Cannot add more than ' + maxStock + ' items to cart.');
-        }
-    });
-
-    // Event listener for adding to cart button click
-    addToCartBtn.addEventListener('click', function () {
-        var quantity = parseInt(quantityInput.value);
-
-        // AJAX request to backend to add to cart
-        var productId = '<%= product._id %>'; // Assuming you have this value available
-        var addToCartUrl = '/add-cart'; // Replace with your actual endpoint
-
-        // AJAX POST request
-        $.ajax({
-            type: 'POST',
-            url: addToCartUrl,
-            data: {
-                productId: productId,
-                quantity: quantity
-            },
-            success: function (response) {
-                // Handle success response (if needed)
-                console.log('Product added to cart successfully');
-                // Show success message or redirect to cart page
-                showSnackbar('Item successfully added to your cart!');
-            },
-            error: function (xhr, status, error) {
-                // Handle error response from server
-                var errorMessage = xhr.responseJSON.error || 'Error adding to cart.';
-                console.error('Error adding to cart:', errorMessage);
-                // Display error message to the user
-                showSnackbar(errorMessage);
+        // Decrement button event listener
+        decBtn.addEventListener('click', function () {
+            var currentValue = parseInt(quantityInput.value) || 1;
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
             }
         });
-    });
 
-    // Function to show snackbar messages
-    function showSnackbar(message) {
-        var snackbar = document.getElementById('snackbar');
-        snackbar.textContent = message;
-        snackbar.classList.add('show');
-        setTimeout(function () {
-            snackbar.classList.remove('show');
-        }, 3000); // Hide after 3 seconds
-    }
+        // Increment button event listener
+        incBtn.addEventListener('click', function () {
+            var currentValue = parseInt(quantityInput.value) || 0;
+            if (currentValue < maxStock) {
+                quantityInput.value = currentValue + 1;
+            } else {
+                showSnackbar('Cannot add more than ' + maxStock + ' items to cart.');
+            }
+        });
+
+        // Add to Cart button event listener
+        addToCartBtn.addEventListener('click', function () {
+            var quantity = parseInt(quantityInput.value);
+            var productId = '<%= product._id %>'; // Assuming you have this value available
+            var addToCartUrl = '/add-cart'; // Replace with your actual endpoint
+
+            // AJAX POST request to add product to cart
+            $.ajax({
+                type: 'POST',
+                url: addToCartUrl,
+                data: {
+                    productId: productId,
+                    quantity: quantity
+                },
+                success: function (response) {
+                    if (response.user) {
+                        // Redirect to sign-in page if user is not logged in
+                        window.location.href = `/login?message=${encodeURIComponent("First You Want to Login")}`;
+                    } else {
+                        console.log('Product added to cart successfully');
+                        showSnackbar('Item successfully added to your cart!');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.responseJSON.error || 'Error adding to cart.';
+                    console.error('Error adding to cart:', errorMessage);
+                    showSnackbar(errorMessage);
+                }
+            });
+        });
+
+        // Function to show snackbar messages
+        function showSnackbar(message) {
+            var snackbar = document.getElementById('snackbar');
+            snackbar.textContent = message;
+            snackbar.classList.add('show');
+            setTimeout(function () {
+                snackbar.classList.remove('show');
+            }, 3000); // Hide after 3 seconds
+        }
+    });
 </script>
+
 
 
 

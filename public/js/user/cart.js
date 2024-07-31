@@ -1,12 +1,8 @@
 function addToDb(productid, vIndex, isShop) {
   // Get the selected size value
   var selectedSize = document.querySelector('input[name="size"]:checked');
-  let qunt;
-  const quanti = document.getElementById("quantity");
-  if (quanti) {
-    qunt = quanti.value;
-  }
-  console.log(qunt);
+  let qunt = document.getElementById("quantity")?.value; // Use optional chaining for safety
+
   // Check if a size is selected
   if (selectedSize) {
     console.log("Selected size:", selectedSize.value);
@@ -22,9 +18,9 @@ function addToDb(productid, vIndex, isShop) {
       data: JSON.stringify(data),
       contentType: "application/json",
       success: (response) => {
+        console.log("Server response:", response); // Debugging log
         if (response.added) {
-          console.log("hi");
-          showToast();
+          showToast("Item successfully added to your cart!");
         } else if (response.already) {
           const parentElement = document.getElementById("snackbar");
           const secondChild = parentElement.querySelector(":nth-child(2)");
@@ -40,22 +36,85 @@ function addToDb(productid, vIndex, isShop) {
           window.location.href = "/";
         }
       },
+      error: (xhr, status, error) => {
+        console.error("AJAX error:", error); // Debugging log for AJAX errors
+      }
     });
   } else {
-    const size = document.getElementById("size");
-    const sizeErrorElement = document.getElementById("size-error-" + productid + "_" + vIndex);
-    sizeErrorElement.textContent = "Please select size";
-    size.style.color = "red";
-    size.textContent = "Please select size";
-
-    setTimeout(() => {
-      size.style.color = "";
-      size.textContent = "";
-      sizeErrorElement.textContent = "";
-    }, 6000);
-    return;
+    // Show error message for size selection
+    showError("Please select a size", productid, vIndex);
   }
 }
+
+function showToast(message) {
+  const snackbar = document.getElementById("snackbar");
+  if (snackbar) {
+    snackbar.textContent = message;
+    snackbar.classList.add("show");
+    setTimeout(() => {
+      snackbar.classList.remove("show");
+    }, 3000); // Hide after 3 seconds
+  } else {
+    console.error("Snackbar element not found"); // Debugging log
+  }
+}
+
+function showError(message, productid, vIndex) {
+  const sizeErrorElement = document.getElementById("size-error-" + productid + "_" + vIndex);
+  const size = document.getElementById("size");
+
+  if (sizeErrorElement) {
+    sizeErrorElement.textContent = message;
+  }
+  if (size) {
+    size.style.color = "red";
+    size.textContent = message;
+  }
+
+  setTimeout(() => {
+    if (sizeErrorElement) {
+      sizeErrorElement.textContent = "";
+    }
+    if (size) {
+      size.style.color = "";
+      size.textContent = "";
+    }
+  }, 6000); // Clear the error message after 6 seconds
+}
+
+
+function showToast(message) {
+  const snackbar = document.getElementById("snackbar");
+  snackbar.textContent = message;
+  snackbar.classList.add("show");
+  setTimeout(() => {
+    snackbar.classList.remove("show");
+  }, 3000); // Hide after 3 seconds
+}
+
+function showError(message, productid, vIndex) {
+  const sizeErrorElement = document.getElementById("size-error-" + productid + "_" + vIndex);
+  const size = document.getElementById("size");
+
+  if (sizeErrorElement) {
+    sizeErrorElement.textContent = message;
+  }
+  if (size) {
+    size.style.color = "red";
+    size.textContent = message;
+  }
+
+  setTimeout(() => {
+    if (sizeErrorElement) {
+      sizeErrorElement.textContent = "";
+    }
+    if (size) {
+      size.style.color = "";
+      size.textContent = "";
+    }
+  }, 6000); // Clear the error message after 6 seconds
+}
+
 
 const addToCart = (productid, indexs = null, isShop = null) => {
   let index = "";
