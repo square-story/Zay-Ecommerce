@@ -1,4 +1,4 @@
-const Catagery = require("../models/cetagory");
+const Catagery = require('../models/cetagory');
 
 module.exports.loadCategory = async (req, res) => {
   try {
@@ -9,7 +9,7 @@ module.exports.loadCategory = async (req, res) => {
       .limit(4)
       .then((data) => {
         if (data) {
-          res.render("Catagery", {
+          res.render('Catagery', {
             cetagorys: data,
             page: parseInt(page),
             cetagoryLength: CetageryLength.length,
@@ -45,10 +45,10 @@ module.exports.AddCetogory = async (req, res) => {
           }
         })
         .catch((err) => {
-          console.log("err");
+          console.log('err');
         });
     } else {
-      console.log("data did not recived....");
+      console.log('data did not recived....');
     }
   } catch (error) {
     console.log(error);
@@ -58,7 +58,7 @@ module.exports.AddCetogory = async (req, res) => {
 //listing of category
 module.exports.listCetagory = (req, res) => {
   try {
-    console.log("Reiched at list?");
+    console.log('Reiched at list?');
     const id = req.body.data;
     console.log(id);
     return Catagery.findOne({ _id: id })
@@ -113,10 +113,10 @@ module.exports.editCetagory = async (req, res) => {
       if (update) {
         res.json({ updated: true });
       } else {
-        console.log("not Updated ");
+        console.log('not Updated ');
       }
     } else {
-      console.log("id did not received");
+      console.log('id did not received');
     }
   } catch (error) {
     console.log(error);

@@ -1,4 +1,4 @@
-const Wallet = require("../models/walletModel");
+const Wallet = require('../models/walletModel');
 
 // Function to update wallet balance
 module.exports.updateWallet = async (userId, amount, type, description) => {
@@ -14,15 +14,15 @@ module.exports.updateWallet = async (userId, amount, type, description) => {
       });
     }
 
-    if (type === "credit") {
+    if (type === 'credit') {
       wallet.balance += amount;
-    } else if (type === "debit") {
+    } else if (type === 'debit') {
       if (wallet.balance < amount) {
-        throw new Error("Insufficient balance");
+        throw new Error('Insufficient balance');
       }
       wallet.balance -= amount;
     } else {
-      throw new Error("Invalid transaction type");
+      throw new Error('Invalid transaction type');
     }
 
     wallet.transactions.push({
@@ -37,7 +37,7 @@ module.exports.updateWallet = async (userId, amount, type, description) => {
 
     return { success: true };
   } catch (error) {
-    console.error("Error updating wallet:", error);
+    console.error('Error updating wallet:', error);
     return { success: false, error: error.message };
   }
 };

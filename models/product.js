@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const ProductSchema = mongoose.Schema({
   name: {
@@ -12,7 +12,7 @@ const ProductSchema = mongoose.Schema({
   cetagory: {
     type: String,
     required: true,
-    ref: "cetagory",
+    ref: 'cetagory',
   },
   isListed: {
     type: Boolean,
@@ -42,7 +42,7 @@ const ProductSchema = mongoose.Schema({
       },
       images: {
         type: Array,
-        validate: [arrayLimit, "should be four images"],
+        validate: [arrayLimit, 'should be four images'],
       },
       stock: {
         type: Number,
@@ -60,4 +60,4 @@ const ProductSchema = mongoose.Schema({
 function arrayLimit(val) {
   return val.length <= 4;
 }
-module.exports = mongoose.model("Product", ProductSchema);
+module.exports = mongoose.model('Product', ProductSchema);

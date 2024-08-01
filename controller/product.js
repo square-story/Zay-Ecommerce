@@ -1,14 +1,24 @@
-const Product = require("../models/product");
+const Product = require('../models/product');
 const Review = require('../models/reviewModal');
-const Catagery = require("../models/cetagory");
-const path = require("node:path");
-const sharp = require("sharp");
+const Catagery = require('../models/cetagory');
+const path = require('node:path');
+const sharp = require('sharp');
 
 // add product
 
 module.exports.addproduct = async (req, res) => {
   try {
-    const { pname, description, price, offer, color, stock, brand, cetagory, size } = req.body;
+    const {
+      pname,
+      description,
+      price,
+      offer,
+      color,
+      stock,
+      brand,
+      cetagory,
+      size,
+    } = req.body;
     let errors = [];
 
     // Server-side validation
@@ -63,11 +73,11 @@ module.exports.addproduct = async (req, res) => {
 
       const selectedPath = path.resolve(
         __dirname,
-        "..",
-        "public",
-        "img",
-        "productImage",
-        "sharp",
+        '..',
+        'public',
+        'img',
+        'productImage',
+        'sharp',
         `${req.files[i].filename}`
       );
 
@@ -75,11 +85,11 @@ module.exports.addproduct = async (req, res) => {
     }
 
     const sizes = size ? (Array.isArray(size) ? size : [size]) : [];
-    
+
     const parsedPrice = parseInt(price);
     const parsedOfferPrice = parseInt(offer);
     const parsedStock = parseInt(stock);
-    
+
     const variant = {
       price: parsedPrice,
       offerPrice: parsedOfferPrice,
@@ -100,8 +110,8 @@ module.exports.addproduct = async (req, res) => {
     const isSave = await product.save();
 
     if (isSave) {
-      req.flash("pass", "Product listed successfully");
-      res.redirect("/admin/addProduct");
+      req.flash('pass', 'Product listed successfully');
+      res.redirect('/admin/addProduct');
     }
   } catch (error) {
     console.log(error);
@@ -160,12 +170,12 @@ module.exports.loadVariant = async (req, res) => {
       console.log(product.variant[0].images[0]);
 
       if (product) {
-        res.render("variantManagement", { product: product });
+        res.render('variantManagement', { product: product });
       } else {
-        console.log("product not found");
+        console.log('product not found');
       }
     } else {
-      console.log("id not recieved");
+      console.log('id not recieved');
     }
   } catch (error) {
     console.log(error);
@@ -189,17 +199,17 @@ module.exports.addVariant = async (req, res) => {
 
         const dirPath = path.resolve(
           __dirname,
-          "..",
-          "public",
-          "img",
-          "productImage",
-          "sharp",
+          '..',
+          'public',
+          'img',
+          'productImage',
+          'sharp',
           `${req.files[i].filename}`
         );
 
         await sharp(req.files[i].path).resize(500, 500).toFile(dirPath);
       }
-      console.log("offer", req.body.offerPrice);
+      console.log('offer', req.body.offerPrice);
       console.log(images, sizes);
       const price = parseInt(req.body.price);
       const offerPrice = parseInt(req.body.offerPrice);
@@ -225,7 +235,7 @@ module.exports.addVariant = async (req, res) => {
         }
       });
     } else {
-      console.log("id did not recived");
+      console.log('id did not recived');
     }
   } catch (error) {
     console.log(error);
@@ -245,7 +255,7 @@ module.exports.LoadeditVariant = async (req, res) => {
           const product = data.variant[index];
           const id = data._id;
           console.log(product);
-          res.render("editVariant", {
+          res.render('editVariant', {
             product: product,
             id: id,
             index: index,
@@ -254,7 +264,7 @@ module.exports.LoadeditVariant = async (req, res) => {
         })
         .catch((err) => console.log(err));
     } else {
-      console.log("id not recieved in load variant");
+      console.log('id not recieved in load variant');
     }
   } catch (error) {
     console.log(error);
@@ -263,7 +273,7 @@ module.exports.LoadeditVariant = async (req, res) => {
 
 module.exports.editVariant = async (req, res) => {
   try {
-    console.log("recccccccccccccccc");
+    console.log('recccccccccccccccc');
     const id = req.body.id;
     const name = req.body.name;
     const description = req.body.description;
@@ -278,26 +288,26 @@ module.exports.editVariant = async (req, res) => {
     const newImage = [];
     const product = await Product.findById({ _id: id });
     const images = product.variant[index].images;
-    console.log(images, "heloo");
-    console.log(req.files, "files");
+    console.log(images, 'heloo');
+    console.log(req.files, 'files');
     for (let i = 0; i < 4; i++) {
       const image = req.files[i]?.filename || images[i];
-      console.log(image, "refddddddddddddddddddddddddd");
+      console.log(image, 'refddddddddddddddddddddddddd');
       newImage.push(image);
       if (req.files[i]) {
         const dirPath = path.resolve(
           __dirname,
-          "..",
-          "public",
-          "img",
-          "productImage",
-          "sharp",
+          '..',
+          'public',
+          'img',
+          'productImage',
+          'sharp',
           `${image}`
         );
         await sharp(req.files[i].path).resize(500, 500).toFile(dirPath);
       }
     }
-    console.log(newImage, "helllssjsjjsjsjsjsjsjsjjs");
+    console.log(newImage, 'helllssjsjjsjsjsjsjsjsjjs');
     const price = parseInt(req.body.price);
     const offerPrice = parseInt(req.body.offer);
     const stock = parseInt(req.body.stock);
@@ -321,7 +331,7 @@ module.exports.editVariant = async (req, res) => {
         res.redirect(`/admin/edit-variant?index=${index}&id=${id}`);
       })
       .catch((err) => {
-        console.log(err, "errr");
+        console.log(err, 'errr');
       });
   } catch (error) {
     console.log(error);
@@ -334,21 +344,23 @@ module.exports.productdetiles = async (req, res) => {
   try {
     const { id, index } = req.query;
     console.log(id, index);
-    const related = await Product.find({ isListed: true }).populate("cetagory");
-    const product = await Product.findOne({ _id: id }).populate("cetagory");
-    const reviews = await Review.find({ productId: id }).populate("user");
+    const related = await Product.find({ isListed: true }).populate('cetagory');
+    const product = await Product.findOne({ _id: id }).populate('cetagory');
+    const reviews = await Review.find({ productId: id }).populate('user');
 
     // Calculate average rating
     let totalRating = 0;
     if (reviews.length > 0) {
-      totalRating = (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1);
+      totalRating = (
+        reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+      ).toFixed(1);
     }
 
     if (req.xhr) {
-      console.log("ajax");
+      console.log('ajax');
       res.json({ product: product, index: index });
     } else {
-      res.render("productDetails", {
+      res.render('productDetails', {
         product: product,
         index: index,
         image: product.variant[index].images[0],
@@ -361,4 +373,3 @@ module.exports.productdetiles = async (req, res) => {
     console.log(error);
   }
 };
-

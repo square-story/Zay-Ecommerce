@@ -1,6 +1,6 @@
-const Cart = require("../models/cartModel");
-const Coupon = require("../models/couponModel");
-const Wallet = require("../models/walletModel");
+const Cart = require('../models/cartModel');
+const Coupon = require('../models/couponModel');
+const Wallet = require('../models/walletModel');
 
 module.exports.loadCoupon = async (req, res) => {
   try {
@@ -16,7 +16,7 @@ module.exports.loadCoupon = async (req, res) => {
     // Fetch the total number of coupons
     const totalCoupons = await Coupon.countDocuments();
 
-    res.render("couponManagement", {
+    res.render('couponManagement', {
       coupon,
       couponLength: totalCoupons,
       page: page,
@@ -24,14 +24,14 @@ module.exports.loadCoupon = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
 
 module.exports.createCoupon = async (req, res) => {
   const { name, adate, edate, limit, damount } = req.body;
 
-  const firstname = name.split("").slice(0, 4).join("");
+  const firstname = name.split('').slice(0, 4).join('');
   const randomString = Math.random().toString(36).substring(2, 7);
   const radomNumber = `${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -47,7 +47,7 @@ module.exports.createCoupon = async (req, res) => {
       limit: limit,
     });
     await newCoupon.save();
-    res.redirect("/admin/load-coupon");
+    res.redirect('/admin/load-coupon');
   } catch (error) {
     console.log(error);
   }
@@ -69,7 +69,7 @@ module.exports.editCoupon = async (req, res) => {
         },
       }
     );
-    res.redirect("/admin/load-coupon");
+    res.redirect('/admin/load-coupon');
   } catch (error) {
     console.log(error);
   }
@@ -88,7 +88,7 @@ module.exports.checkCoupon = async (req, res) => {
 
       let dateStrings = [coupon.activationDate, coupon.expiresDate];
       let isoDateStrings = dateStrings.map((dateString) => {
-        let dateArray = dateString.split("-");
+        let dateArray = dateString.split('-');
         return `${dateArray[2]}-${dateArray[1]}-${dateArray[0]}T00:00:00.000Z`;
       });
 
@@ -101,11 +101,11 @@ module.exports.checkCoupon = async (req, res) => {
       const expire = new Date(coupon.expiresDate);
 
       if (alreadyUsed) {
-        res.json({ used: true, message: "This coupon is already used" });
+        res.json({ used: true, message: 'This coupon is already used' });
       } else if (limitOfCoupon) {
-        res.json({ limit: true, message: "Coupon limit reached" });
+        res.json({ limit: true, message: 'Coupon limit reached' });
       } else if (!(today >= convertedDates[0] && today <= convertedDates[1])) {
-        res.json({ expired: true, message: "Coupon expired" });
+        res.json({ expired: true, message: 'Coupon expired' });
       } else {
         const cart = await Cart.findOne({ user: userId });
 
@@ -124,7 +124,7 @@ module.exports.checkCoupon = async (req, res) => {
         const cartAmount = total - discount;
 
         if (total <= 500) {
-          res.json({ min: true, message: "Minimum ₹500 needed" });
+          res.json({ min: true, message: 'Minimum ₹500 needed' });
         } else {
           coupon.userUsed.push(userId);
           await coupon.save();
@@ -133,11 +133,11 @@ module.exports.checkCoupon = async (req, res) => {
         }
       }
     } else {
-      res.json({ notAvailable: true, message: "No coupon available" });
+      res.json({ notAvailable: true, message: 'No coupon available' });
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -145,12 +145,12 @@ module.exports.loadMyCoupon = async (req, res) => {
   try {
     const userId = req.session.user?._id;
     if (!userId) {
-      res.redirect("/");
+      res.redirect('/');
     }
     const wallet = await Wallet.findOne({ user: userId });
     const walletBalance = wallet ? wallet.balance : 0;
     const coupon = await Coupon.find();
-    res.render("myCoupon", { coupon: coupon, walletBalance });
+    res.render('myCoupon', { coupon: coupon, walletBalance });
   } catch (error) {
     console.log(error);
   }
@@ -170,10 +170,10 @@ module.exports.deleteCoupon = async (req, res) => {
 
       res.json({ success: true, totalPages: totalPages });
     } else {
-      res.json({ success: false, message: "Coupon not found" });
+      res.json({ success: false, message: 'Coupon not found' });
     }
   } catch (error) {
-    console.error("Error deleting coupon:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error('Error deleting coupon:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

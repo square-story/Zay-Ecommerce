@@ -1,15 +1,18 @@
 @font-face {
-  font-family: "Material Icons Round";
+  font-family: 'Material Icons Round';
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("../../fonts/material-icon/MaterialIcons-Round.ttf");
+  src: url('../../fonts/material-icon/MaterialIcons-Round.ttf');
   /* For IE6-8 */
-  src: url("../../fonts/material-icon/MaterialIcons-Round.woff2") format("woff2"), url("../../fonts/material-icon/MaterialIcons-Round.woff") format("woff"), url("../../fonts/material-icon/MaterialIcons-Round.ttf") format("truetype");
+  src:
+    url('../../fonts/material-icon/MaterialIcons-Round.woff2') format('woff2'),
+    url('../../fonts/material-icon/MaterialIcons-Round.woff') format('woff'),
+    url('../../fonts/material-icon/MaterialIcons-Round.ttf') format('truetype');
 }
 
 .material-icons {
-  font-family: "Material Icons Round";
+  font-family: 'Material Icons Round';
   font-weight: normal;
   font-style: normal;
   font-size: 22px;
@@ -34,7 +37,7 @@
   right: 0;
   top: 0;
   bottom: 0;
-  opacity: .3;
+  opacity: 0.3;
 }
 
 .material-icons:after {

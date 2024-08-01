@@ -1,5 +1,5 @@
-const Order = require("../models/order");
-const Cetagory = require("../models/cetagory");
+const Order = require('../models/order');
+const Cetagory = require('../models/cetagory');
 
 function bestSelling(sort) {
   try {
@@ -7,18 +7,18 @@ function bestSelling(sort) {
       const bestSellingTopTen = await Order.aggregate([
         {
           $lookup: {
-            from: "products",
-            localField: "products.productId",
-            foreignField: "_id",
-            as: "products",
+            from: 'products',
+            localField: 'products.productId',
+            foreignField: '_id',
+            as: 'products',
           },
         },
         {
-          $unwind: "$products",
+          $unwind: '$products',
         },
         {
           $match: {
-            status: "placed",
+            status: 'placed',
           },
         },
 
@@ -26,7 +26,7 @@ function bestSelling(sort) {
           $group: {
             _id: { category: `$products.${sort}` },
             count: { $sum: 1 },
-            data: { $first: "$$ROOT" },
+            data: { $first: '$$ROOT' },
           },
         },
         {

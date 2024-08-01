@@ -1,7 +1,7 @@
-const cron = require("node-cron");
-const Offer = require("../models/offerModel");
-const Product = require("../models/product");
-const Category = require("../models/cetagory");
+const cron = require('node-cron');
+const Offer = require('../models/offerModel');
+const Product = require('../models/product');
+const Category = require('../models/cetagory');
 
 const formatDate = (date) => {
   const d = new Date(date);
@@ -28,16 +28,16 @@ module.exports.loadAdminOfferPage = async (req, res) => {
     const successMessages = req.flash('successMessages');
     const errorMessages = req.flash('errorMessages');
 
-    res.render("offerOperationPage", { 
-      offers: formattedOffers, 
-      products, 
-      categories, 
-      successMessages, 
-      errorMessages 
+    res.render('offerOperationPage', {
+      offers: formattedOffers,
+      products,
+      categories,
+      successMessages,
+      errorMessages,
     });
   } catch (error) {
     req.flash('errorMessages', 'Failed to retrieve offers');
-    res.status(500).redirect("/admin/offer-management");
+    res.status(500).redirect('/admin/offer-management');
     console.log(error);
   }
 };
@@ -47,31 +47,31 @@ module.exports.createOfferPost = async (req, res) => {
   try {
     const { name, adate, edate, damount, type, productIds, categoryIds } =
       req.body;
-      const discountAmount = parseFloat(damount);
-      if (isNaN(discountAmount) || discountAmount <= 0) {
-        return res.status(400).json({ error: 'Invalid discount amount' });
-      }
-      console.log(typeof damount)
+    const discountAmount = parseFloat(damount);
+    if (isNaN(discountAmount) || discountAmount <= 0) {
+      return res.status(400).json({ error: 'Invalid discount amount' });
+    }
+    console.log(typeof damount);
 
-        // Check if the discount amount is more than 100%
-      if (damount > 100) {
-        req.flash('errorMessages', 'Discount amount cannot exceed 100%.');
-        return res.redirect('/admin/offer-management');
-      }
+    // Check if the discount amount is more than 100%
+    if (damount > 100) {
+      req.flash('errorMessages', 'Discount amount cannot exceed 100%.');
+      return res.redirect('/admin/offer-management');
+    }
 
     const offer = new Offer({
       name,
-      adate:new Date(adate),
+      adate: new Date(adate),
       edate: new Date(edate),
-      damount:discountAmount,
+      damount: discountAmount,
       type,
-      applicableToProducts: type === "product" ? productIds : [],
-      applicableToCategories: type === "category" ? categoryIds : [],
+      applicableToProducts: type === 'product' ? productIds : [],
+      applicableToCategories: type === 'category' ? categoryIds : [],
     });
     await offer.save();
     await applyOfferToProducts(offer);
     req.flash('successMessages', 'Offer created successfully.');
-    res.redirect("/admin/offer-management");
+    res.redirect('/admin/offer-management');
   } catch (error) {
     req.flash('errorMessages', 'Failed to create offer.');
     res.redirect('/admin/offer-management');
@@ -84,18 +84,17 @@ module.exports.editOfferPost = async (req, res) => {
     const { id, name, adate, edate, damount, type, productIds, categoryIds } =
       req.body;
 
-        // Convert damount to a number
-  const discountAmount = parseFloat(damount);
-  if (isNaN(discountAmount) || discountAmount <= 0) {
-    return res.status(400).json({ error: 'Invalid discount amount' });
-  }
+    // Convert damount to a number
+    const discountAmount = parseFloat(damount);
+    if (isNaN(discountAmount) || discountAmount <= 0) {
+      return res.status(400).json({ error: 'Invalid discount amount' });
+    }
 
     // Check if the discount amount is more than 100%
     if (damount > 100) {
       req.flash('errorMessages', 'Discount amount cannot exceed 100%.');
       return res.redirect('/admin/offer-management');
     }
-
 
     const offer = await Offer.findById(id);
 
@@ -110,15 +109,15 @@ module.exports.editOfferPost = async (req, res) => {
     offer.edate = new Date(edate);
     offer.damount = discountAmount;
     offer.type = type;
-    offer.applicableToProducts = type === "product" ? productIds : [];
-    offer.applicableToCategories = type === "category" ? categoryIds : [];
+    offer.applicableToProducts = type === 'product' ? productIds : [];
+    offer.applicableToCategories = type === 'category' ? categoryIds : [];
     await offer.save();
     await applyOfferToProducts(offer); // Apply new offer
     req.flash('successMessages', 'Offer updated successfully.');
-    res.redirect("/admin/offer-management");
+    res.redirect('/admin/offer-management');
   } catch (error) {
     req.flash('errorMessages', 'Failed to update offer.');
-    res.redirect("/admin/offer-management");
+    res.redirect('/admin/offer-management');
   }
 };
 
@@ -134,12 +133,12 @@ module.exports.deleteOffer = async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, error: "Failed to delete offer" });
+    res.json({ success: false, error: 'Failed to delete offer' });
   }
 };
 
 const applyOfferToProducts = async (offer) => {
-  if (offer.type === "product") {
+  if (offer.type === 'product') {
     const products = await Product.find({
       _id: { $in: offer.applicableToProducts },
     });
@@ -151,7 +150,7 @@ const applyOfferToProducts = async (offer) => {
       });
       await product.save();
     }
-  } else if (offer.type === "category") {
+  } else if (offer.type === 'category') {
     const products = await Product.find({
       cetagory: { $in: offer.applicableToCategories },
     });
@@ -167,8 +166,8 @@ const applyOfferToProducts = async (offer) => {
 };
 
 // Define a cron job to run every day at midnight
-cron.schedule("0 0 * * *", async () => {
-  console.log("Running cron job to check for expired offers.");
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running cron job to check for expired offers.');
 
   try {
     // Find expired offers
@@ -183,13 +182,12 @@ cron.schedule("0 0 * * *", async () => {
       await Offer.findByIdAndDelete(offer._id);
     }
   } catch (error) {
-    console.error("Error processing expired offers:", error);
+    console.error('Error processing expired offers:', error);
   }
 });
 
-
 const removeOfferFromProducts = async (offer) => {
-  if (offer.type === "product") {
+  if (offer.type === 'product') {
     const products = await Product.find({
       _id: { $in: offer.applicableToProducts },
     });
@@ -199,7 +197,7 @@ const removeOfferFromProducts = async (offer) => {
       });
       await product.save();
     }
-  } else if (offer.type === "category") {
+  } else if (offer.type === 'category') {
     const products = await Product.find({
       cetagory: { $in: offer.applicableToCategories },
     });

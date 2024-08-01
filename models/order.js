@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "User",
+    ref: 'User',
   },
   deliveryDetails: {
     type: Object,
@@ -15,7 +15,7 @@ const orderSchema = new mongoose.Schema({
       productId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: "Product",
+        ref: 'Product',
       },
       product: {
         type: String,
@@ -38,29 +38,29 @@ const orderSchema = new mongoose.Schema({
       status: {
         type: String,
         enum: [
-          "pending",
-          "placed",
-          "outfordelivery",
-          "shipped",
-          "delivered",
-          "canceled",
-          "returned",
+          'pending',
+          'placed',
+          'outfordelivery',
+          'shipped',
+          'delivered',
+          'canceled',
+          'returned',
         ],
-        default: "placed",
+        default: 'placed',
       },
       cancelReason: {
         type: String,
       },
       cancelRequest: {
         type: String,
-        enum: ["requested", "accepted", "denied"],
+        enum: ['requested', 'accepted', 'denied'],
       },
       returnReason: {
         type: String,
       },
       returnRequest: {
         type: String,
-        enum: ["requested", "accepted", "denied"],
+        enum: ['requested', 'accepted', 'denied'],
       },
       coupon: {
         type: Number,
@@ -91,14 +91,14 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: [
-      "pending",
-      "placed",
-      "outfordelivery",
-      "shipped",
-      "delivered",
-      "canceled",
-      "returned",
-      "failed",
+      'pending',
+      'placed',
+      'outfordelivery',
+      'shipped',
+      'delivered',
+      'canceled',
+      'returned',
+      'failed',
     ], // Added "failed"
   },
   paymentMethod: {
@@ -113,8 +113,8 @@ const orderSchema = new mongoose.Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ["pending", "completed", "failed"], // Add this field to track payment status
-    default: "pending",
+    enum: ['pending', 'completed', 'failed'], // Add this field to track payment status
+    default: 'pending',
   },
   failureReason: {
     type: String, // Add this field to store the reason for payment failure
@@ -124,4 +124,4 @@ const orderSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model('Order', orderSchema);

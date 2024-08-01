@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const couponSchema = mongoose.Schema({
   name: {
@@ -23,7 +23,7 @@ const couponSchema = mongoose.Schema({
   },
   userUsed: {
     type: Array,
-    ref: "User",
+    ref: 'User',
     default: [],
   },
   limit: {
@@ -36,4 +36,4 @@ const couponSchema = mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Coupon", couponSchema);
+module.exports = mongoose.model('Coupon', couponSchema);

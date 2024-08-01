@@ -3,7 +3,7 @@ module.exports.islogin = (req, res, next) => {
     if (req.session.admin) {
       next();
     } else {
-      res.redirect("/admin/login");
+      res.redirect('/admin/login');
     }
   } catch (error) {}
 };
@@ -13,7 +13,7 @@ module.exports.logged = (req, res, next) => {
     if (!req.session.admin) {
       next();
     } else {
-      res.redirect("/admin/");
+      res.redirect('/admin/');
     }
   } catch (error) {
     console.log(error);

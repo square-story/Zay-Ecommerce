@@ -1,16 +1,16 @@
 // script.js
-const inputs = document.getElementById("inputs");
+const inputs = document.getElementById('inputs');
 
-inputs.addEventListener("input", function (e) {
+inputs.addEventListener('input', function (e) {
   const target = e.target;
   const val = target.value;
 
   if (isNaN(val)) {
-    target.value = "";
+    target.value = '';
     return;
   }
 
-  if (val != "") {
+  if (val != '') {
     const next = target.nextElementSibling;
     if (next) {
       next.focus();
@@ -18,12 +18,12 @@ inputs.addEventListener("input", function (e) {
   }
 });
 
-inputs.addEventListener("keyup", function (e) {
+inputs.addEventListener('keyup', function (e) {
   const target = e.target;
   const key = e.key.toLowerCase();
 
-  if (key == "backspace" || key == "delete") {
-    target.value = "";
+  if (key == 'backspace' || key == 'delete') {
+    target.value = '';
     const prev = target.previousElementSibling;
     if (prev) {
       prev.focus();
@@ -39,7 +39,7 @@ function startCountdown(initialValue) {
     if (n === 0) {
       clearInterval(countdownInterval);
     }
-    document.querySelector(".time").innerHTML = n;
+    document.querySelector('.time').innerHTML = n;
     n = n - 1;
   }, 1000);
 }
@@ -50,49 +50,49 @@ function resend() {
 }
 startCountdown(60);
 
-document.getElementById("resend").onclick = function () {
+document.getElementById('resend').onclick = function () {
   resend();
 };
 
-document.getElementById("resend").addEventListener("click", () => {
+document.getElementById('resend').addEventListener('click', () => {
   try {
     // const currentUrl = window.location.href;
 
     const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get("email");
+    const email = urlParams.get('email');
 
     console.log(email);
 
     const postUrl =
-      "/resend" + (email ? `?email=${encodeURIComponent(email)}` : "");
+      '/resend' + (email ? `?email=${encodeURIComponent(email)}` : '');
     console.log(postUrl);
     fetch(postUrl, {
-      method: "POST",
+      method: 'POST',
     })
       .then((response) => {
         if (response.ok) {
-          console.log("Resend request successful");
+          console.log('Resend request successful');
         } else {
-          console.error("Resend request failed");
+          console.error('Resend request failed');
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
+        console.error('Error:', error);
       });
   } catch (error) {
-    console.error("Error:", error);
+    console.error('Error:', error);
   }
 });
 
 function reset(btn) {
   setTimeout(() => {
-    btn.classList.remove("text-danger");
+    btn.classList.remove('text-danger');
   }, 3000);
 }
 
-const btn = document.getElementById("resend");
+const btn = document.getElementById('resend');
 
-btn.addEventListener("click", () => {
-  btn.classList.add("text-danger");
+btn.addEventListener('click', () => {
+  btn.classList.add('text-danger');
   reset(btn);
 });

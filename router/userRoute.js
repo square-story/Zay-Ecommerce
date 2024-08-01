@@ -1,39 +1,39 @@
-const express = require("express");
-const session = require("express-session");
+const express = require('express');
+const session = require('express-session');
 const userRoute = express();
-const userController = require("../controller/userController");
-const productController = require("../controller/product");
-userRoute.set("view engine", "ejs");
-userRoute.set("views", "./views/user");
-const shopController = require("../controller/shop");
-const User = require("../models/userModel");
-const cartController = require("../controller/cartCotroller");
-const orderController = require("../controller/orderController");
-const review_Controller = require("../controller/reviewContoller");
-const couponController = require("../controller/couponController");
-const wishlistController = require("../controller/wishlistController");
-const reportController = require("../controller/reportController");
-const userMiddleware = require("../middleware/userAuth");
-const passport = require("passport");
-const nocache = require("nocache");
-const fetchCartMiddleware = require("../middleware/fetchCartMiddleware");
-const checkBlockedStatus = require("../middleware/checkBlockedStatus");
+const userController = require('../controller/userController');
+const productController = require('../controller/product');
+userRoute.set('view engine', 'ejs');
+userRoute.set('views', './views/user');
+const shopController = require('../controller/shop');
+const User = require('../models/userModel');
+const cartController = require('../controller/cartCotroller');
+const orderController = require('../controller/orderController');
+const review_Controller = require('../controller/reviewContoller');
+const couponController = require('../controller/couponController');
+const wishlistController = require('../controller/wishlistController');
+const reportController = require('../controller/reportController');
+const userMiddleware = require('../middleware/userAuth');
+const passport = require('passport');
+const nocache = require('nocache');
+const fetchCartMiddleware = require('../middleware/fetchCartMiddleware');
+const checkBlockedStatus = require('../middleware/checkBlockedStatus');
 
-require("../passport");
+require('../passport');
 
 userRoute.use(nocache());
 
 userRoute.use((req, res, next) => {
-  res.header("Cache-Control", "no-store, private, must-revalidate");
+  res.header('Cache-Control', 'no-store, private, must-revalidate');
   next();
 });
 
-const path = require("node:path");
-userRoute.use(express.static(path.join(__dirname, "image/product")));
+const path = require('node:path');
+userRoute.use(express.static(path.join(__dirname, 'image/product')));
 
 userRoute.use(
   session({
-    secret: "sessionscret",
+    secret: 'sessionscret',
     resave: false,
     saveUninitialized: true,
   })
@@ -51,14 +51,14 @@ userRoute.use(express.urlencoded({ extended: true }));
 
 userRoute.use(async (req, res, next) => {
   const id = req.session.user?._id;
-  console.log(id, "middleware");
+  console.log(id, 'middleware');
 
   const user = await User.findOne({ _id: id });
 
   if (user) {
     if (user.isBlocked) {
-      fetch("http://localhost:3000/logout", {
-        method: "POST",
+      fetch('http://localhost:3000/logout', {
+        method: 'POST',
       }).catch((err) => {
         console.log(err);
       });
@@ -74,169 +74,169 @@ userRoute.use((req, res, next) => {
 });
 
 // load home
-userRoute.get("/", userController.loadHome);
+userRoute.get('/', userController.loadHome);
 
 // load login
-userRoute.get("/login", userMiddleware.isLogined, userController.loadLogin);
+userRoute.get('/login', userMiddleware.isLogined, userController.loadLogin);
 
 //post for login details to check
-userRoute.post("/login", userController.userLogin);
+userRoute.post('/login', userController.userLogin);
 
 // load register
-userRoute.get("/signUp", userMiddleware.isLogined, userController.loadRegister);
+userRoute.get('/signUp', userMiddleware.isLogined, userController.loadRegister);
 
 // load otp
-userRoute.get("/otp", userMiddleware.isLogined, userController.loadotp);
+userRoute.get('/otp', userMiddleware.isLogined, userController.loadotp);
 
 // otp post || verify
 
-userRoute.post("/otp", userController.verifyOTP);
+userRoute.post('/otp', userController.verifyOTP);
 
 // register form sumbit
-userRoute.post("/signUp", userController.insertUser);
+userRoute.post('/signUp', userController.insertUser);
 
 // login with otp
-userRoute.post("/otpLogin", userController.otpLogin);
+userRoute.post('/otpLogin', userController.otpLogin);
 // load login with otp page
-userRoute.get("/otpLogin", userMiddleware.isLogined, userController.OTPlogin);
+userRoute.get('/otpLogin', userMiddleware.isLogined, userController.OTPlogin);
 
 // Logout the user
-userRoute.post("/logout", userController.userLogout);
+userRoute.post('/logout', userController.userLogout);
 
 //the resend the otp again for create another request to generate the new otp
-userRoute.post("/resend", userController.resend);
+userRoute.post('/resend', userController.resend);
 
 //Google Auth
 userRoute.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["email", "profile"] })
+  '/auth/google',
+  passport.authenticate('google', { scope: ['email', 'profile'] })
 );
 
 // Google Auth Callback
 userRoute.get(
-  "/auth/google/callback",
-  passport.authenticate("google", {
-    successRedirect: "/success",
-    failureRedirect: "/failure",
+  '/auth/google/callback',
+  passport.authenticate('google', {
+    successRedirect: '/success',
+    failureRedirect: '/failure',
   })
 );
 
 // Success
-userRoute.get("/success", userController.successGoogleLogin);
+userRoute.get('/success', userController.successGoogleLogin);
 
 // failure
-userRoute.get("/failure", userController.failureGoogleLogin);
+userRoute.get('/failure', userController.failureGoogleLogin);
 
-userRoute.get("/productDetails", productController.productdetiles);
+userRoute.get('/productDetails', productController.productdetiles);
 
-userRoute.get("/shop", shopController.loadShop);
+userRoute.get('/shop', shopController.loadShop);
 
-userRoute.post("/checkSession", userController.checkSession);
+userRoute.post('/checkSession', userController.checkSession);
 
 // ==================================================================== //
-userRoute.get("/about", userController.loadAbout);
+userRoute.get('/about', userController.loadAbout);
 
-userRoute.get("/contact", userController.loadContact);
+userRoute.get('/contact', userController.loadContact);
 
 //forget
-userRoute.get("/forget-password", userController.loadForget);
+userRoute.get('/forget-password', userController.loadForget);
 
-userRoute.post("/forget", userController.forgetVerify);
+userRoute.post('/forget', userController.forgetVerify);
 
 userRoute.get(
-  "/change-password/:userId/:token",
+  '/change-password/:userId/:token',
   userMiddleware.isLogined,
   userController.verifyUser
 );
-userRoute.post("/change-password", userController.resetPassword);
+userRoute.post('/change-password', userController.resetPassword);
 
 //account details section
 userRoute.get(
-  "/account",
+  '/account',
   userMiddleware.userAuth,
   userController.loadMyAccount
 );
 
 //user cart render
-userRoute.get("/cart", userMiddleware.userAuth, cartController.loadCart);
+userRoute.get('/cart', userMiddleware.userAuth, cartController.loadCart);
 
 //add procuct into cart
-userRoute.post("/add-cart", cartController.addToCart);
+userRoute.post('/add-cart', cartController.addToCart);
 
 //remove product in cart
-userRoute.post("/removeFormCart", cartController.removeFromCart);
+userRoute.post('/removeFormCart', cartController.removeFromCart);
 
 //user cart product quantity change
-userRoute.post("/counter", cartController.changeQuantity);
+userRoute.post('/counter', cartController.changeQuantity);
 
 //user cart check-out
 userRoute.get(
-  "/check-out",
+  '/check-out',
   userMiddleware.userAuth,
   cartController.proceedToCheckout
 );
 
 userRoute.get(
-  "/my-order",
+  '/my-order',
   userMiddleware.userAuth,
   orderController.loadMyOrder
 );
 
-userRoute.post("/retry-payment", orderController.retryPayment);
+userRoute.post('/retry-payment', orderController.retryPayment);
 
 userRoute.get(
-  "/single-product",
+  '/single-product',
   userMiddleware.userAuth,
   orderController.loadSingleProduct
 );
 
-userRoute.post("/add-Address", orderController.addAddress);
+userRoute.post('/add-Address', orderController.addAddress);
 
-userRoute.post("/place-order", orderController.placeOrder);
+userRoute.post('/place-order', orderController.placeOrder);
 
-userRoute.post("/payment-failure", orderController.handlePaymentFailure);
+userRoute.post('/payment-failure', orderController.handlePaymentFailure);
 
-userRoute.get("/order-status", orderController.loadOrderSucces);
+userRoute.get('/order-status', orderController.loadOrderSucces);
 
-userRoute.post("/search", shopController.filter);
-userRoute.post("/order-cancel", orderController.orderCancellation);
+userRoute.post('/search', shopController.filter);
+userRoute.post('/order-cancel', orderController.orderCancellation);
 
-userRoute.get("/single-orderDetails", orderController.getOrderDetails);
+userRoute.get('/single-orderDetails', orderController.getOrderDetails);
 
 userRoute.get(
-  "/wishlist",
+  '/wishlist',
   userMiddleware.userAuth,
   wishlistController.loadWhislist
 );
-userRoute.post("/addWishlist", wishlistController.addTOWhishlist);
-userRoute.post("/remove-wishlist", wishlistController.removeFromWishlist);
+userRoute.post('/addWishlist', wishlistController.addTOWhishlist);
+userRoute.post('/remove-wishlist', wishlistController.removeFromWishlist);
 
-userRoute.get("/manage-address", userController.loadManageAddress);
+userRoute.get('/manage-address', userController.loadManageAddress);
 
 // ==================================================================== //
 
-userRoute.post("/addReview", review_Controller.addReview);
+userRoute.post('/addReview', review_Controller.addReview);
 
-userRoute.post("/verify-payment", orderController.verifyPayment);
+userRoute.post('/verify-payment', orderController.verifyPayment);
 
-userRoute.post("/product-return", orderController.productReturn);
+userRoute.post('/product-return', orderController.productReturn);
 
-userRoute.post("/check-coupon", couponController.checkCoupon);
+userRoute.post('/check-coupon', couponController.checkCoupon);
 
-userRoute.get("/my-coupon", couponController.loadMyCoupon);
+userRoute.get('/my-coupon', couponController.loadMyCoupon);
 
-userRoute.get("/invoice", orderController.loadInvoice);
+userRoute.get('/invoice', orderController.loadInvoice);
 
-userRoute.put("/edit-address", userController.editAddress);
+userRoute.put('/edit-address', userController.editAddress);
 
-userRoute.delete("/delete-address/:index", userController.deleteAddress);
+userRoute.delete('/delete-address/:index', userController.deleteAddress);
 
-userRoute.put("/change-password", userController.changePassword);
+userRoute.put('/change-password', userController.changePassword);
 
-userRoute.post("/change-details", userController.personalDetails);
+userRoute.post('/change-details', userController.personalDetails);
 
-userRoute.get("/transactions", userController.transactionHistroy);
+userRoute.get('/transactions', userController.transactionHistroy);
 
-userRoute.get("/downloadInvoice", reportController.downloadInvoice);
+userRoute.get('/downloadInvoice', reportController.downloadInvoice);
 
 module.exports = userRoute;

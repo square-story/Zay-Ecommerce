@@ -1,5 +1,48 @@
-#node module to ignore
+# Node.js modules
 /node_modules
 
-#env file added
+# Environment variables
 .env
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+
+# Build output
+/dist
+/build
+/out
+
+# Dependency directories
+bower_components/
+
+# IDE/Editor folders
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+*.log
+*.tmp
+*.swp
+
+# Optional: Ignore configuration files
+.eslintrc
+.eslintrc.json
+.eslintrc.js
+.eslintrc.yaml
+.eslintrc.yml
+.prettierignore
+.prettierrc
+.prettierrc.json
+.prettierrc.js
+.prettierrc.yaml
+.prettierrc.yml
+*.config.js
+*.config.json
+
+# Ignore ESLint configuration
+eslint.config.mjs

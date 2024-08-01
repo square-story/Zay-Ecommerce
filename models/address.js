@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
   },
   address: [
@@ -43,6 +43,6 @@ const addressSchema = new mongoose.Schema({
     },
   ],
 });
-const Address = mongoose.model("Address", addressSchema);
+const Address = mongoose.model('Address', addressSchema);
 
 module.exports = Address;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const cetagory = mongoose.Schema({
   name: {
@@ -10,4 +10,4 @@ const cetagory = mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("cetagory", cetagory);
+module.exports = mongoose.model('cetagory', cetagory);

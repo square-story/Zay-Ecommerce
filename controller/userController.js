@@ -1,19 +1,19 @@
-const User = require("../models/userModel");
-const Wallet = require("../models/walletModel");
-const bcrypt = require("bcrypt");
-const nodemailer = require("nodemailer");
-const verifyOtp = require("../models/otpVerification");
-const Product = require("../models/product");
-const Address = require("../models/address");
-require("dotenv").config();
+const User = require('../models/userModel');
+const Wallet = require('../models/walletModel');
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+const verifyOtp = require('../models/otpVerification');
+const Product = require('../models/product');
+const Address = require('../models/address');
+require('dotenv').config();
 
 // load home page
 module.exports.loadHome = async (req, res) => {
   try {
-    const product = await Product.find({ isListed: true }).populate("cetagory");
+    const product = await Product.find({ isListed: true }).populate('cetagory');
 
     if (product) {
-      res.render("home", { product: product, title: "Zay fashion" });
+      res.render('home', { product: product, title: 'Zay fashion' });
     }
   } catch (error) {
     console.log(error);
@@ -26,7 +26,7 @@ module.exports.loadHome = async (req, res) => {
 module.exports.loadLogin = (req, res) => {
   try {
     const message = req.query.message;
-    res.render("login", { message });
+    res.render('login', { message });
   } catch (error) {
     console.log(error);
   }
@@ -39,17 +39,17 @@ module.exports.userLogin = async (req, res) => {
 
     // Validate email and password presence
     if (!email || !password) {
-      req.flash("blocked", "Email and password are required");
-      return res.redirect("/login");
+      req.flash('blocked', 'Email and password are required');
+      return res.redirect('/login');
     }
 
     const user = await User.findOne({ email });
     if (user) {
       if (user.verified) {
         if (user.isBlocked) {
-          req.flash("blocked", "You are blocked by admin");
-          res.redirect("/login");
-          console.log("User is blocked");
+          req.flash('blocked', 'You are blocked by admin');
+          res.redirect('/login');
+          console.log('User is blocked');
         } else {
           const pass = await bcrypt.compare(password, user.password);
           console.log(pass);
@@ -61,24 +61,24 @@ module.exports.userLogin = async (req, res) => {
             };
             res.redirect(`/`);
           } else {
-            req.flash("blocked", "Enter correct password");
-            res.redirect("/login");
-            console.log("Incorrect password");
+            req.flash('blocked', 'Enter correct password');
+            res.redirect('/login');
+            console.log('Incorrect password');
           }
         }
       } else {
         res.redirect(`/otp?email=${email}&is=${true}&first=${true}`);
-        console.log("User not verified");
+        console.log('User not verified');
       }
     } else {
-      req.flash("found", "Email not found");
-      res.redirect("/login");
-      console.log("User not found");
+      req.flash('found', 'Email not found');
+      res.redirect('/login');
+      console.log('User not found');
     }
   } catch (error) {
     console.log(error);
-    req.flash("error", "An error occurred during login");
-    res.redirect("/login");
+    req.flash('error', 'An error occurred during login');
+    res.redirect('/login');
   }
 };
 
@@ -87,7 +87,7 @@ module.exports.userLogin = async (req, res) => {
 // load sign up page
 module.exports.loadRegister = (req, res) => {
   try {
-    res.render("register");
+    res.render('register');
   } catch (error) {
     console.log(error);
   }
@@ -103,30 +103,33 @@ module.exports.insertUser = async (req, res) => {
     const existingUserByEmail = await User.findOne({ email: email });
 
     if (existingUserByName) {
-      req.flash("uname", "Username already exists");
-      return res.redirect("/signUp");
+      req.flash('uname', 'Username already exists');
+      return res.redirect('/signUp');
     }
 
     if (existingUserByEmail) {
-      req.flash("email", "Email already exists");
-      return res.redirect("/signUp");
+      req.flash('email', 'Email already exists');
+      return res.redirect('/signUp');
     }
 
     // Validate password
-    if (!password || password.trim() === "") {
-      req.flash("password", "Password cannot be empty");
-      return res.redirect("/signUp");
+    if (!password || password.trim() === '') {
+      req.flash('password', 'Password cannot be empty');
+      return res.redirect('/signUp');
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
     if (!passwordRegex.test(password.trim())) {
-      req.flash("password", "Password must be at least 6 characters long, contain at least one uppercase letter, and one special character");
-      return res.redirect("/signUp");
+      req.flash(
+        'password',
+        'Password must be at least 6 characters long, contain at least one uppercase letter, and one special character'
+      );
+      return res.redirect('/signUp');
     }
 
     if (password !== conform) {
-      req.flash("password", "Passwords should be the same");
-      return res.redirect("/signUp");
+      req.flash('password', 'Passwords should be the same');
+      return res.redirect('/signUp');
     }
 
     // Hash password
@@ -151,12 +154,12 @@ module.exports.insertUser = async (req, res) => {
       sentOtp(user.email);
       res.redirect(`/otp?email=${user.email}`);
     } else {
-      console.log("User not saved.");
-      res.status(500).send("User registration failed.");
+      console.log('User not saved.');
+      res.status(500).send('User registration failed.');
     }
   } catch (error) {
-    console.error("Error in user registration:", error);
-    res.status(500).send("Server error");
+    console.error('Error in user registration:', error);
+    res.status(500).send('Server error');
   }
 };
 
@@ -165,8 +168,8 @@ module.exports.insertUser = async (req, res) => {
 const sentOtp = async (email) => {
   try {
     const transport = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.gmail.com",
+      service: 'gmail',
+      host: 'smtp.gmail.com',
       port: 465,
       secure: true,
       auth: {
@@ -180,7 +183,7 @@ const sentOtp = async (email) => {
     const mailOption = {
       from: process.env.USER_AUTH,
       to: email,
-      subject: "OTP Verification",
+      subject: 'OTP Verification',
       html: `Your otp is ${createdOTP}`,
     };
 
@@ -210,29 +213,28 @@ module.exports.loadotp = async (req, res) => {
 
     // Check if email is provided
     if (!email) {
-      return res.render('error', { message: "Email parameter is missing" });
+      return res.render('error', { message: 'Email parameter is missing' });
     }
 
     const user1 = await User.findOne({ email: email });
 
     if (!user1) {
-      return res.render('error', { message: "User not found" });
+      return res.render('error', { message: 'User not found' });
     }
 
     const verify = user1.verified;
-    res.render("otp", { email: email, verify: verify });
+    res.render('otp', { email: email, verify: verify });
   } catch (error) {
     console.log(error);
-    res.render('error', { message: "An unexpected error occurred" });
+    res.render('error', { message: 'An unexpected error occurred' });
   }
 };
-
 
 // load login with otp page
 
 module.exports.OTPlogin = (req, res) => {
   try {
-    res.render("otpLogin");
+    res.render('otpLogin');
   } catch (error) {
     console.log(error);
   }
@@ -241,15 +243,15 @@ module.exports.OTPlogin = (req, res) => {
 module.exports.verifyOTP = async (req, res) => {
   try {
     const email = req.query.email;
-    console.log("otp verify email", email);
+    console.log('otp verify email', email);
     const user = await User.findOne({ email: email });
     const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
     const verify = await verifyOtp.findOne({ Email: email });
 
     if (user && user.isBlocked) {
       req.flash(
-        "blocked",
-        "Your account is currently blocked. Please contact support."
+        'blocked',
+        'Your account is currently blocked. Please contact support.'
       );
       return res.redirect(`/login`); // Replace with your login page path
     } else if (verify) {
@@ -275,21 +277,21 @@ module.exports.verifyOTP = async (req, res) => {
           await verifyOtp.deleteOne({ email: email });
           res.redirect(`/`);
         } else {
-          console.log("user not found");
+          console.log('user not found');
         }
       } else {
-        req.flash("incorrect", "Please enter a valid OTP");
+        req.flash('incorrect', 'Please enter a valid OTP');
         res.redirect(`/otp?email=${email}`);
-        console.log("OTP is incorrect");
+        console.log('OTP is incorrect');
       }
     } else {
-      req.flash("expired", "OTP expired. Please resend.");
+      req.flash('expired', 'OTP expired. Please resend.');
       res.redirect(`/otp?email=${email}`);
-      console.log("otp expired");
+      console.log('otp expired');
     }
   } catch (error) {
     console.error(error);
-    req.flash("error", "An error occurred. Please try again."); // Generic error message
+    req.flash('error', 'An error occurred. Please try again.'); // Generic error message
     res.redirect(`/otp?email=${email}`);
   }
 };
@@ -305,19 +307,22 @@ module.exports.otpLogin = async (req, res) => {
 
     // Validate email and OTP presence
     if (!email || !otp1 || !otp2 || !otp3 || !otp4) {
-      req.flash("error", "Email and OTP are required");
+      req.flash('error', 'Email and OTP are required');
       return res.redirect(`/otp?email=${email}&is=${true}`);
     }
 
     const user = await User.findOne({ email });
 
     if (!user) {
-      req.flash("error", "User not found");
+      req.flash('error', 'User not found');
       return res.redirect(`/login`);
     }
 
     if (user.isBlocked) {
-      req.flash("blocked", "Your account is currently blocked. Please contact support.");
+      req.flash(
+        'blocked',
+        'Your account is currently blocked. Please contact support.'
+      );
       return res.redirect(`/login`);
     }
 
@@ -325,7 +330,7 @@ module.exports.otpLogin = async (req, res) => {
     const find = await verifyOtp.findOne({ Email: email });
 
     if (!find) {
-      req.flash("expired", "OTP expired. Please resend OTP.");
+      req.flash('expired', 'OTP expired. Please resend OTP.');
       return res.redirect(`/otp?email=${email}&is=${true}`);
     }
 
@@ -337,15 +342,15 @@ module.exports.otpLogin = async (req, res) => {
         name: user.name,
         email: user.email,
       };
-      res.redirect("/");
+      res.redirect('/');
     } else {
-      req.flash("incorrect", "Enter a valid OTP.");
+      req.flash('incorrect', 'Enter a valid OTP.');
       res.redirect(`/otp?email=${email}&is=${true}`);
-      console.log("OTP incorrect", "from otp login");
+      console.log('OTP incorrect', 'from otp login');
     }
   } catch (error) {
     console.log(error);
-    req.flash("error", "An error occurred during OTP login");
+    req.flash('error', 'An error occurred during OTP login');
     res.redirect(`/otp?email=${email}&is=${true}`);
   }
 };
@@ -361,9 +366,9 @@ module.exports.successGoogleLogin = async (req, res) => {
       name: user.name,
       email: user.email,
     };
-    return res.redirect("/");
+    return res.redirect('/');
   } else {
-    const hashedPassword = " ";
+    const hashedPassword = ' ';
     const createNewUser = await User.create({
       name: name,
       email: email,
@@ -374,13 +379,13 @@ module.exports.successGoogleLogin = async (req, res) => {
       name: user.name,
       email: user.email,
     };
-    res.redirect("/");
+    res.redirect('/');
   }
 };
 
 //google auth failure route controller
 module.exports.failureGoogleLogin = async (req, res) => {
-  res.send("Error");
+  res.send('Error');
 };
 // ============================================ User sign up ends =============================================\\
 
@@ -388,7 +393,7 @@ module.exports.failureGoogleLogin = async (req, res) => {
 module.exports.userLogout = async (req, res) => {
   try {
     req.session.user = null;
-    res.redirect("/");
+    res.redirect('/');
   } catch (error) {
     console.log(error);
   }
@@ -425,20 +430,20 @@ module.exports.checkSession = (req, res) => {
 
 module.exports.loadAbout = (req, res) => {
   try {
-    res.render("aboutUs");
+    res.render('aboutUs');
   } catch (error) {}
 };
 
 module.exports.loadContact = (req, res) => {
   try {
-    res.render("contact");
+    res.render('contact');
   } catch (error) {}
 };
 
 //load forget password page
 module.exports.loadForget = (req, res) => {
   try {
-    res.render("forgetPassword");
+    res.render('forgetPassword');
   } catch (error) {
     console.log(error);
   }
@@ -451,8 +456,8 @@ function generateResetToken() {
 
 async function sendVerificationEmail(user, token) {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
+    service: 'gmail',
+    host: 'smtp.gmail.com',
     port: 465,
     secure: true,
     auth: {
@@ -464,7 +469,7 @@ async function sendVerificationEmail(user, token) {
   const mailOptions = {
     from: process.env.USER_AUTH,
     to: user.email,
-    subject: "Account Verification",
+    subject: 'Account Verification',
     html: `
       <p>Click on the link below to verify your account:</p>
       <a href="http://localhost:3000/change-password/${user._id}/${token}">Verify Account</a>
@@ -473,9 +478,9 @@ async function sendVerificationEmail(user, token) {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("Verification email sent to:", user.email);
+    console.log('Verification email sent to:', user.email);
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error('Error sending email:', error);
   }
 }
 
@@ -486,8 +491,8 @@ exports.verifyUser = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      req.flash("blocked", "Not Found This User");
-      res.redirect("/forget-password");
+      req.flash('blocked', 'Not Found This User');
+      res.redirect('/forget-password');
     }
     console.log(user);
     // // Check if token matches and is not expired (implement expiration logic)
@@ -496,7 +501,7 @@ exports.verifyUser = async (req, res) => {
     // }
 
     // User verified, perform actions (e.g., set verified flag)
-    res.render("forgetPasswordByUser", { user_id: user._id });
+    res.render('forgetPasswordByUser', { user_id: user._id });
   } catch (error) {
     console.error(error);
     res.status(500);
@@ -508,8 +513,8 @@ module.exports.resetPassword = async (req, res) => {
     const { user_id, password } = req.body;
 
     if (!user_id || !password) {
-      req.flash("error", "Invalid request. Missing user ID or password.");
-      return res.redirect("/forget-password");
+      req.flash('error', 'Invalid request. Missing user ID or password.');
+      return res.redirect('/forget-password');
     }
 
     const passHash = await bcrypt.hash(password, 10);
@@ -521,19 +526,19 @@ module.exports.resetPassword = async (req, res) => {
     );
 
     if (!updatedData) {
-      req.flash("error", "User not found or invalid user ID.");
-      return res.redirect("/forget-password");
+      req.flash('error', 'User not found or invalid user ID.');
+      return res.redirect('/forget-password');
     }
 
-    req.flash("pass", "Password reset successfully");
-    res.redirect("/login");
+    req.flash('pass', 'Password reset successfully');
+    res.redirect('/login');
   } catch (error) {
-    console.error("Error resetting password:", error);
+    console.error('Error resetting password:', error);
     req.flash(
-      "error",
-      "An error occurred while resetting the password. Please try again."
+      'error',
+      'An error occurred while resetting the password. Please try again.'
     );
-    res.redirect("/forget-password");
+    res.redirect('/forget-password');
   }
 };
 
@@ -547,11 +552,11 @@ module.exports.forgetVerify = async (req, res) => {
       user.passwordResetToken = resetToken;
       await user.save();
       await sendVerificationEmail(user, resetToken);
-      req.flash("pass", "Password reset instructions sent to your email");
-      res.redirect("/forget-password");
+      req.flash('pass', 'Password reset instructions sent to your email');
+      res.redirect('/forget-password');
     } else {
-      req.flash("blocked", "Not Found This User");
-      res.redirect("/forget-password");
+      req.flash('blocked', 'Not Found This User');
+      res.redirect('/forget-password');
     }
   } catch (error) {
     console.log(error);
@@ -565,7 +570,7 @@ module.exports.loadMyAccount = async (req, res) => {
     const userDetails = await User.findById({ _id: userId });
     const wallet = await Wallet.findOne({ user: userId });
     const walletBalance = wallet ? wallet.balance : 0;
-    res.render("myAccount", { userDetails, walletBalance });
+    res.render('myAccount', { userDetails, walletBalance });
   } catch (error) {
     console.log(error);
   }
@@ -583,7 +588,7 @@ module.exports.loadManageAddress = async (req, res) => {
     if (!addresses) {
       // res.status(404).render('oops');
     }
-    res.render("manageAddress", { address: addresses.address, walletBalance });
+    res.render('manageAddress', { address: addresses.address, walletBalance });
   } catch (error) {
     console.log(error);
     // res.status(404).render('oops');
@@ -598,15 +603,15 @@ module.exports.editAddress = async (req, res) => {
 
     if (!userid) {
       //    res.status(500).render('oops');
-      console.log("user not found");
+      console.log('user not found');
     }
 
     if (!index) {
       // res.status(500).render('oops');
-      console.log("index not found");
+      console.log('index not found');
     }
 
-    const fullname = req.body.fname + " " + req.body.lname;
+    const fullname = req.body.fname + ' ' + req.body.lname;
 
     const userAddress = {
       fullName: fullname,
@@ -627,7 +632,7 @@ module.exports.editAddress = async (req, res) => {
         },
       }
     );
-    res.redirect("/manage-address");
+    res.redirect('/manage-address');
   } catch (error) {
     //  res.status(500).render('oops');
     console.log(error);
@@ -636,12 +641,12 @@ module.exports.editAddress = async (req, res) => {
 
 module.exports.deleteAddress = async (req, res) => {
   try {
-    console.log("delete request");
+    console.log('delete request');
     const { index } = req.params;
     const userId = req.session.user?._id;
     console.log(index);
     if (!index) {
-      console.log("index not recived");
+      console.log('index not recived');
     }
 
     await Address.findOneAndUpdate(
@@ -669,7 +674,7 @@ module.exports.deleteAddress = async (req, res) => {
 
 module.exports.changePassword = async (req, res) => {
   try {
-    console.log("Starting password change process");
+    console.log('Starting password change process');
 
     const userId = req.session.user?._id;
     const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -677,12 +682,12 @@ module.exports.changePassword = async (req, res) => {
     console.log(req.body);
 
     if (!userId) {
-      return res.status(400).send("User not found");
+      return res.status(400).send('User not found');
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const isOldPasswordCorrect = await bcrypt.compare(
@@ -690,19 +695,19 @@ module.exports.changePassword = async (req, res) => {
       user.password
     );
     if (!isOldPasswordCorrect) {
-      return res.status(400).json({ error: "Incorrect old password" });
+      return res.status(400).json({ error: 'Incorrect old password' });
     }
 
     if (oldPassword === newPassword) {
       return res
         .status(400)
-        .json({ error: "New password cannot be the same as the old password" });
+        .json({ error: 'New password cannot be the same as the old password' });
     }
 
     if (newPassword !== confirmPassword) {
       return res
         .status(400)
-        .json({ error: "New password and confirm password do not match" });
+        .json({ error: 'New password and confirm password do not match' });
     }
 
     if (
@@ -710,7 +715,7 @@ module.exports.changePassword = async (req, res) => {
         newPassword
       )
     ) {
-      return res.status(400).json({ error: "Password must be stronger" });
+      return res.status(400).json({ error: 'Password must be stronger' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -720,8 +725,8 @@ module.exports.changePassword = async (req, res) => {
 
     return res.status(200).json({ success: true });
   } catch (error) {
-    console.error("Error changing password:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error('Error changing password:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -731,17 +736,17 @@ module.exports.personalDetails = async (req, res) => {
     const { value, cls } = req.body;
     console.log(req.body);
     if (!userId) {
-      res.redirect("/");
+      res.redirect('/');
     }
 
-    if (cls === "editUserName") {
+    if (cls === 'editUserName') {
       if (!/^\w+$/.test(value)) {
-        res.json({ username: true, massage: "enter correct username" });
+        res.json({ username: true, massage: 'enter correct username' });
       } else {
         const username = await User.findOne({ name: value });
 
         if (username) {
-          res.json({ username: true, massage: "username alreay exist" });
+          res.json({ username: true, massage: 'username alreay exist' });
         } else {
           const username = await User.findByIdAndUpdate(
             { _id: userId },
@@ -754,19 +759,19 @@ module.exports.personalDetails = async (req, res) => {
           if (username) {
             return res.json({
               success: true,
-              massage: "username successfully updated",
+              massage: 'username successfully updated',
             });
           }
         }
       }
-    } else if (cls === "editEmail") {
-      if (value.indexOf("@") == -1 || !value.endsWith("gmail.com")) {
-        res.json({ email: true, massage: "enter correct email" });
+    } else if (cls === 'editEmail') {
+      if (value.indexOf('@') == -1 || !value.endsWith('gmail.com')) {
+        res.json({ email: true, massage: 'enter correct email' });
       } else {
         const email = await User.findOne({ email: value });
 
         if (email) {
-          res.json({ email: true, massage: "email alreay exist" });
+          res.json({ email: true, massage: 'email alreay exist' });
         } else {
           const username = await User.findByIdAndUpdate(
             { _id: userId },
@@ -779,19 +784,19 @@ module.exports.personalDetails = async (req, res) => {
           if (username) {
             return res.json({
               success: true,
-              massage: "email successfully updated",
+              massage: 'email successfully updated',
             });
           }
         }
       }
-    } else if (cls === "editPhone") {
+    } else if (cls === 'editPhone') {
       if (value.trim().length < 10 || !/^\d+$/.test(value)) {
-        res.json({ phone: true, massage: "enter correct phone number" });
+        res.json({ phone: true, massage: 'enter correct phone number' });
       } else {
         const phone = await User.findOne({ mobile: value });
 
         if (phone) {
-          res.json({ phone: true, massage: "phone number alreay exist" });
+          res.json({ phone: true, massage: 'phone number alreay exist' });
         } else {
           const username = await User.findByIdAndUpdate(
             { _id: userId },
@@ -804,7 +809,7 @@ module.exports.personalDetails = async (req, res) => {
           if (username) {
             return res.json({
               success: true,
-              massage: "phone number successfully updated",
+              massage: 'phone number successfully updated',
             });
           }
         }
@@ -825,8 +830,8 @@ module.exports.transactionHistroy = async (req, res) => {
     const wallet = await Wallet.findOne({ user: req.session.user?._id });
 
     if (!wallet) {
-      console.log("Wallet not found for user:", req.session.user?._id);
-      return res.status(404).send("Wallet not found");
+      console.log('Wallet not found for user:', req.session.user?._id);
+      return res.status(404).send('Wallet not found');
     }
 
     // Get the total number of transactions for pagination
@@ -837,16 +842,16 @@ module.exports.transactionHistroy = async (req, res) => {
 
     const totalPages = Math.ceil(totalTransactions / limit);
 
-    console.log("Transactions:", transactions);
-    console.log("Current Page:", page, "Total Pages:", totalPages);
+    console.log('Transactions:', transactions);
+    console.log('Current Page:', page, 'Total Pages:', totalPages);
 
-    res.render("transactions", {
+    res.render('transactions', {
       transactions: transactions,
       currentPage: page,
       totalPages: totalPages,
     });
   } catch (error) {
-    console.error("Error fetching transactions:", error);
-    res.status(500).send("Error fetching transactions");
+    console.error('Error fetching transactions:', error);
+    res.status(500).send('Error fetching transactions');
   }
 };

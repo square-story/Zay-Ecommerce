@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
   type: { type: String, required: true }, // 'credit' or 'debit'
@@ -8,9 +8,9 @@ const transactionSchema = new mongoose.Schema({
 });
 
 const walletSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   balance: { type: Number, default: 0 },
   transactions: [transactionSchema],
 });
 
-module.exports = mongoose.model("Wallet", walletSchema);
+module.exports = mongoose.model('Wallet', walletSchema);

@@ -4,7 +4,7 @@ module.exports.userAuth = (req, res, next) => {
       next();
     } else {
       return res.redirect(
-        `/login?message=${encodeURIComponent("First You Want to Login")}`
+        `/login?message=${encodeURIComponent('First You Want to Login')}`
       );
     }
   } catch (error) {
@@ -15,7 +15,7 @@ module.exports.userAuth = (req, res, next) => {
 module.exports.isLogined = (req, res, next) => {
   try {
     if (req.session.user) {
-      res.redirect("/");
+      res.redirect('/');
     } else {
       next();
     }
