@@ -47,7 +47,7 @@
       <h2>Order Details</h2>
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Order ID: <%= order._id %></h5>
+          <h5 class="card-title">Order ID: <%= order._id.toString().slice(-6).toUpperCase() %></h5>
           <p><strong>Name:</strong> <%= order.user.name %></p>
           <p><strong>Email:</strong> <%= order.user.email %></p>
           <p><strong>Total Amount:</strong> ₹<%= order.totalAmount %></p>

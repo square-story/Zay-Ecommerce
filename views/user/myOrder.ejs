@@ -50,62 +50,85 @@
 
 
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      a {
-        text-decoration: none;
-      }
+        a {
+            text-decoration: none;
+        }
 
-      .status-checkboxes {
-        margin-top: 0.5rem;
-      }
+        .status-checkboxes {
+            margin-top: 0.5rem;
+        }
 
-      .status-checkboxes .form-check {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-      }
+        .status-checkboxes .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
 
-      .status-checkboxes .form-check-input {
-        margin-top: 0;
-        margin-right: 5px;
-        /* Adjust spacing between checkbox and label */
-      }
+        .status-checkboxes .form-check-input {
+            margin-top: 0;
+            margin-right: 5px;
+        }
 
-      .status-checkboxes .form-check-label {
-        margin-bottom: 0;
-      }
+        .status-checkboxes .form-check-label {
+            margin-bottom: 0;
+        }
 
-      .menu-itemmm {
-        margin-bottom: 20px;
-        padding-left: 21px;
-      }
+        .menu-itemmm {
+            margin-bottom: 20px;
+            padding-left: 21px;
+        }
 
-      .menu-itemmm a {
-        color: black;
-        text-decoration: none;
-        text-transform: capitalize;
-        font-size: 0.9rem;
-        font-family: "Quicksand";
-      }
+        .menu-itemmm a {
+            color: black;
+            text-decoration: none;
+            text-transform: capitalize;
+            font-size: 0.9rem;
+            font-family: "Quicksand";
+        }
 
-      .menu-headinggg {
-        font-size: 0.7rem;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: rgba(127, 127, 127, 1);
-        padding-left: 10px;
-      }
-      table td {
-        padding: 24px;
-      }
-      tr {
-        margin-top: 2rem;
-      }
+        .menu-headinggg {
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: rgba(127, 127, 127, 1);
+            padding-left: 10px;
+        }
+
+        .table-responsive {
+            margin: 20px 0;
+        }
+
+        table td {
+            padding: 16px;
+        }
+
+        @media (max-width: 767.98px) {
+            .table thead {
+                display: none;
+            }
+            .table tbody tr {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 10px;
+                border-bottom: 1px solid #dee2e6;
+            }
+            .table td {
+                padding: 10px 20px;
+                display: flex;
+                justify-content: space-between;
+                border-bottom: 0;
+            }
+            .table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+            }
+        }
     </style>
   </head>
 
@@ -116,20 +139,6 @@
         <%- include('../partials/profileNav.ejs') -%>
         <div class="col-md-9">
           <div class="d-flex flex-column">
-            <div class="div" style="width: 85%; background-color: #fff">
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Recipient's username"
-                  aria-label="Recipient's username"
-                  aria-describedby="button-addon2"
-                />
-                <button class="btn btn-dark" type="button" id="button-addon2">
-                  Search orders
-                </button>
-              </div>
-            </div>
   
             <div class="card-body mt-4">
               <div class="table-responsive">
