@@ -5,15 +5,41 @@ const nodemailer = require('nodemailer');
 const verifyOtp = require('../models/otpVerification');
 const Product = require('../models/product');
 const Address = require('../models/address');
+const Review = require('../models/reviewModal');
 require('dotenv').config();
 
 // load home page
 module.exports.loadHome = async (req, res) => {
   try {
-    const product = await Product.find({ isListed: true }).populate('cetagory');
+    const featuredProductCount = 3;
+    const product = await Product.find({ isListed: true })
+      .sort({ created: -1 })
+      .limit(featuredProductCount)
+      .populate('cetagory');
+
+    const productObjectIds = product.map((product) => product._id);
+    const reviews = await Review.find({
+      productId: { $in: productObjectIds },
+    }).lean();
+    const productRatings = {};
+    const reviewCounts = {};
+
+    productObjectIds.forEach((id) => {
+      const productReviews = reviews.filter(
+        (review) => review.productId && review.productId.toString() === id.toString(),
+      );
+      if (productReviews.length > 0) {
+        const totalRating = productReviews.reduce((acc, review) => acc + review.rating, 0);
+        productRatings[id.toString()] = Number((totalRating / productReviews.length).toFixed(1));
+        reviewCounts[id.toString()] = productReviews.length;
+      } else {
+        productRatings[id.toString()] = 0;
+        reviewCounts[id.toString()] = 0;
+      }
+    });
 
     if (product) {
-      res.render('home', { product: product, title: 'Zay fashion' });
+      res.render('home', { product: product, title: 'Zay fashion', productRatings, reviewCounts });
     }
   } catch (error) {
     console.log(error);
@@ -122,7 +148,7 @@ module.exports.insertUser = async (req, res) => {
     if (!passwordRegex.test(password.trim())) {
       req.flash(
         'password',
-        'Password must be at least 6 characters long, contain at least one uppercase letter, and one special character'
+        'Password must be at least 6 characters long, contain at least one uppercase letter, and one special character',
       );
       return res.redirect('/signUp');
     }
@@ -249,10 +275,7 @@ module.exports.verifyOTP = async (req, res) => {
     const verify = await verifyOtp.findOne({ Email: email });
 
     if (user && user.isBlocked) {
-      req.flash(
-        'blocked',
-        'Your account is currently blocked. Please contact support.'
-      );
+      req.flash('blocked', 'Your account is currently blocked. Please contact support.');
       return res.redirect(`/login`); // Replace with your login page path
     } else if (verify) {
       const { otp: hashed } = verify;
@@ -263,10 +286,7 @@ module.exports.verifyOTP = async (req, res) => {
         const user = await User.findOne({ email: email });
 
         if (user) {
-          await User.findByIdAndUpdate(
-            { _id: user._id },
-            { $set: { verified: true } }
-          );
+          await User.findByIdAndUpdate({ _id: user._id }, { $set: { verified: true } });
           req.session.user = {
             _id: user._id,
             email: user.email,
@@ -319,10 +339,7 @@ module.exports.otpLogin = async (req, res) => {
     }
 
     if (user.isBlocked) {
-      req.flash(
-        'blocked',
-        'Your account is currently blocked. Please contact support.'
-      );
+      req.flash('blocked', 'Your account is currently blocked. Please contact support.');
       return res.redirect(`/login`);
     }
 
@@ -522,7 +539,7 @@ module.exports.resetPassword = async (req, res) => {
     const updatedData = await User.findByIdAndUpdate(
       { _id: user_id },
       { $set: { password: passHash } },
-      { new: true, runValidators: true } // Returns the updated document and runs validation
+      { new: true, runValidators: true }, // Returns the updated document and runs validation
     );
 
     if (!updatedData) {
@@ -534,10 +551,7 @@ module.exports.resetPassword = async (req, res) => {
     res.redirect('/login');
   } catch (error) {
     console.error('Error resetting password:', error);
-    req.flash(
-      'error',
-      'An error occurred while resetting the password. Please try again.'
-    );
+    req.flash('error', 'An error occurred while resetting the password. Please try again.');
     res.redirect('/forget-password');
   }
 };
@@ -630,7 +644,7 @@ module.exports.editAddress = async (req, res) => {
         $set: {
           [`address.${index}`]: userAddress,
         },
-      }
+      },
     );
     res.redirect('/manage-address');
   } catch (error) {
@@ -655,7 +669,7 @@ module.exports.deleteAddress = async (req, res) => {
         $unset: {
           [`address.${index}`]: 1,
         },
-      }
+      },
     );
 
     await Address.findOneAndUpdate(
@@ -664,7 +678,7 @@ module.exports.deleteAddress = async (req, res) => {
         $pull: {
           address: null,
         },
-      }
+      },
     );
     res.status(200).json({ success: true });
   } catch (error) {
@@ -690,30 +704,21 @@ module.exports.changePassword = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const isOldPasswordCorrect = await bcrypt.compare(
-      oldPassword,
-      user.password
-    );
+    const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
     if (!isOldPasswordCorrect) {
       return res.status(400).json({ error: 'Incorrect old password' });
     }
 
     if (oldPassword === newPassword) {
-      return res
-        .status(400)
-        .json({ error: 'New password cannot be the same as the old password' });
+      return res.status(400).json({ error: 'New password cannot be the same as the old password' });
     }
 
     if (newPassword !== confirmPassword) {
-      return res
-        .status(400)
-        .json({ error: 'New password and confirm password do not match' });
+      return res.status(400).json({ error: 'New password and confirm password do not match' });
     }
 
     if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{6,}$/.test(
-        newPassword
-      )
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{6,}$/.test(newPassword)
     ) {
       return res.status(400).json({ error: 'Password must be stronger' });
     }
@@ -754,7 +759,7 @@ module.exports.personalDetails = async (req, res) => {
               $set: {
                 name: value,
               },
-            }
+            },
           );
           if (username) {
             return res.json({
@@ -771,7 +776,7 @@ module.exports.personalDetails = async (req, res) => {
         const email = await User.findOne({ email: value });
 
         if (email) {
-          res.json({ email: true, massage: 'email alreay exist' });
+          res.json({ email: true, massage: 'email already exist' });
         } else {
           const username = await User.findByIdAndUpdate(
             { _id: userId },
@@ -779,7 +784,7 @@ module.exports.personalDetails = async (req, res) => {
               $set: {
                 email: value,
               },
-            }
+            },
           );
           if (username) {
             return res.json({
@@ -804,7 +809,7 @@ module.exports.personalDetails = async (req, res) => {
               $set: {
                 mobile: value,
               },
-            }
+            },
           );
           if (username) {
             return res.json({

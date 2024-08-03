@@ -42,7 +42,7 @@
                             <p>
                                 Experience the best in online shopping with Zay. Our platform highlights the latest trends and styles. Don't miss out on our exclusive collections!
                             </p>
-                            <a href="/shop?sort=increasing" class="btn btn-success me-2">Lowest Price</a>
+                            <a href="/shop?sort=increasing" class="btn btn-success me-2 mb-2 mb-lg-0">Lowest Price</a>
                         </div>
                     </div>
                 </div>
@@ -61,7 +61,7 @@
                             <p>
                                 Enjoy discounts up to <strong>60%</strong> on our entire textile collection. From classic prints to modern designs, find everything you need. Don’t miss out on our <strong>biggest</strong> sale of the season!
                             </p>
-                            <a href="/shop?sort=decreasing" class="btn btn-warning me-2">Premium Items</a>
+                            <a href="/shop?sort=decreasing" class="btn btn-warning me-2 mb-2 mb-lg-0">Premium Items</a>
                         </div>
                     </div>
                 </div>
@@ -80,13 +80,14 @@
                             <p>
                                 Get up to 50% OFF on all fabrics and textiles! Discover the latest designs and premium quality at unbeatable prices. Hurry, limited stock available!
                             </p>
-                            <a href="/shop?sort=newArrival" class="btn btn-info">New Arrival</a>
+                            <a href="/shop?sort=newArrival" class="btn btn-info mb-2 mb-lg-0">New Arrival</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
     <a class="carousel-control-prev text-decoration-none w-auto ps-3" href="#template-mo-zay-hero-carousel" role="button" data-bs-slide="prev">
         <i class="fas fa-chevron-left"></i>
     </a>
@@ -134,92 +135,47 @@
     <!-- Start Featured Product -->
     <section class="bg-light">
         <div class="container py-5">
-            <div class="row text-center py-3">
-                <div class="col-lg-6 m-auto">
-                    <h1 class="h1">Featured Product</h1>
-                    <p>
-                        Reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        Excepteur sint occaecat cupidatat non proident.
+          <div class="row text-center py-3">
+            <div class="col-lg-6 m-auto">
+              <h1 class="h1">Featured Product</h1>
+              <p>
+                Reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                Excepteur sint occaecat cupidatat non proident.
+              </p>
+            </div>
+          </div>
+          <div class="row">
+            <% product.forEach((prod, index) => { %>
+              <div class="col-12 col-md-4 mb-4">
+                <div class="card h-100">
+                  <a href="/productDetails?id=<%= prod._id %>&index=0">
+                    <img src="/img/productImage/sharp/<%= prod.variant[0].images[0] %>" class="card-img-top" alt="...">
+                  </a>
+                  <div class="card-body">
+                    <ul class="list-unstyled d-flex justify-content-between">
+                      <li>
+                        <% 
+                        const rating = productRatings[prod._id.toString()] || 0;
+                        for (let i = 1; i <= 5; i++) { 
+                        %>
+                          <i class="fa fa-star <%= rating >= i - 0.5 ? 'text-warning' : 'text-muted' %>"></i>
+                        <% } %>
+                      </li>
+                      <li class="text-muted text-right"><%= prod.brand %></li>
+                    </ul>
+                    <a href="/productDetails?id=<%= prod._id %>&index=0" class="h2 text-decoration-none text-dark"><%= prod.name %></a>
+                    <p class="card-text">
+                      <%= prod.description %>
                     </p>
+                    <p class="text-muted">Reviews (<%= reviewCounts[prod._id.toString()] %>)</p>
+                  </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-12 col-md-4 mb-4">
-                    <div class="card h-100">
-                        <%const length = product.length%>
-                        <a href="/productDetails?id=<%= product[length - 2]._id%>&index=0">
-                            <img src="/img/productImage/sharp/<%= product[length - 2].variant[0].images[0]%>" class="card-img-top" alt="...">
-                        </a>
-                        <div class="card-body">
-                            <ul class="list-unstyled d-flex justify-content-between">
-                                <li>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-muted fa fa-star"></i>
-                                    <i class="text-muted fa fa-star"></i>
-                                </li>
-                                <li class="text-muted text-right"><%=product[length - 2].brand%></li>
-                            </ul>
-                            <a href="/productDetails?id=<%= product[length - 2]._id%>&index=0" class="h2 text-decoration-none text-dark"><%=product[length - 2].name%></a>
-                            <p class="card-text">
-                                <%=product[length - 2].description%>
-                            </p>
-                            <p class="text-muted">Reviews (24)</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 mb-4">
-                    <div class="card h-100">
-                        <a href="/productDetails?id=<%= product[length - 1]._id%>&index=0">
-                            <img src="/img/productImage/sharp/<%= product[length - 1].variant[0].images[0]%>"  class="card-img-top" alt="...">
-                        </a>
-                        <div class="card-body">
-                            <ul class="list-unstyled d-flex justify-content-between">
-                                <li>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-muted fa fa-star"></i>
-                                    <i class="text-muted fa fa-star"></i>
-                                </li>
-                                <li class="text-muted text-right"><%=product[length - 1].brand%></li>
-                            </ul>
-                            <a href="shop-single.html" class="h2 text-decoration-none text-dark"><%=product[length - 1].name%></a>
-                            <p class="card-text">
-                                <%=product[length - 1].description%>
-                            </p>
-                            <p class="text-muted">Reviews (48)</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 mb-4">
-                    <div class="card h-100">
-                        <a href="/productDetails?id=<%= product[length - 3]._id%>&index=0">
-                            <img src="/img/productImage/sharp/<%= product[length - 3].variant[0].images[0]%>"class="card-img-top" alt="...">
-                        </a>
-                        <div class="card-body">
-                            <ul class="list-unstyled d-flex justify-content-between">
-                                <li>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                    <i class="text-warning fa fa-star"></i>
-                                </li>
-                                <li class="text-muted text-right"><%=product[length - 3].brand%></li>
-                            </ul>
-                            <a href="/productDetails?id=<%= product[length - 3]._id%>&index=0" class="h2 text-decoration-none text-dark"><%=product[length - 3].name%></a>
-                            <p class="card-text">
-                                <%=product[length - 3].description%>
-                            </p>
-                            <p class="text-muted">Reviews (74)</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+              </div>
+            <% }) %>
+          </div>
         </div>
-    </section>
+      </section>
+      
     <!-- End Featured Product -->
 
     <!-- Footer Section Begin -->
