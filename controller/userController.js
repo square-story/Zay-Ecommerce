@@ -146,10 +146,7 @@ module.exports.insertUser = async (req, res) => {
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
     if (!passwordRegex.test(password.trim())) {
-      req.flash(
-        'password',
-        'Password must be at least 6 characters long, contain at least one uppercase letter, and one special character',
-      );
+      req.flash('password', 'Password must be 6+ chars with uppercase and special char.');
       return res.redirect('/signUp');
     }
 
