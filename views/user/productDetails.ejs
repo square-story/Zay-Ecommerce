@@ -353,92 +353,43 @@
         <!-- Related Section Begin -->
         <section class="bg-light">
             <div class="container py-5">
-                <div class="row text-center py-3">
-                    <div class="col-lg-6 m-auto">
-                        <h1 class="h1">Related Products</h1>
-                        <p>
-                            Reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                            Excepteur sint occaecat cupidatat non proident.
+              <div class="row text-center py-3">
+                <div class="col-lg-6 m-auto">
+                  <h1 class="h1">Related Products</h1>
+                  <p>
+                    Discover similar products that you might also love. Each product has been carefully selected based on your interest.
+                  </p>                  
+                </div>
+              </div>
+              <div class="row">
+                <% related.forEach((item) => { %>
+                  <div class="col-12 col-md-4 mb-4">
+                    <div class="card h-100">
+                      <a href="/productDetails?id=<%= item._id %>&index=0">
+                        <img src="/img/productImage/sharp/<%= item.variant[0].images[0] %>" class="card-img-top" alt="...">
+                      </a>
+                      <div class="card-body">
+                        <ul class="list-unstyled d-flex justify-content-between">
+                          <li>
+                            <% for (let i = 0; i < 5; i++) { %>
+                              <i class="fa fa-star <%= i < item.averageRating ? 'text-warning' : 'text-muted' %>"></i>
+                            <% } %>
+                          </li>
+                          <li class="text-muted text-right"><%= item.brand %></li>
+                        </ul>
+                        <a href="/productDetails?id=<%= item._id %>&index=0" class="h2 text-decoration-none text-dark"><%= item.name %></a>
+                        <p class="card-text">
+                          <%= item.description %>
                         </p>
+                        <p class="text-muted">Reviews (<%= item.reviewCount %>)</p>
+                      </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-12 col-md-4 mb-4">
-                        <div class="card h-100">
-                            <%const length = related.length%>
-                            <a href="/productDetails?id=<%= related[length - 2]._id%>&index=0">
-                                <img src="/img/productImage/sharp/<%= related[length - 2].variant[0].images[0]%>" class="card-img-top" alt="...">
-                            </a>
-                            <div class="card-body">
-                                <ul class="list-unstyled d-flex justify-content-between">
-                                    <li>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-muted fa fa-star"></i>
-                                        <i class="text-muted fa fa-star"></i>
-                                    </li>
-                                    <li class="text-muted text-right"><%=related[length - 2].brand%></li>
-                                </ul>
-                                <a href="/productDetails?id=<%= related[length - 2]._id%>&index=0" class="h2 text-decoration-none text-dark"><%=related[length - 2].name%></a>
-                                <p class="card-text">
-                                    <%=related[length - 2].description%>
-                                </p>
-                                <p class="text-muted">Reviews (24)</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4 mb-4">
-                        <div class="card h-100">
-                            <a href="/productDetails?id=<%= related[length - 1]._id%>&index=0">
-                                <img src="/img/productImage/sharp/<%= related[length - 1].variant[0].images[0]%>"  class="card-img-top" alt="...">
-                            </a>
-                            <div class="card-body">
-                                <ul class="list-unstyled d-flex justify-content-between">
-                                    <li>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-muted fa fa-star"></i>
-                                        <i class="text-muted fa fa-star"></i>
-                                    </li>
-                                    <li class="text-muted text-right"><%=related[length - 1].brand%></li>
-                                </ul>
-                                <a href="shop-single.html" class="h2 text-decoration-none text-dark"><%=related[length - 1].name%></a>
-                                <p class="card-text">
-                                    <%=related[length - 1].description%>
-                                </p>
-                                <p class="text-muted">Reviews (48)</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4 mb-4">
-                        <div class="card h-100">
-                            <a href="/productDetails?id=<%= related[length - 3]._id%>&index=0">
-                                <img src="/img/productImage/sharp/<%= related[length - 3].variant[0].images[0]%>"class="card-img-top" alt="...">
-                            </a>
-                            <div class="card-body">
-                                <ul class="list-unstyled d-flex justify-content-between">
-                                    <li>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                        <i class="text-warning fa fa-star"></i>
-                                    </li>
-                                    <li class="text-muted text-right"><%=related[length - 3].brand%></li>
-                                </ul>
-                                <a href="/productDetails?id=<%= related[length - 3]._id%>&index=0" class="h2 text-decoration-none text-dark"><%=related[length - 3].name%></a>
-                                <p class="card-text">
-                                    <%=related[length - 3].description%>
-                                </p>
-                                <p class="text-muted">Reviews (74)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                  </div>
+                <% }) %>
+              </div>
             </div>
-        </section>
+          </section>
+          
         <!-- Related Section End -->
 
         <!-- Footer Section Begin -->

@@ -8,17 +8,7 @@ const sharp = require('sharp');
 
 module.exports.addproduct = async (req, res) => {
   try {
-    const {
-      pname,
-      description,
-      price,
-      offer,
-      color,
-      stock,
-      brand,
-      cetagory,
-      size,
-    } = req.body;
+    const { pname, description, price, offer, color, stock, brand, cetagory, size } = req.body;
     let errors = [];
 
     // Server-side validation
@@ -78,7 +68,7 @@ module.exports.addproduct = async (req, res) => {
         'img',
         'productImage',
         'sharp',
-        `${req.files[i].filename}`
+        `${req.files[i].filename}`,
       );
 
       await sharp(req.files[i].path).resize(500, 500).toFile(selectedPath);
@@ -133,7 +123,7 @@ module.exports.listProduct = async (req, res) => {
               $set: {
                 isListed: false,
               },
-            }
+            },
           );
         } else {
           return Product.updateOne(
@@ -142,7 +132,7 @@ module.exports.listProduct = async (req, res) => {
               $set: {
                 isListed: true,
               },
-            }
+            },
           );
         }
       })
@@ -163,10 +153,7 @@ module.exports.loadVariant = async (req, res) => {
   try {
     const id = req.params.id;
     if (id) {
-      const product = await Product.findOne(
-        { _id: id },
-        { name: 1, variant: 1 }
-      );
+      const product = await Product.findOne({ _id: id }, { name: 1, variant: 1 });
       console.log(product.variant[0].images[0]);
 
       if (product) {
@@ -204,7 +191,7 @@ module.exports.addVariant = async (req, res) => {
           'img',
           'productImage',
           'sharp',
-          `${req.files[i].filename}`
+          `${req.files[i].filename}`,
         );
 
         await sharp(req.files[i].path).resize(500, 500).toFile(dirPath);
@@ -228,7 +215,7 @@ module.exports.addVariant = async (req, res) => {
         { _id: id },
         {
           $push: { variant: variant },
-        }
+        },
       ).then((data) => {
         if (data) {
           res.redirect(`/admin/loadVariant/${id}`);
@@ -279,11 +266,7 @@ module.exports.editVariant = async (req, res) => {
     const description = req.body.description;
     const index = req.body.index;
     if (name) await Product.updateOne({ _id: id }, { $set: { name: name } });
-    if (description)
-      await Product.updateOne(
-        { _id: id },
-        { $set: { description: description } }
-      );
+    if (description) await Product.updateOne({ _id: id }, { $set: { description: description } });
 
     const newImage = [];
     const product = await Product.findById({ _id: id });
@@ -302,7 +285,7 @@ module.exports.editVariant = async (req, res) => {
           'img',
           'productImage',
           'sharp',
-          `${image}`
+          `${image}`,
         );
         await sharp(req.files[i].path).resize(500, 500).toFile(dirPath);
       }
@@ -324,7 +307,7 @@ module.exports.editVariant = async (req, res) => {
               [`variant.${index}.images`]: newImage,
               [`variant.${index}.stock`]: stock,
             },
-          }
+          },
         );
       })
       .then(() => {
@@ -344,17 +327,45 @@ module.exports.productdetiles = async (req, res) => {
   try {
     const { id, index } = req.query;
     console.log(id, index);
-    const related = await Product.find({ isListed: true }).populate('cetagory');
+
+    // Find the current product
     const product = await Product.findOne({ _id: id }).populate('cetagory');
+
+    // Find related products in the same category
+    const relatedProducts = await Product.find({
+      isListed: true,
+      cetagory: product.cetagory._id,
+      _id: { $ne: id }, // Exclude the current product
+    }).limit(3); // Limit to 3 related products
+
+    // Fetch reviews for the current product
     const reviews = await Review.find({ productId: id }).populate('user');
 
-    // Calculate average rating
+    // Calculate average rating for the current product
     let totalRating = 0;
     if (reviews.length > 0) {
       totalRating = (
         reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
       ).toFixed(1);
     }
+
+    // Calculate review count and average rating for each related product
+    const related = await Promise.all(
+      relatedProducts.map(async (relatedProduct) => {
+        const relatedReviews = await Review.find({ productId: relatedProduct._id });
+        let relatedTotalRating = 0;
+        if (relatedReviews.length > 0) {
+          relatedTotalRating = (
+            relatedReviews.reduce((acc, review) => acc + review.rating, 0) / relatedReviews.length
+          ).toFixed(1);
+        }
+        return {
+          ...relatedProduct.toObject(),
+          reviewCount: relatedReviews.length,
+          averageRating: relatedTotalRating,
+        };
+      }),
+    );
 
     if (req.xhr) {
       console.log('ajax');
