@@ -75,6 +75,15 @@
           ? 'Thank you for shopping with us. Your order has been confirmed and will be shipped soon.'
           : 'Unfortunately, your payment could not be processed. Please try again or contact support.' %>
       </p>
+      <% if (orderStatus === 'success') { %>
+        <div class="success-image">
+          <img src="\image\Successful-Payment-color-800px.png" alt="Delivery" style="width: 200px; height: auto;" />
+        </div>
+        <% } else{%>
+          <div class="success-image">
+          <img src="\image\Failed-Payment-color-800px.png" alt="Delivery" style="width: 200px; height: auto;" />
+        </div>
+        <%}%>
       <div class="additional-info">
         <% if (orderStatus === 'success') { %>
         <p><strong>Order Number:</strong> <%= orderNumber %></p>

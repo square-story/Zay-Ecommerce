@@ -80,7 +80,7 @@ module.exports.addAddress = async (req, res) => {
             $push: {
               address: userAddress,
             },
-          }
+          },
         );
       } else {
         const address = new Address({
@@ -91,9 +91,7 @@ module.exports.addAddress = async (req, res) => {
         await address.save();
       }
 
-      req.body.account
-        ? res.redirect('/manage-address')
-        : res.redirect('/check-out');
+      req.body.account ? res.redirect('/manage-address') : res.redirect('/check-out');
     } else {
       console.log('id didt recived');
     }
@@ -115,9 +113,7 @@ module.exports.placeOrder = async (req, res) => {
       return res.status(400).json({ error: 'Invalid subtotal value' });
     }
 
-    let cart = await Cart.findOne({ user: userId }).populate(
-      'products.productId'
-    );
+    let cart = await Cart.findOne({ user: userId }).populate('products.productId');
     if (!cart) {
       return res.status(400).json({ error: 'Cart not found for user' });
     }
@@ -143,11 +139,7 @@ module.exports.placeOrder = async (req, res) => {
       const productVariant = product.productId.variant[variantIndex];
       const requestedQuantity = product.quantity;
       console.log(productVariant);
-      if (
-        !productVariant ||
-        !productVariant.stock ||
-        productVariant.stock < requestedQuantity
-      ) {
+      if (!productVariant || !productVariant.stock || productVariant.stock < requestedQuantity) {
         outOfStockProducts.push({
           productName: product.productId.name,
           variantDetails: productVariant,
@@ -155,9 +147,7 @@ module.exports.placeOrder = async (req, res) => {
       }
     }
     if (outOfStockProducts.length > 0) {
-      return res
-        .status(400)
-        .json({ error: 'Some products are out of stock', outOfStockProducts });
+      return res.status(400).json({ error: 'Some products are out of stock', outOfStockProducts });
     }
 
     let deliveryCharge = subtotal < 500 ? 80 : 0;
@@ -185,10 +175,7 @@ module.exports.placeOrder = async (req, res) => {
       }
     }
 
-    let totalAmount = products.reduce(
-      (sum, product) => sum + product.totalPrice,
-      0
-    );
+    let totalAmount = products.reduce((sum, product) => sum + product.totalPrice, 0);
     let finalAmount = totalAmount + deliveryCharge;
 
     // Create Razorpay order if needed
@@ -226,11 +213,7 @@ module.exports.placeOrder = async (req, res) => {
         res.json({ success: true });
         break;
       case 'wallet':
-        const walletResult = await handleWalletPayment(
-          userId,
-          finalAmount,
-          orderId
-        );
+        const walletResult = await handleWalletPayment(userId, finalAmount, orderId);
         if (walletResult.success) {
           // Reduce product quantities after successful wallet payment
           for (const product of products) {
@@ -239,7 +222,7 @@ module.exports.placeOrder = async (req, res) => {
             const productQuantity = product.quantity;
             await Product.updateOne(
               { _id: productId },
-              { $inc: { [`variant.${variantIndex}.stock`]: -productQuantity } }
+              { $inc: { [`variant.${variantIndex}.stock`]: -productQuantity } },
             );
           }
 
@@ -310,18 +293,13 @@ const handleCOD = async (orderDetails, userId, products) => {
     const productQuantity = product.quantity;
     await Product.updateOne(
       { _id: productId },
-      { $inc: { [`variant.${variantIndex}.stock`]: -productQuantity } }
+      { $inc: { [`variant.${variantIndex}.stock`]: -productQuantity } },
     );
   }
 };
 
 async function handleWalletPayment(userId, finalAmount, orderId) {
-  const result = await updateWallet(
-    userId,
-    finalAmount,
-    'debit',
-    `Order Payment - ${orderId}`
-  );
+  const result = await updateWallet(userId, finalAmount, 'debit', `Order Payment - ${orderId}`);
   return result;
 }
 
@@ -336,23 +314,20 @@ module.exports.verifyPayment = async (req, res) => {
       // Update order status to "failed"
       console.log('failed message content: ', req.body);
       const order = await Order.findOne({ razorpayOrderId: order_id });
-      console.log(
-        'this is from order order failed to check the coupon applied : ',
-        order
-      );
+      console.log('this is from order order failed to check the coupon applied : ', order);
       if (order) {
         const coupon = await Coupon.findOne({ couponCode: order.couponCode });
         console.log('hello from coupon opened :', coupon);
         if (coupon) {
           coupon.userUsed = coupon.userUsed.filter(
-            (userId) => userId.toString() !== order.user.toString()
+            (userId) => userId.toString() !== order.user.toString(),
           );
           await coupon.save();
         }
       }
       await Order.updateOne(
         { razorpayOrderId: order_id },
-        { status: 'failed', failureReason: reason, paymentStatus: 'failed' }
+        { status: 'failed', failureReason: reason, paymentStatus: 'failed' },
       );
       await handleCOD(order, order.user, order.products);
       // Send response
@@ -365,9 +340,7 @@ module.exports.verifyPayment = async (req, res) => {
     if (generatedSignature === signature) {
       const order = await Order.findOne({ razorpayOrderId: order_id });
       if (!order) {
-        return res
-          .status(400)
-          .json({ success: false, message: 'Order not found' });
+        return res.status(400).json({ success: false, message: 'Order not found' });
       }
 
       order.status = 'placed';
@@ -378,9 +351,7 @@ module.exports.verifyPayment = async (req, res) => {
 
       res.json({ success: true, orderId: order._id });
     } else {
-      res
-        .status(400)
-        .json({ success: false, message: 'Payment verification failed' });
+      res.status(400).json({ success: false, message: 'Payment verification failed' });
     }
   } catch (error) {
     console.error('Error verifying payment:', error);
@@ -391,7 +362,7 @@ module.exports.verifyPayment = async (req, res) => {
 module.exports.loadOrderSucces = (req, res) => {
   try {
     const orderStatus = req.query.status; // 'success' or 'failure'
-    const orderNumber = '123456';
+    const orderNumber = generateOrderNumber();
     const deliveryDate = new Date();
     deliveryDate.setDate(deliveryDate.getDate() + 7); // Estimated delivery in 7 days
 
@@ -404,6 +375,12 @@ module.exports.loadOrderSucces = (req, res) => {
     console.log(error);
   }
 };
+
+function generateOrderNumber() {
+  const prefix = 'ORD';
+  const randomNumber = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit random number
+  return `${prefix}${randomNumber}`;
+}
 
 // Function to handle order cancellation request
 module.exports.orderCancellation = async (req, res) => {
@@ -424,20 +401,17 @@ module.exports.orderCancellation = async (req, res) => {
           [`products.${index}.cancelReason`]: cancelReason,
           status: 'cancelled', // Update order status
         },
-      }
+      },
     );
 
     // Refund amount to wallet if paid through wallet or Razorpay
     const order = await Order.findById(orderId);
-    if (
-      order.paymentMethod === 'wallet' ||
-      order.paymentMethod === 'razorpay'
-    ) {
+    if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
       await updateWallet(
         userId,
         order.products[index].totalPrice,
         'credit',
-        `Order Cancelled - ${orderId}`
+        `Order Cancelled - ${orderId}`,
       );
     }
 
@@ -470,7 +444,7 @@ module.exports.productReturn = async (req, res) => {
           [`products.${index}.returnReason`]: returnReason,
           status: 'returned', // Update order status
         },
-      }
+      },
     );
 
     // Refund amount to wallet if paid through wallet or Razorpay
@@ -484,7 +458,7 @@ module.exports.productReturn = async (req, res) => {
         userId,
         order.products[index].totalPrice,
         'credit',
-        `Order Returned - ${orderId}`
+        `Order Returned - ${orderId}`,
       );
     }
 
@@ -502,9 +476,7 @@ module.exports.getOrderDetails = async (req, res) => {
       return res.status(400).send('Order ID is required');
     }
 
-    const order = await Order.findById(orderId)
-      .populate('user')
-      .populate('products.productId');
+    const order = await Order.findById(orderId).populate('user').populate('products.productId');
 
     if (!order) {
       return res.status(404).send('Order not found');
@@ -568,9 +540,7 @@ module.exports.retryPayment = async (req, res) => {
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Order not found' });
+      return res.status(400).json({ success: false, message: 'Order not found' });
     }
 
     // Create a new Razorpay order

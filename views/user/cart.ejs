@@ -82,7 +82,7 @@
                                         <%total += (item.productId.variant[item.product].price * item.quantity)%>
                                         <% items += item.quantity%>
                                         <%totalAmount +=item.totalPrice%>
-                                        <td class="cart__price">₹<%= item.totalPrice%></td>
+                                        <td class="cart__price text-end text-md-start">₹<%= item.totalPrice %></td>
                                        
                                         <td class="cart__close" onclick="remove_from_cart('<%= item.productId._id%>','<%= item.product%>', '<%= item.size%>')"><i class="fa fa-close"></i></td>
                                     </tr>

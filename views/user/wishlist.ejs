@@ -234,139 +234,89 @@
     <!-- Breadcrumb Section End -->
 
     <section class="shopping-cart spad" id="ReloadArea">
-      <%if(wishlistProducts && wishlistProducts.length > 0) {%>
+      <% if (wishlistProducts && wishlistProducts.length > 0) { %>
       <div class="container">
         <div class="row">
-          <div class="col-lg-12">
+          <div class="col-12">
             <div class="shopping__cart__table" id="Reload">
-              <table>
+              <table class="table table-responsive">
                 <thead>
                   <tr>
-                    <th>image</th>
+                    <th>Image</th>
                     <th></th>
-                    <th>select size</th>
+                    <th>Select Size</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <%console.log(wishlistProducts)%>
-                  <%wishlistProducts.forEach((item, i) => {%>
+                  <% console.log(wishlistProducts) %>
+                  <% wishlistProducts.forEach((item, i) => { %>
                   <tr>
                     <td class="product__cart__item">
                       <div class="product__cart__item__pic">
-                        <img
-                          class=""
-                          style="width: 100px; height: 100px"
-                          src="/img/productImage/sharp/<%= item.productId.variant[item.index].images[0]%>"
-                          alt=""
-                        />
+                        <img class="img-fluid" style="width: 100px; height: 100px"
+                          src="/img/productImage/sharp/<%= item.productId.variant[item.index].images[0] %>" alt="" />
                       </div>
                       <div class="product__cart__item__text">
-                        <h6 style="font-size: 12px">
-                          <%= item.productId.name %>
-                        </h6>
-                        <h5 style="font-size: 15px">
-                          ₹<%= item.productId.variant[item.index].offerPrice%>
-                        </h5>
+                        <h6 style="font-size: 12px"><%= item.productId.name %></h6>
+                        <h5 style="font-size: 15px">₹<%= item.productId.variant[item.index].offerPrice %></h5>
                       </div>
                     </td>
                     <td class="quantity__item"></td>
-
                     <td class="product__details__option__size" style="position: relative;">
                       <% item.productId.variant[item.index].size.forEach((el) => { %>
-                        <label for="<%= el %>">
-                          <%= el %>
-                          <input type="radio" id="<%= el %>" value="<%= el %>" name="size">
-                        </label>
+                      <label for="<%= el %>"><%= el %>
+                        <input type="radio" id="<%= el %>" value="<%= el %>" name="size">
+                      </label>
                       <% }) %>
                       <div id="size-error-<%= item.productId._id %>_<%= item.index %>" class="size-error" style="color: red;"></div>
-                    </td> 
-                    <td class="">
-                      <button
-                        onclick="removeFromWishlist('<%= item.productId._id%>', '<%= item.index%>')"
-                        class="btn btn-dark"
-                      >
-                        Remove
-                      </button>
-                      <% if (item.productId.variant[item.index].stock > 0) { %>
-                        <button
-                          type="button"
-                          onclick="addToCart('<%= item.productId._id %>', '<%= item.index %>')"
-                          class="btn btn-dark"
-                        >
+                    </td>
+                    <td>
+                      <div class="d-flex flex-column">
+                        <button onclick="removeFromWishlist('<%= item.productId._id %>', '<%= item.index %>')" class="btn btn-dark mb-2">
+                          Remove
+                        </button>
+                        <% if (item.productId.variant[item.index].stock > 0) { %>
+                        <button type="button" onclick="addToCart('<%= item.productId._id %>', '<%= item.index %>')" class="btn btn-dark">
                           Add to cart
                         </button>
-                      <% } else { %>
-                        <button
-                          type="button"
-                          class="btn btn-dark"
-                          disabled
-                        >
-                          Out of stock
-                        </button>
-                      <% } %>
-                      
+                        <% } else { %>
+                        <button type="button" class="btn btn-dark" disabled>Out of stock</button>
+                        <% } %>
+                      </div>
                     </td>
                   </tr>
-
-                  <%})%>
+                  <% }) %>
                 </tbody>
               </table>
             </div>
-            <div class="row">
+            <div class="row mt-3">
               <div class="col-lg-6 col-md-6 col-sm-6">
                 <div class="continue__btn">
-                  <a class="btn btn-outline-dark" href="/shop"
-                    >Continue Shopping</a
-                  >
+                  <a class="btn btn-outline-dark" href="/shop">Continue Shopping</a>
                 </div>
               </div>
-
               <div id="snackbar">
-                <span
-                  style="
-                    border-radius: 50%;
-                    background-color: #24c20f;
-                    padding: 9px 10px;
-                  "
-                  ><i class="fa-solid fa-check fa-lg" style="color: white"> </i
-                ></span>
-                <span style="margin-left: 10px"
-                  >Item successfully added to your cart!</span
-                >
+                <span style="border-radius: 50%; background-color: #24c20f; padding: 9px 10px;">
+                  <i class="fa-solid fa-check fa-lg" style="color: white"></i>
+                </span>
+                <span style="margin-left: 10px">Item successfully added to your cart!</span>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <%} else {%>
-
-      <div
-        style="
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 30rem;
-        "
-      >
-        <div style="text-align: center">
-          <img
-            src="/img/emptycart.png"
-            alt="Empty Cart Image"
-            style="width: 150px; height: 150px; margin-bottom: 20px"
-          />
-          <p style="font-size: 1.5rem; color: #555">
-            Your wishlist is currently empty.
-          </p>
-          <a href="/shop" class="btn btn-outline-dark btn-lg"
-            >Explore Our Shop</a
-          >
+      <% } else { %>
+      <div class="d-flex justify-content-center align-items-center" style="height: 30rem;">
+        <div class="text-center">
+          <img src="/img/emptycart.png" alt="Empty Cart Image" class="img-fluid mb-4" style="width: 150px; height: 150px;">
+          <p class="fs-3 text-muted">Your wishlist is currently empty.</p>
+          <a href="/shop" class="btn btn-outline-dark btn-lg">Explore Our Shop</a>
         </div>
       </div>
-
-      <%}%>
+      <% } %>
     </section>
+    
 
     <!-- Shopping Cart Section Begin -->
 
