@@ -381,51 +381,43 @@
                         </div>
                     </div>
                 </div>
-                <div
-                    style="padding: 24px; background-color: #fff; box-shadow: 0 2px 4px 0 rgba(0,0,0,.08); margin-top: 2rem;">
-                    <div class="row">
-                        <div class="col-4">
-                            <div class="">
-                                <div class=""><span class="">Delivery Address</span></div>
-                                <div class="">
-                                    <div class="">
-                                        <div class="">
-                                            <%= address.fullName%>
-                                        </div>
-                                    </div>
-                                    <div class="">
-                                        <%= address.email%>
-                                    </div>
-                                    <div class="">
-                                        <%= address.address%>
-                                    </div>
-                                    <div class="">
-                                        <div><span class="">phone Number</span>
-                                            <div class="">
-                                                <%= address.phone%>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<div class="container" style="padding: 24px; background-color: #fff; box-shadow: 0 2px 4px 0 rgba(0,0,0,.08); margin-top: 2rem;">
+    <div class="address-section">
+        <!-- Address Content -->
+        <div class="row">
+            <div class="col-md-4 col-12 address-details">
+                <div>
+                    <div><span class="font-weight-bold">Delivery Address</span></div>
+                    <div>
+                        <div>
+                            <div><%= address.fullName %></div>
                         </div>
-                      
-                        <div class="col-8">
-                            <div class="d-flex">
-                              <% if (order.status !== 'failed' && order.status !== "cancelled" && order.status !== "returned" && (order.paymentMethod === 'razorpay' || order.paymentMethod === 'wallet' || (order.paymentMethod === 'COD' && product.status === 'delivered'))) { %>
-                                <a style="margin-left: 30rem;" href="/invoice?orderId=<%= orderId %>&index=<%= index %>" class="btn btn-primary col-3">
-                                  <span>Download invoice</span>
-                                </a>
-                              <% } %>
-                            </div>
-                          </div>                          
+                        <div><%= address.email %></div>
+                        <div><%= address.address %></div>
+                        <div>
+                            <div><span class="font-weight-bold">Phone Number</span></div>
+                            <div><%= address.phone %></div>
+                        </div>
                     </div>
-
                 </div>
+            </div>
+            <div class="col-md-8 col-12 download-section mt-3 mt-md-0">
+                <div class="d-flex justify-content-md-end justify-content-start">
+                    <% if (order.status !== 'failed' && order.status !== "cancelled" && order.status !== "returned" && (order.paymentMethod === 'razorpay' || order.paymentMethod === 'wallet' || (order.paymentMethod === 'COD' && product.status === 'delivered'))) { %>
+                        <a href="/invoice?orderId=<%= orderId %>&index=<%= index %>" class="btn btn-primary">
+                            <span>Download Invoice</span>
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
               
-                <div class="mt-3">
+                <div class="mt-3 product-section">
                     <div class="" style="background-color: #fff; box-shadow: 0 2px 4px 0 rgba(0,0,0,.08); padding: 24px;">
                         <div class="">
                             <div class="row">
