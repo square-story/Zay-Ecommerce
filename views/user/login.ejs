@@ -1,95 +1,53 @@
 <%- include('../layout/header.ejs') -%>
-<div class="wrapper">
-  <div class="" style="margin-left: 5rem; margin-bottom: 2rem">
-    <img src="assets2\img\apple-icon.png" alt="" />
+<div class="container">
+  <div class="row justify-content-center mt-4 mb-2">
+    <div class="col-auto">
+      <img src="assets2/img/apple-icon.png" alt="Logo" class="img-fluid" />
+    </div>
   </div>
 
-  <%if(messages.blocked) {%>
-
-  <div class="alert alert-danger" role="alert"><%= messages.blocked %></div>
-
-  <%}%> <%if(messages.pass) {%>
-
-  <div class="alert alert-success" role="alert"><%= messages.pass %></div>
-
-  <%}%> <%if(messages.found) {%>
-
-  <div class="alert alert-danger" role="alert"><%= messages.found %></div>
-
-  <%}%>
+  <% if (messages.blocked) { %>
+    <div class="alert alert-danger" role="alert"><%= messages.blocked %></div>
+  <% } %> 
+  <% if (messages.pass) { %>
+    <div class="alert alert-success" role="alert"><%= messages.pass %></div>
+  <% } %> 
+  <% if (messages.found) { %>
+    <div class="alert alert-danger" role="alert"><%= messages.found %></div>
+  <% } %> 
   <% if (message) { %>
     <div class="alert alert-danger" role="alert"><%= message %></div>
   <% } %>
 
-  <!-- <h2>Log in</h2> -->
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <form action="/login" method="post">
+        <div class="mb-3">
+          <input type="text" name="email" class="form-control" placeholder="Enter your email" required />
+        </div>
+        <div class="mb-3">
+          <input type="password" name="password" class="form-control" placeholder="Enter password" required />
+        </div>
 
-  <form action="/login" method="post">
-    <div class="input-box">
-      <input type="text" name="email" placeholder="Enter your email"/>
-    </div>
-    <div class="input-box">
-      <input
-        type="password"
-        name="password"
-        placeholder="Enter password"
-      />
-    </div>
+        <div class="text-center mb-3">
+          <a href="/forget-password" style="color: rgb(48, 94, 150);">Forgotten password?</a>
+        </div>
 
-    <div class="text">
-      <h3>
-        <a href="/forget-password" style="color: rgb(48, 94, 150); margin-left: 10rem"
-          >Forgotten password?</a
-        >
-      </h3>
-    </div>
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-outline-dark">Log in</button>
+          <a href="/otpLogin" class="btn btn-outline-dark">OTP Login</a>
+        </div>
 
-    <!-- <div class="input-box button">
-        <input type="Submit" value="Log in">
-      </div> -->
+        <div class="text-center mt-3 mb-3 position-relative">
+          <img src="/img/google.png" alt="Google logo" style="position: absolute; width: 20px; height: 20px; top: 0.5rem; left: 6rem;" />
+          <a href="/auth/google" class="btn btn-outline-dark" style="padding-left: 50px;">Log in with Google</a>
+        </div>
 
-    <div class="btn-group pt-2" role="group" aria-label="Basic example">
-      <button
-        type="submit"
-        class="btn btn-outline-dark"
-        style="padding: 0.7rem 4rem"
-      >
-        Log in
-      </button>
-      <a
-        href="/otpLogin"
-        class="btn btn-outline-dark"
-        style="padding: 0.7rem 3.5rem"
-        >OTP Login</a
-      >
+        <div class="text-center">
+          <p>Don't have an account? <a href="/signup" style="color: rgb(48, 94, 150);">Sign up</a></p>
+        </div>
+      </form>
     </div>
-
-    <div class="input-box" style="position: relative">
-      <img
-        src="/img/google.png"
-        alt="google logo"
-        style="
-          position: absolute;
-          width: 30px;
-          height: 30px;
-          top: 0.5rem;
-          left: 9px;
-        "
-      />
-      <a
-        href="/auth/google"
-        class="btn btn-outline-dark"
-        style="padding-top: 0.7rem; padding-bottom: 0.7rem; width: 22.5rem"
-        >Log in with google</a
-      >
-    </div>
-
-    <div class="text pt-1">
-      <h3>
-        Don't have an account?
-        <a href="/signup" style="color: rgb(48, 94, 150)">Sign up</a>
-      </h3>
-    </div>
-  </form>
+  </div>
 </div>
-
 <%- include('../layout/footer.ejs') -%>

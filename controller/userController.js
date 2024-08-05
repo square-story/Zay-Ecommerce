@@ -486,7 +486,7 @@ async function sendVerificationEmail(user, token) {
     subject: 'Account Verification',
     html: `
       <p>Click on the link below to verify your account:</p>
-      <a href="http://localhost:3000/change-password/${user._id}/${token}">Verify Account</a>
+      <a href="https://zayfashion.shop/change-password/${user._id}/${token}">Verify Account</a>
     `,
   };
 

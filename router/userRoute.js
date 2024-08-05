@@ -36,7 +36,7 @@ userRoute.use(
     secret: 'sessionscret',
     resave: false,
     saveUninitialized: true,
-  })
+  }),
 );
 
 userRoute.use(fetchCartMiddleware);
@@ -57,7 +57,7 @@ userRoute.use(async (req, res, next) => {
 
   if (user) {
     if (user.isBlocked) {
-      fetch('http://localhost:3000/logout', {
+      fetch('/logout', {
         method: 'POST',
       }).catch((err) => {
         console.log(err);
@@ -107,10 +107,7 @@ userRoute.post('/logout', userController.userLogout);
 userRoute.post('/resend', userController.resend);
 
 //Google Auth
-userRoute.get(
-  '/auth/google',
-  passport.authenticate('google', { scope: ['email', 'profile'] })
-);
+userRoute.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
 
 // Google Auth Callback
 userRoute.get(
@@ -118,7 +115,7 @@ userRoute.get(
   passport.authenticate('google', {
     successRedirect: '/success',
     failureRedirect: '/failure',
-  })
+  }),
 );
 
 // Success
@@ -146,16 +143,12 @@ userRoute.post('/forget', userController.forgetVerify);
 userRoute.get(
   '/change-password/:userId/:token',
   userMiddleware.isLogined,
-  userController.verifyUser
+  userController.verifyUser,
 );
 userRoute.post('/change-password', userController.resetPassword);
 
 //account details section
-userRoute.get(
-  '/account',
-  userMiddleware.userAuth,
-  userController.loadMyAccount
-);
+userRoute.get('/account', userMiddleware.userAuth, userController.loadMyAccount);
 
 //user cart render
 userRoute.get('/cart', userMiddleware.userAuth, cartController.loadCart);
@@ -170,25 +163,13 @@ userRoute.post('/removeFormCart', cartController.removeFromCart);
 userRoute.post('/counter', cartController.changeQuantity);
 
 //user cart check-out
-userRoute.get(
-  '/check-out',
-  userMiddleware.userAuth,
-  cartController.proceedToCheckout
-);
+userRoute.get('/check-out', userMiddleware.userAuth, cartController.proceedToCheckout);
 
-userRoute.get(
-  '/my-order',
-  userMiddleware.userAuth,
-  orderController.loadMyOrder
-);
+userRoute.get('/my-order', userMiddleware.userAuth, orderController.loadMyOrder);
 
 userRoute.post('/retry-payment', orderController.retryPayment);
 
-userRoute.get(
-  '/single-product',
-  userMiddleware.userAuth,
-  orderController.loadSingleProduct
-);
+userRoute.get('/single-product', userMiddleware.userAuth, orderController.loadSingleProduct);
 
 userRoute.post('/add-Address', orderController.addAddress);
 
@@ -203,11 +184,7 @@ userRoute.post('/order-cancel', orderController.orderCancellation);
 
 userRoute.get('/single-orderDetails', orderController.getOrderDetails);
 
-userRoute.get(
-  '/wishlist',
-  userMiddleware.userAuth,
-  wishlistController.loadWhislist
-);
+userRoute.get('/wishlist', userMiddleware.userAuth, wishlistController.loadWhislist);
 userRoute.post('/addWishlist', wishlistController.addTOWhishlist);
 userRoute.post('/remove-wishlist', wishlistController.removeFromWishlist);
 
