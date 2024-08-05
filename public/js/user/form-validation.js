@@ -48,8 +48,7 @@ function validate() {
     return false;
   } else if (!passwordRegex.test(password.value.trim())) {
     password.style.border = 'solid 1px red';
-    passwordError.textContent =
-      'Password must be at least 6 characters long, contain at least one uppercase letter, and one special character';
+    passwordError.textContent = 'Password: 6+ chars, uppercase, special.';
     alert(passwordError);
     return false;
   }

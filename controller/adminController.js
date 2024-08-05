@@ -28,18 +28,11 @@ module.exports.loadAdmin = async (req, res) => {
     // Calculate various metrics
     const orderCount = orders.length;
     const monthlyEarning = orders.reduce(
-      (acc, order) =>
-        order.status === 'placed' ? acc + order.totalAmount : acc,
-      0
+      (acc, order) => (order.status === 'placed' ? acc + order.totalAmount : acc),
+      0,
     );
-    const revenue = allOrders.reduce(
-      (acc, order) => acc + order.totalAmount,
-      0
-    );
-    const productCount = orders.reduce(
-      (acc, order) => acc + order.products.length,
-      0
-    );
+    const revenue = allOrders.reduce((acc, order) => acc + order.totalAmount, 0);
+    const productCount = orders.reduce((acc, order) => acc + order.products.length, 0);
 
     // Aggregate monthly ordered count
     const monthlyOrderedCount = await Order.aggregate([
@@ -70,8 +63,7 @@ module.exports.loadAdmin = async (req, res) => {
     const bestSellingName = await adminHelpers.bestSelling('_id');
     const bestSellingCategory = await adminHelpers.bestSelling('cetagory');
     const bestSellingBrand = await adminHelpers.bestSelling('brand');
-    const topTenCategories =
-      await adminHelpers.mapCategory(bestSellingCategory);
+    const topTenCategories = await adminHelpers.mapCategory(bestSellingCategory);
 
     // Render admin dashboard with data
     res.render('adminDashboard', {
@@ -153,8 +145,8 @@ module.exports.loadLogin = (req, res) => {
 //admin checking the details where the get from admin login
 module.exports.login = async (req, res) => {
   try {
-    const email = process.env.email;
-    const password = process.env.password;
+    const email = process.env.EMAIL;
+    const password = process.env.PASSWORD;
     console.log(email, password);
 
     if (req.body.email == email) {
@@ -213,7 +205,7 @@ module.exports.blockUser = (req, res) => {
             $set: {
               isBlocked: false,
             },
-          }
+          },
         );
       } else {
         console.log('block');
@@ -223,7 +215,7 @@ module.exports.blockUser = (req, res) => {
             $set: {
               isBlocked: true,
             },
-          }
+          },
         );
       }
     })
@@ -366,13 +358,11 @@ module.exports.changeOrderStatus = async (req, res) => {
       },
       {
         new: true,
-      }
+      },
     );
 
     if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'Order not found' });
+      return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
     if (status === 'canceled') {
@@ -389,7 +379,7 @@ module.exports.changeOrderStatus = async (req, res) => {
           $inc: {
             [`variant.${index}.stock`]: quantity,
           },
-        }
+        },
       );
     }
 
@@ -427,7 +417,7 @@ module.exports.controlCancelation = async (req, res) => {
         },
         {
           new: true,
-        }
+        },
       )
         .then(async (data) => {
           const amount =
@@ -442,7 +432,7 @@ module.exports.controlCancelation = async (req, res) => {
               $inc: {
                 [`variant.${index}.stock`]: quantity,
               },
-            }
+            },
           );
         })
         .then(() => {
@@ -455,7 +445,7 @@ module.exports.controlCancelation = async (req, res) => {
           $set: {
             [`products.${index}.cancelRequest`]: decision,
           },
-        }
+        },
       );
       res.json({ success: true });
     } else {
@@ -510,7 +500,7 @@ module.exports.returns = async (req, res) => {
         },
         {
           new: true,
-        }
+        },
       )
         .then(async (data) => {
           const amount =
@@ -525,7 +515,7 @@ module.exports.returns = async (req, res) => {
               $inc: {
                 [`variant.${index}.stock`]: quantity,
               },
-            }
+            },
           );
         })
         .then(() => {
@@ -538,7 +528,7 @@ module.exports.returns = async (req, res) => {
           $set: {
             [`products.${index}. returnRequest`]: decision,
           },
-        }
+        },
       );
       res.json({ success: true });
     }
