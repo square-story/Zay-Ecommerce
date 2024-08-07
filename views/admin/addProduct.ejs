@@ -202,18 +202,14 @@
                   </div>
                 
                   <label class="form-label">Add images</label>
-                  <div class="" style="display: flex; margin: 1rem">
-                    <%for(let i=0; i < 4; i++) {%>
-                    <div class="mb-4 col-lg-3 me-2">
-                      <img
-                        src=""
-                        id="image<%= i %>"
-                        alt="Product image"
-                        style="width: 100px; height: 100px; margin-bottom: 1.5rem;"
-                      />
-                      <input type="file" accept="image/*" placeholder="Add image" name="images" class="form-control" id="image<%= i %>" />
-                    </div>
-                    <%}%>
+                  <div style="display: flex; margin: 1rem">
+                    <% for (let i = 0; i < 4; i++) { %>
+                      <div class="mb-4 col-lg-3 me-2">
+                        <img src="" id="imagePreview<%= i %>" alt="Product image" style="width: 100px; height: 100px; margin-bottom: 1.5rem;">
+                        <input type="file" accept="image/*" placeholder="Add image" name="images" class="form-control" id="imageInput<%= i %>" onchange="previewImage(event, <%= i %>)">
+                        <div class="error-message" id="error<%= i %>" style="color: red;"></div>
+                      </div>
+                    <% } %>
                   </div>
                 
                   <button class="btn btn-dark">Add</button>
@@ -253,6 +249,31 @@
 </html>
 
 <script>
+      function previewImage(event, index) {
+      const file = event.target.files[0];
+      const errorMessageElement = document.getElementById(`error${index}`);
+      const imagePreviewElement = document.getElementById(`imagePreview${index}`);
+
+      if (!file) {
+        errorMessageElement.textContent = '';
+        imagePreviewElement.src = '';
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        errorMessageElement.textContent = 'Please select a valid image file.';
+        imagePreviewElement.src = '';
+        return;
+      }
+
+      errorMessageElement.textContent = '';
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        imagePreviewElement.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   function productValidation() {
     let pname = document.getElementById("product_name");
     let pdescription = document.getElementById("description");
