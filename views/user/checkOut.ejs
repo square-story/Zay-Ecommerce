@@ -654,7 +654,7 @@
             if (response.success) {
               if (payment_method === 'razorpay' && response.razorpayOrderId) {
                 const options = {
-                  key: "rzp_test_03lybiPDaK7CJ0",
+                  key: response.key,
                   amount: response.amount * 100, // Amount in paisa
                   currency: 'INR',
                   name: 'Zay e-commerce',

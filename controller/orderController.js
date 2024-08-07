@@ -244,6 +244,7 @@ module.exports.placeOrder = async (req, res) => {
           orderId: orderId,
           razorpayOrderId: razorpayOrder.id,
           amount: finalAmount,
+          key: process.env.RAZORPAY_KEY_ID,
         });
         break;
       default:
@@ -561,7 +562,11 @@ module.exports.retryPayment = async (req, res) => {
     order.razorpayOrderId = razorpayOrder.id;
     await order.save();
 
-    res.json({ success: true, razorpayOrderId: razorpayOrder.id });
+    res.json({
+      success: true,
+      razorpayOrderId: razorpayOrder.id,
+      key: process.env.RAZORPAY_KEY_ID,
+    });
   } catch (error) {
     console.error('Error retrying payment:', error);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
