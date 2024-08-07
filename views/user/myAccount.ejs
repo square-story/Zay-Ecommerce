@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zxx">
   <head>
     <meta charset="UTF-8" />
@@ -14,11 +14,7 @@
       rel="stylesheet"
     />
     <link rel="apple-touch-icon" href="assets2/img/apple-icon.png" />
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      href="assets2/img/favicon.ico"
-    />
+    <link rel="shortcut icon" type="image/x-icon" href="assets2/img/favicon.ico" />
 
     <!-- Css Styles -->
     <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
@@ -67,8 +63,17 @@
         text-decoration: none;
         text-transform: capitalize;
         font-size: 0.9rem;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          Oxygen,
+          Ubuntu,
+          Cantarell,
+          'Open Sans',
+          'Helvetica Neue',
           sans-serif;
       }
       .menu-itemmm a:hover {
@@ -94,8 +99,8 @@
         color: #fff;
         cursor: pointer;
         display: inline-block;
-        font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial,
-          sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+        font-family: -apple-system, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif,
+          'Apple Color Emoji', 'Segoe UI Emoji';
         font-size: 14px;
         font-weight: 600;
         line-height: 20px;
@@ -155,23 +160,14 @@
             >
               <div class="col-md-6">
                 <div
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    max-width: 300px;
-                    margin-top: 2rem;
-                  "
+                  style="display: flex; flex-direction: column; max-width: 300px; margin-top: 2rem"
                 >
                   <label for=""
                     >Personal information
                     <button
                       onclick="edit('editUserName')"
                       class="btn editUserName"
-                      style="
-                        color: rgb(46, 92, 171);
-                        font-size: 16px;
-                        font-weight: 600;
-                      "
+                      style="color: rgb(46, 92, 171); font-size: 16px; font-weight: 600"
                     >
                       edit
                     </button></label
@@ -180,12 +176,7 @@
                     <span
                       id="uError"
                       class="editUserName"
-                      style="
-                        position: absolute;
-                        top: -23px;
-                        color: red;
-                        font-size: 12px;
-                      "
+                      style="position: absolute; top: -23px; color: red; font-size: 12px"
                     ></span>
                     <input
                       type="text"
@@ -203,23 +194,14 @@
                   </div>
                 </div>
                 <div
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    max-width: 300px;
-                    margin-top: 2rem;
-                  "
+                  style="display: flex; flex-direction: column; max-width: 300px; margin-top: 2rem"
                 >
                   <label for=""
                     >Email address
                     <button
                       class="btn editEmail"
                       onclick="edit('editEmail')"
-                      style="
-                        color: rgb(46, 92, 171);
-                        font-size: 16px;
-                        font-weight: 600;
-                      "
+                      style="color: rgb(46, 92, 171); font-size: 16px; font-weight: 600"
                     >
                       edit
                     </button></label
@@ -228,12 +210,7 @@
                     <span
                       id="eError"
                       class="editEmail"
-                      style="
-                        position: absolute;
-                        top: -23px;
-                        font-size: 12px;
-                        color: red;
-                      "
+                      style="position: absolute; top: -23px; font-size: 12px; color: red"
                     ></span>
                     <input
                       disabled
@@ -251,22 +228,13 @@
                   </div>
                 </div>
                 <div
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    max-width: 300px;
-                    margin-top: 2rem;
-                  "
+                  style="display: flex; flex-direction: column; max-width: 300px; margin-top: 2rem"
                 >
                   <label for=""
                     >Phone number<button
                       class="btn editPhone"
                       onclick="edit('editPhone')"
-                      style="
-                        color: rgb(46, 92, 171);
-                        font-size: 16px;
-                        font-weight: 600;
-                      "
+                      style="color: rgb(46, 92, 171); font-size: 16px; font-weight: 600"
                     >
                       edit
                     </button></label
@@ -275,12 +243,7 @@
                     <span
                       id="pError"
                       class="editPhone"
-                      style="
-                        position: absolute;
-                        top: -23px;
-                        font-size: 12px;
-                        color: red;
-                      "
+                      style="position: absolute; top: -23px; font-size: 12px; color: red"
                     ></span>
                     <input
                       type="text"
@@ -301,101 +264,58 @@
               <div class="col-md-6">
                 <div class="col-md-6">
                   <div>
-                    <h5>change password</h5>
+                    <h5>Change Password</h5>
                   </div>
                 </div>
                 <div>
-                  <button
-                    onclick="showForm()"
-                    role="button"
-                    class="btn btn-dark button-3"
-                  >
+                  <button onclick="showForm()" role="button" class="btn btn-dark button-3">
                     Click Here
                   </button>
                 </div>
                 <div id="passwords" style="margin-top: 2rem; display: none">
-                  <div
-                    style="
-                      display: flex;
-                      flex-direction: column;
-                      position: relative;
-                    "
-                  >
-                    <label style="margin-bottom: 1rem" for=""
-                      >old password</label
-                    >
-                    <span
-                      id="oldError"
-                      style="color: red; position: absolute; top: 17px"
-                    ></span>
+                  <div style="display: flex; flex-direction: column; position: relative">
+                    <label style="margin-bottom: 1rem">Old Password</label>
                     <input
                       class="form-control"
                       id="oldPassword"
-                      type="text"
+                      type="password"
                       placeholder="Enter your old password"
                     />
                   </div>
-                  <div
-                    style="
-                      display: flex;
-                      flex-direction: column;
-                      position: relative;
-                    "
-                  >
-                    <label style="margin-bottom: 1rem" for=""
-                      >new password</label
-                    >
-                    <span
-                      id="newError"
-                      style="color: red; position: absolute; top: 17px"
-                    ></span>
+                  <div style="display: flex; flex-direction: column; position: relative">
+                    <label style="margin-bottom: 1rem">New Password</label>
                     <input
                       class="form-control"
                       id="newPassword"
-                      type="text"
-                      placeholder="Enter your New password"
+                      type="password"
+                      placeholder="Enter your new password"
                     />
                   </div>
-                  <div
-                    style="
-                      display: flex;
-                      flex-direction: column;
-                      position: relative;
-                    "
-                  >
-                    <label style="margin-bottom: 1rem" for=""
-                      >confirm password</label
-                    >
-                    <span
-                      id="confirmError"
-                      style="color: red; position: absolute; top: 17px"
-                    ></span>
+                  <div style="display: flex; flex-direction: column; position: relative">
+                    <label style="margin-bottom: 1rem">Confirm Password</label>
                     <input
                       class="form-control"
                       id="confirmPassword"
-                      type="text"
-                      placeholder="Enter New password Again"
+                      type="password"
+                      placeholder="Enter new password again"
                     />
                   </div>
                   <div class="mt-2">
-                    <button onclick="changePassword();" class="btn btn-dark">
-                      save
-                    </button>
-                    <button onclick="hideForm()" class="btn btn-dark">
-                      cancel
-                    </button>
+                    <button onclick="changePassword();" class="btn btn-dark">Save</button>
+                    <button onclick="hideForm()" class="btn btn-dark">Cancel</button>
                   </div>
                 </div>
               </div>
+
               <div class="mt-4">
                 <h4>Wallet Transactions</h4>
                 <button
-                id="toggleTransactionsButton"
-                onclick="toggleWalletTransactions()"
-                class="btn btn-dark button-3"
-              >
-                Show Transactions
-              </button>
+                  id="toggleTransactionsButton"
+                  onclick="toggleWalletTransactions()"
+                  class="btn btn-dark button-3"
+                >
+                  Show Transactions
+                </button>
                 <div id="walletTransactions" style="display: none"></div>
               </div>
               <div id="walletTransactions" style="margin-top: 2rem">
@@ -418,56 +338,51 @@
 <script>
   function loadTransactions(page) {
     $.ajax({
-      url: "/transactions?page=" + page,
-      method: "GET",
+      url: '/transactions?page=' + page,
+      method: 'GET',
       success: function (data) {
-        $("#walletTransactions").html(data);
+        $('#walletTransactions').html(data);
       },
       error: function (err) {
-        console.error("Error loading transactions:", err);
+        console.error('Error loading transactions:', err);
       },
     });
   }
 
   function toggleWalletTransactions() {
-    const transactionsDiv = $("#walletTransactions");
-    const button = $("#toggleTransactionsButton");
+    const transactionsDiv = $('#walletTransactions');
+    const button = $('#toggleTransactionsButton');
 
-    if (transactionsDiv.is(":visible")) {
+    if (transactionsDiv.is(':visible')) {
       transactionsDiv.hide();
-      button.text("Show Transactions");
+      button.text('Show Transactions');
     } else {
       loadTransactions(1); // Load the first page by default
       transactionsDiv.show();
-      button.text("Hide Transactions");
+      button.text('Hide Transactions');
     }
   }
 </script>
 <script>
   function showForm() {
-    document.getElementById("passwords").style.display = "block";
+    document.getElementById('passwords').style.display = 'block';
   }
 
   function hideForm() {
-    document.getElementById("passwords").style.display = "none";
+    document.getElementById('passwords').style.display = 'none';
   }
 
   function changePassword() {
-    console.log("hello");
-    const oldPassword = document.getElementById("oldPassword").value;
-    const newPassword = document.getElementById("newPassword").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
+    const oldPassword = document.getElementById('oldPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
 
     if (!oldPassword) {
-      document.getElementById("oldError").textContent = "Enter old password";
-      hideMassage("oldError");
+      showSwalMessage('Enter old password');
     } else if (!newPassword) {
-      document.getElementById("newError").textContent = "Enter new password";
-      hideMassage("newError");
+      showSwalMessage('Enter new password');
     } else if (!confirmPassword) {
-      document.getElementById("confirmError").textContent =
-        "Enter confirm password";
-      hideMassage("confirmError");
+      showSwalMessage('Enter confirm password');
     } else {
       const data = {
         oldPassword,
@@ -475,106 +390,57 @@
         confirmPassword,
       };
 
-      const url = "/change-password";
+      const url = '/change-password';
       $.ajax({
-        type: "PUT",
+        type: 'PUT',
         url: url,
         data: JSON.stringify(data),
-        contentType: "application/json",
+        contentType: 'application/json',
         success: (response) => {
           if (response.success) {
             Swal.fire({
-              title: "Password changed successfully",
+              title: 'Password changed successfully',
+              icon: 'success',
               showConfirmButton: false,
               timer: 1500,
             });
             hideForm();
-          } else if (response.old) {
-            showMassage("oldError", response.massage);
-          } else if (response.new) {
-            showMassage("newError", response.massage);
-          } else if (response.notSame) {
-            showMassage("confirmError", response.massage);
+          } else if (response.error) {
+            showSwalMessage(response.error);
           }
         },
-      });
-    }
-  }
-
-  function hideMassage(id) {
-    setTimeout(() => {
-      document.getElementById(`${id}`).textContent = "";
-    }, 3000);
-  }
-
-  function showMassage(id, massage) {
-    document.getElementById(`${id}`).textContent = massage;
-  }
-
-  function edit(cls) {
-    console.log("hin kj");
-    const arr = document.querySelectorAll(`.${cls}`);
-    const text = arr[0].innerHTML;
-    console.log(text);
-    if (text === "edit") {
-      arr[0].textContent = "cancel";
-      arr[2].disabled = false;
-      arr[3].style.display = "block";
-    } else {
-      arr[0].textContent = "edit";
-      arr[2].disabled = true;
-      arr[3].style.display = "none";
-    }
-  }
-
-  function save(cls) {
-    console.log("hi9");
-    const arr = document.querySelectorAll(`.${cls}`);
-    const value = arr[2].value;
-    if (cls === "editUserName" && value.trim() === "") {
-      console.log("heloo");
-      arr[1].textContent = "Enter your the username";
-      hideMassage("uError");
-      return false;
-    } else if (cls === "editEmail" && value.trim() === "") {
-      arr[1].textContent = "Enter your the Email";
-      hideMassage("eError");
-      return false;
-    } else if (cls === "editPhone" && value.trim() === "") {
-      arr[1].textContent = "Enter your the Phone";
-      hideMassage("pError");
-      return false;
-    } else {
-      const data = {
-        value,
-        cls,
-      };
-      $.ajax({
-        type: "POST",
-        url: "/change-details",
-        data: JSON.stringify(data),
-        contentType: "application/json",
-        success: (response) => {
-          if (response.username) {
-            arr[1].textContent = response.massage;
-            hideMassage("uError");
-          } else if (response.email) {
-            arr[1].textContent = response.massage;
-            hideMassage("eError");
-          } else if (response.phone) {
-            arr[1].textContent = response.massage;
-            hideMassage("pError");
-          } else if (response.success) {
+        error: (jqXHR) => {
+          // Parsing and logging the error response
+          try {
+            const errorResponse = JSON.parse(jqXHR.responseText);
+            console.log(errorResponse);
             Swal.fire({
-              title: response.massage,
-              icon: "success",
-              showConfirmButton: false,
-              timer: 1500,
+              title: 'Error',
+              text: errorResponse.error, // Displaying the error message
+              icon: 'error',
+              showConfirmButton: true,
+            });
+          } catch (e) {
+            console.log('Failed to parse JSON response', e);
+            Swal.fire({
+              title: 'Error',
+              text: 'An unexpected error occurred.',
+              icon: 'error',
+              showConfirmButton: true,
             });
           }
         },
       });
     }
+  }
+
+  function showSwalMessage(message) {
+    Swal.fire({
+      title: 'Error',
+      text: message,
+      icon: 'error',
+      showConfirmButton: true,
+    });
   }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

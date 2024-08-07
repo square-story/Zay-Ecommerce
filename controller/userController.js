@@ -687,15 +687,11 @@ module.exports.deleteAddress = async (req, res) => {
 
 module.exports.changePassword = async (req, res) => {
   try {
-    console.log('Starting password change process');
-
     const userId = req.session.user?._id;
     const { oldPassword, newPassword, confirmPassword } = req.body;
 
-    console.log(req.body);
-
     if (!userId) {
-      return res.status(400).send('User not found');
+      return res.status(400).json({ error: 'User not found' });
     }
 
     const user = await User.findById(userId);
