@@ -591,18 +591,20 @@ module.exports.loadManageAddress = async (req, res) => {
   try {
     const userId = req.session.user?._id;
     if (!userId) {
-      // res.status(500).render('opps');
+      // If the user is not logged in, you can redirect them to a login page or show an error.
+      return res.redirect('/login'); // Example redirection
     }
+
     const wallet = await Wallet.findOne({ user: userId });
     const walletBalance = wallet ? wallet.balance : 0;
+
     const addresses = await Address.findOne({ user: userId });
-    if (!addresses) {
-      // res.status(404).render('oops');
-    }
-    res.render('manageAddress', { address: addresses.address, walletBalance });
+    const addressList = addresses ? addresses.address : [];
+
+    res.render('manageAddress', { address: addressList, walletBalance });
   } catch (error) {
     console.log(error);
-    // res.status(404).render('oops');
+    res.status(500).render('oops'); // Render an error page
   }
 };
 
