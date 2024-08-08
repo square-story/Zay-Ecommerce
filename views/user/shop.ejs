@@ -49,23 +49,40 @@
                 <input type="text" id="searchQuery" class="form-control" placeholder="Search products..." value="<%= searchQuery %>">
             </div>
             <div class="pb-3">
-                <label for="sortCategory" class="form-label">Category</label>
-                <select id="sortCategory" class="form-select">
-                    <option value="">Select Category</option>
-                    <% categories.forEach((el) => { %>
-                        <option value="<%= el._id %>" <%= categoryFilter === el._id ? 'selected' : '' %>><%= el.name %></option>
-                    <% }) %>
-                </select>
+                <label class="form-label">Category</label>
+                <% categories.forEach((category) => { %>
+                    <div class="form-check">
+                        <input 
+                            class="form-check-input" 
+                            type="checkbox" 
+                            value="<%= category._id %>" 
+                            id="category<%= category._id %>" 
+                            name="categoryFilter" 
+                            <%= categoryFilter.includes(category._id.toString()) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="category<%= category._id %>">
+                            <%= category.name %>
+                        </label>
+                    </div>
+                <% }) %>
             </div>
             <div class="pb-3">
-                <label for="sortBrand" class="form-label">Brand</label>
-                <select id="sortBrand" class="form-select">
-                    <option value="">Select Brand</option>
-                    <% brands.forEach((el) => { %>
-                        <option value="<%= el %>" <%= brandFilter === el ? 'selected' : '' %>><%= el %></option>
-                    <% }) %>
-                </select>
+                <label class="form-label">Brand</label>
+                <% brands.forEach((brand) => { %>
+                    <div class="form-check">
+                        <input 
+                            class="form-check-input" 
+                            type="checkbox" 
+                            value="<%= brand %>" 
+                            id="brand<%= brand %>" 
+                            name="brandFilter" 
+                            <%= brandFilter.includes(brand) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="brand<%= brand %>">
+                            <%= brand %>
+                        </label>
+                    </div>
+                <% }) %>
             </div>
+            
             <div class="pb-3">
                 <label for="sortPrice" class="form-label">Price Range</label>
                 <select id="sortPrice" class="form-select">
@@ -89,7 +106,7 @@
                 <a href="#" id="resetFilters" class="btn btn-secondary" style="background-color: white; border-color: black; color: black; font-family: sans-serif;">Reset Filters</a>
             </div>
         </div>
-
+        
         <div class="col-lg-9">
             <div class="row" id="productContainer">
                 <% product.forEach((item) => { %>
@@ -126,7 +143,6 @@
                                             <li>
                                                 <% 
                                                 const rating = productRatings[item._id.toString()] || 0;
-                                                console.log('Product ID:', item._id.toString(), 'Rating:', rating);
                                                 for (let i = 1; i <= 5; i++) { 
                                                 %>
                                                     <i class="fa fa-star <%= rating >= i - 0.5 ? 'text-warning' : 'text-muted' %>"></i>
@@ -153,19 +169,38 @@
                     <% } %>
                 <% }) %>
             </div>
+            <!-- ... -->
+<!-- Pagination Section -->
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>&category=<%= categoryFilter.join(',') %>&brand=<%= brandFilter.join(',') %>&price=<%= priceRange ? priceRange.join('-') : '' %>&sort=<%= sortOption %>">Previous</a>
+                    </li>
+                <% } %>
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>&search=<%= searchQuery %>&category=<%= categoryFilter.join(',') %>&brand=<%= brandFilter.join(',') %>&price=<%= priceRange ? priceRange.join('-') : '' %>&sort=<%= sortOption %>"><%= i %></a>
+                    </li>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>&category=<%= categoryFilter.join(',') %>&brand=<%= brandFilter.join(',') %>&price=<%= priceRange ? priceRange.join('-') : '' %>&sort=<%= sortOption %>">Next</a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</div>
+<!-- End Pagination Section -->
+<!-- ... -->
 
-            <div class="row">
-                <ul class="pagination pagination-lg justify-content-end">
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <li class="page-item <%= i === currentPage ? 'disabled' : '' %>">
-                            <a class="page-link <%= i === currentPage ? 'active' : '' %> rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="/shop?page=<%= i %>&sort=<%= sortOption %>"><%= i %></a>
-                        </li>
-                    <% } %>
-                </ul>
-            </div>
         </div>
     </div>
 </div>
+<!-- End Content -->
 
 <!-- End Content -->
 <!-- Start Brands -->
@@ -269,9 +304,7 @@
         </div>
     </div>
 </section>
-<!--End Brands-->
 
-    <!-- Footer Section Begin -->
     <%- include('../layout/userTemplateFooter.ejs') -%>
     <!-- Footer Section End -->
 
@@ -282,61 +315,51 @@
     <script src="assets2/js/bootstrap.bundle.min.js"></script>
     <script src="assets2/js/templatemo.js"></script>
     <script src="assets2/js/custom.js"></script>
-
     <script>
-        // Debounce function
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func(...args), wait);
-            };
-        }
+        document.getElementById('sortOption').addEventListener('change', applyFilters);
+document.getElementById('sortPrice').addEventListener('change', applyFilters);
+document.getElementById('resetFilters').addEventListener('click', resetFilters);
 
-        // Update URL based on filters and pagination
-        function updateURL(page = 1) {
-            const searchQuery = document.getElementById('searchQuery').value.trim();
-            const category = document.getElementById('sortCategory').value;
-            const brand = document.getElementById('sortBrand').value;
-            const price = document.getElementById('sortPrice').value;
-            const sort = document.getElementById('sortOption').value;
+document.querySelectorAll('input[name="categoryFilter"]').forEach(checkbox => {
+    checkbox.addEventListener('change', applyFilters);
+});
 
-            let url = `/shop?page=${page}&sort=${sort}`;
+document.querySelectorAll('input[name="brandFilter"]').forEach(checkbox => {
+    checkbox.addEventListener('change', applyFilters);
+});
 
-            if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
-            if (category) url += `&category=${category}`;
-            if (brand) url += `&brand=${brand}`;
-            if (price) url += `&price=${price}`;
+const searchInput = document.getElementById('searchQuery');
+let debounceTimeout;
+searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(applyFilters, 300); // Adjust the delay as needed
+});
 
-            window.history.pushState(null, null, url);
-            location.reload();
-        }
+function applyFilters() {
+    const sortOption = document.getElementById('sortOption').value;
+    const sortPrice = document.getElementById('sortPrice').value;
+    const searchQuery = document.getElementById('searchQuery').value;
 
-        // Event listeners
-        document.getElementById('searchQuery').addEventListener('input', debounce(() => updateURL(1), 300));
-        document.getElementById('sortCategory').addEventListener('change', () => updateURL(1));
-        document.getElementById('sortBrand').addEventListener('change', () => updateURL(1));
-        document.getElementById('sortPrice').addEventListener('change', () => updateURL(1));
-        document.getElementById('sortOption').addEventListener('change', () => updateURL(1));
-        document.getElementById('resetFilters').addEventListener('click', () => {
-            document.getElementById('searchQuery').value = '';
-            document.getElementById('sortCategory').value = '';
-            document.getElementById('sortBrand').value = '';
-            document.getElementById('sortPrice').value = '';
-            document.getElementById('sortOption').value = 'increasing'; // Default sort
-            updateURL(1);
-        });
+    const categoryFilters = Array.from(document.querySelectorAll('input[name="categoryFilter"]:checked')).map(cb => cb.value);
+    const brandFilters = Array.from(document.querySelectorAll('input[name="brandFilter"]:checked')).map(cb => cb.value);
 
-        function addToWishlist(productId) {
-            // Implement wishlist functionality here
-            Swal.fire('Added to Wishlist', '', 'success');
-        }
-    </script>
+    const query = new URLSearchParams({
+        page: 1,
+        search: searchQuery,
+        category: categoryFilters.join(','),
+        brand: brandFilters.join(','),
+        price: sortPrice,
+        sort: sortOption
+    }).toString();
+
+    window.location.href = `?${query}`;
+}
+
+function resetFilters() {
+    window.location.href = window.location.pathname;
+}
+
+</script>
+
 </body>
-    <style>
-        .shop_filters:hover{
-            cursor: pointer;
-            color: red;
-        }
-    </style>
 </html>

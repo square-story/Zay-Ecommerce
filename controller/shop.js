@@ -10,8 +10,8 @@ module.exports.loadShop = async (req, res) => {
     const limit = 6;
     const skip = (page - 1) * limit;
     const searchQuery = req.query.search || '';
-    const categoryFilter = req.query.category || null;
-    const brandFilter = req.query.brand || null;
+    const categoryFilter = req.query.category ? req.query.category.split(',') : [];
+    const brandFilter = req.query.brand ? req.query.brand.split(',') : [];
     const priceRange = req.query.price ? req.query.price.split('-').map(Number) : null;
 
     let sortOrder;
@@ -39,14 +39,14 @@ module.exports.loadShop = async (req, res) => {
     }
 
     let filter = { isListed: true };
-    if (categoryFilter) {
-      filter.cetagory = categoryFilter;
+    if (categoryFilter.length > 0) {
+      filter.cetagory = { $in: categoryFilter };
     }
-    if (brandFilter) {
-      filter.brand = brandFilter;
+    if (brandFilter.length > 0) {
+      filter.brand = { $in: brandFilter };
     }
     if (priceRange) {
-      filter['variant.offerPrice'] = {
+      filter['variant.0.offerPrice'] = {
         $gte: priceRange[0],
         $lte: priceRange[1],
       };
@@ -55,21 +55,17 @@ module.exports.loadShop = async (req, res) => {
       filter.name = new RegExp(searchQuery, 'i');
     }
 
-    const categories = await Catagery.find({ isListed: true });
-    const products = await Product.find(filter)
-      .sort(sortOrder)
-      .skip(skip)
-      .limit(limit)
-      .populate('cetagory');
+    const [categories, products, brands, totalResults] = await Promise.all([
+      Catagery.find({ isListed: true }),
+      Product.find(filter).sort(sortOrder).skip(skip).limit(limit).populate('cetagory'),
+      Product.distinct('brand', filter),
+      Product.countDocuments(filter),
+    ]);
 
-    const brands = await Product.distinct('brand', filter);
-    const totalResults = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalResults / limit);
 
     const productObjectIds = products.map((product) => product._id);
-    const reviews = await Review.find({
-      productId: { $in: productObjectIds },
-    }).lean();
+    const reviews = await Review.find({ productId: { $in: productObjectIds } }).lean();
     const productRatings = {};
     productObjectIds.forEach((id) => {
       const productReviews = reviews.filter(
@@ -82,7 +78,6 @@ module.exports.loadShop = async (req, res) => {
         productRatings[id.toString()] = 0;
       }
     });
-    console.log('Product Ratings:', JSON.stringify(productRatings, null, 2));
 
     if (sortOption === 'rating') {
       products.sort((a, b) => (productRatings[b._id] || 0) - (productRatings[a._id] || 0));
