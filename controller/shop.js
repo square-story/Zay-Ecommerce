@@ -12,9 +12,7 @@ module.exports.loadShop = async (req, res) => {
     const searchQuery = req.query.search || '';
     const categoryFilter = req.query.category || null;
     const brandFilter = req.query.brand || null;
-    const priceRange = req.query.price
-      ? req.query.price.split('-').map(Number)
-      : null;
+    const priceRange = req.query.price ? req.query.price.split('-').map(Number) : null;
 
     let sortOrder;
     switch (sortOption) {
@@ -75,17 +73,11 @@ module.exports.loadShop = async (req, res) => {
     const productRatings = {};
     productObjectIds.forEach((id) => {
       const productReviews = reviews.filter(
-        (review) =>
-          review.productId && review.productId.toString() === id.toString()
+        (review) => review.productId && review.productId.toString() === id.toString(),
       );
       if (productReviews.length > 0) {
-        const totalRating = productReviews.reduce(
-          (acc, review) => acc + review.rating,
-          0
-        );
-        productRatings[id.toString()] = Number(
-          (totalRating / productReviews.length).toFixed(1)
-        );
+        const totalRating = productReviews.reduce((acc, review) => acc + review.rating, 0);
+        productRatings[id.toString()] = Number((totalRating / productReviews.length).toFixed(1));
       } else {
         productRatings[id.toString()] = 0;
       }
@@ -93,9 +85,7 @@ module.exports.loadShop = async (req, res) => {
     console.log('Product Ratings:', JSON.stringify(productRatings, null, 2));
 
     if (sortOption === 'rating') {
-      products.sort(
-        (a, b) => (productRatings[b._id] || 0) - (productRatings[a._id] || 0)
-      );
+      products.sort((a, b) => (productRatings[b._id] || 0) - (productRatings[a._id] || 0));
     }
 
     res.render('shop', {
@@ -149,9 +139,7 @@ module.exports.filter = async (req, res) => {
         let product = [];
 
         if (cetagory) {
-          const result = products.filter(
-            (el, i) => el.cetagory.name == cetagory
-          );
+          const result = products.filter((el, i) => el.cetagory.name == cetagory);
           product.push(...result);
         }
 
@@ -166,15 +154,13 @@ module.exports.filter = async (req, res) => {
           const result = array.filter(
             (el, i) =>
               el.variant[0].offerPrice >= parseInt(price[0]) &&
-              el.variant[0].offerPrice <= parseInt(price[1])
+              el.variant[0].offerPrice <= parseInt(price[1]),
           );
           res.status(200).json({ pass: true, product: result });
         }
         res.status(200).json({ pass: true, product: product });
       } else {
-        res
-          .status(200)
-          .json({ pass: true, product: products, page, totalPage });
+        res.status(200).json({ pass: true, product: products, page, totalPage });
       }
     }
   } catch (error) {
