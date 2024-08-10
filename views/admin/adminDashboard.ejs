@@ -90,20 +90,17 @@
           </div>
         </div>
 
-        <div
-          class="row"
-          id="gragh"
-          data-monthlyData="<%= JSON.stringify(monthlyData) %>"
-        >
+        <div class="row" id="gragh" data-monthlyData="<%= JSON.stringify(monthlyData) %>">
           <div class="container">
             <div class="filters">
-              <label for="startDate">select month</label>
+              <label for="startDate">Select Month</label>
               <input
                 class="btn"
                 style="border: 1px solid black"
                 type="month"
                 id="filter"
-                placeholder="select month"
+                placeholder="Select month"
+                max=""
               />
               <button
                 type="button"
@@ -113,7 +110,7 @@
               >
                 Apply
               </button> 
-              <button id="removeFilter" style="display: none;" onclick="clearFilter();"  class="btn btn-danger btn-sm">remove</button>
+              <button id="removeFilter" style="display: none;" onclick="clearFilter();"  class="btn btn-danger btn-sm">Remove</button>
             </div>
             <div class="bg-white">
               <canvas
@@ -206,6 +203,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+  // Set the max date for the month input
+  document.getElementById("filter").max = new Date().toISOString().slice(0, 7);
+
   async function applyFilter() {
     console.log("hiiiii");
     const filter = document.getElementById("filter").value;
@@ -221,7 +221,7 @@
   }
 
   function clearFilter() {
-    console.log('hello')
+    console.log('hello');
     window.location.reload();
   }
 </script>
@@ -240,7 +240,6 @@
   }
 </script>
 
-<!-- MOnthly sales bar graph -->
 <script>
   const data = JSON.parse(
     document.getElementById("gragh").getAttribute("data-monthlyData")
