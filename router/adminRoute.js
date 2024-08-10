@@ -69,6 +69,8 @@ adminRoute.post('/create-offer', adminAuth.islogin, offerController.createOfferP
 //edit Offer
 adminRoute.put('/edit-offer', adminAuth.islogin, offerController.editOfferPost);
 
+adminRoute.post('/check-offer-name', offerController.checkOfferName);
+
 //delete Offer
 adminRoute.delete('/delete-offer', adminAuth.islogin, offerController.deleteOffer);
 

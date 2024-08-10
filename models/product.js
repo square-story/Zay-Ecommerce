@@ -30,7 +30,6 @@ const ProductSchema = mongoose.Schema({
       },
       offerPrice: {
         type: Number,
-        required: true,
       },
       color: {
         type: String,

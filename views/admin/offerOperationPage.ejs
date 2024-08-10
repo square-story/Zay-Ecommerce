@@ -270,63 +270,99 @@
         event.preventDefault();
       }
     });
-
+  
     document.getElementById('editOfferForm').addEventListener('submit', function(event) {
       if (!validateForm('editOfferForm')) {
         event.preventDefault();
       }
     });
-
+  
     function validateForm(formId) {
       var isValid = true;
       var form = document.getElementById(formId);
-
+  
       var name = form.querySelector('input[name="name"]');
       var adate = form.querySelector('input[name="adate"]');
       var edate = form.querySelector('input[name="edate"]');
       var damount = form.querySelector('input[name="damount"]');
-
-      if (name.value.trim() === '') {
-        document.getElementById(formId === 'createOfferForm' ? 'nameError' : 'editNameError').innerText = 'Please enter a name.';
+  
+      // Validate name
+      var nameErrorElement = document.getElementById(formId === 'createOfferForm' ? 'nameError' : 'editNameError');
+      const nameRegex = /^[A-Za-z0-9\s]+$/;
+      if (name.value.trim() === '' || !nameRegex.test(name.value.trim()) || name.value.trim().length < 3 || name.value.trim().length > 50) {
+        nameErrorElement.innerText = 'Please enter a valid name (3-50 characters, no special characters).';
         isValid = false;
       } else {
-        document.getElementById(formId === 'createOfferForm' ? 'nameError' : 'editNameError').innerText = '';
+        // Asynchronous name existence check for creation form
+        if (formId === 'createOfferForm') {
+          $.ajax({
+            method: "POST",
+            url: "/admin/check-offer-name",
+            data: JSON.stringify({ name: name.value.trim() }),
+            contentType: "application/json",
+            async: false, // Synchronous call for form validation
+            success: function(response) {
+              if (!response.isUnique) {
+                nameErrorElement.innerText = 'Offer name already exists.';
+                isValid = false;
+              } else {
+                nameErrorElement.innerText = '';
+              }
+            },
+            error: function() {
+              nameErrorElement.innerText = 'Error checking name uniqueness.';
+              isValid = false;
+            }
+          });
+        } else {
+          nameErrorElement.innerText = '';
+        }
       }
+  
+  // Validate activation date
+  var adateErrorElement = document.getElementById(formId === 'createOfferForm' ? 'adateError' : 'editAdateError');
+  const activationDate = new Date(adate.value);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today's date to midnight
+  if (adate.value === '' || activationDate < today) {
+    adateErrorElement.innerText = 'Activation date must be today or in the future.';
+    isValid = false;
+  } else {
+    adateErrorElement.innerText = '';
+  }
 
-      if (adate.value === '') {
-        document.getElementById(formId === 'createOfferForm' ? 'adateError' : 'editAdateError').innerText = 'Please select an activation date.';
+  // Validate expiration date
+  var edateErrorElement = document.getElementById(formId === 'createOfferForm' ? 'edateError' : 'editEdateError');
+  const expirationDate = new Date(edate.value);
+  if (edate.value === '' || expirationDate <= activationDate) {
+    edateErrorElement.innerText = 'Expire date must be after activation date.';
+    isValid = false;
+  } else {
+    edateErrorElement.innerText = '';
+  }
+      // Validate discount amount
+      var damountErrorElement = document.getElementById(formId === 'createOfferForm' ? 'damountError' : 'editDamountError');
+      var discountAmount = parseFloat(damount.value);
+      if (isNaN(discountAmount) || discountAmount <= 0 || discountAmount > 100) {
+        damountErrorElement.innerText = 'Please enter a valid discount percentage (0-100).';
         isValid = false;
       } else {
-        document.getElementById(formId === 'createOfferForm' ? 'adateError' : 'editAdateError').innerText = '';
+        damountErrorElement.innerText = '';
       }
-
-      if (edate.value === '') {
-        document.getElementById(formId === 'createOfferForm' ? 'edateError' : 'editEdateError').innerText = 'Please select an expire date.';
-        isValid = false;
-      } else {
-        document.getElementById(formId === 'createOfferForm' ? 'edateError' : 'editEdateError').innerText = '';
-      }
-
-      if (damount.value === '' || damount.value <= 0) {
-        document.getElementById(formId === 'createOfferForm' ? 'damountError' : 'editDamountError').innerText = 'Please enter a valid discount amount.';
-        isValid = false;
-      } else {
-        document.getElementById(formId === 'createOfferForm' ? 'damountError' : 'editDamountError').innerText = '';
-      }
-
+  
       return isValid;
     }
-
+  
     function toggleOfferTypeFields(value) {
       document.getElementById('productOfferFields').style.display = value === 'product' ? 'block' : 'none';
       document.getElementById('categoryOfferFields').style.display = value === 'category' ? 'block' : 'none';
     }
-
+  
     function toggleEditOfferTypeFields(value) {
       document.getElementById('editProductOfferFields').style.display = value === 'product' ? 'block' : 'none';
       document.getElementById('editCategoryOfferFields').style.display = value === 'category' ? 'block' : 'none';
     }
-
+  
     function editOffer(id, name, adate, edate, damount, type, productIds, categoryIds) {
       document.getElementById('editOfferId').value = id;
       document.getElementById('editName').value = name;
@@ -334,9 +370,9 @@
       document.getElementById('editEdate').value = edate;
       document.getElementById('editDamount').value = damount;
       document.getElementById('editType').value = type;
-
+  
       toggleEditOfferTypeFields(type);
-
+  
       if (type === 'product') {
         document.querySelectorAll('#editProductOfferFields input[type="checkbox"]').forEach(checkbox => {
           checkbox.checked = productIds.includes(checkbox.value);
@@ -347,11 +383,10 @@
         });
       }
     }
-
-
+  
     function deleteOffer(id) {
       const data = { id: id };
-
+  
       Swal.fire({
         title: "Are you sure?",
         text: "Do you want to delete this offer?",
@@ -389,5 +424,6 @@
       });
     }
   </script>
+  
 </body>
 </html>
