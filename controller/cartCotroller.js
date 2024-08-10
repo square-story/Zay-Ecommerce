@@ -8,7 +8,7 @@ module.exports.loadCart = async (req, res) => {
   try {
     const userId = req.session.user?._id;
     const product = await Cart.find({ user: userId }, { products: 1 }).populate(
-      'products.productId'
+      'products.productId',
     );
     const products = product[0]?.products;
     console.log(products, 'cart');
@@ -28,9 +28,7 @@ module.exports.addToCart = async (req, res) => {
     const maxQuantityPerPerson = 5; // Example: Hard-coded for demonstration
     console.log(productId, index, userId, size, quantity);
     if (quantity > maxQuantityPerPerson) {
-      return res
-        .status(400)
-        .json({ error: 'Exceeded maximum quantity per person.' });
+      return res.status(400).json({ error: 'Exceeded maximum quantity per person.' });
     }
     // price of the variant
     const product = await Product.findOne({ _id: productId });
@@ -43,12 +41,10 @@ module.exports.addToCart = async (req, res) => {
       const cart = await Cart.findOne({ user: userId });
       if (cart) {
         const exsisting = cart.products.filter(
-          (product, i) => product.productId.toString() === productId
+          (product, i) => product.productId.toString() === productId,
         );
         console.log(exsisting, ' product');
-        const exits = exsisting.find(
-          (pro) => pro.product === index && pro.size === size
-        );
+        const exits = exsisting.find((pro) => pro.product === index && pro.size === size);
         if (!exits) {
           console.log('addd');
           await Cart.findOneAndUpdate(
@@ -64,7 +60,7 @@ module.exports.addToCart = async (req, res) => {
                   size: size,
                 },
               },
-            }
+            },
           );
         } else {
           console.log('hello');
@@ -128,7 +124,7 @@ module.exports.removeFromCart = async (req, res) => {
               'elem.size': size,
             },
           ],
-        }
+        },
       );
       res.json({ removed: true });
     }
@@ -165,10 +161,7 @@ module.exports.changeQuantity = async (req, res) => {
     }
 
     const cartProduct = cart.products.find(
-      (pro) =>
-        pro.productId.toString() === productId &&
-        pro.product === index &&
-        pro.size === size
+      (pro) => pro.productId.toString() === productId && pro.product === index && pro.size === size,
     );
     if (!cartProduct) {
       return res.status(404).json({ error: 'Cart product not found' });
@@ -199,7 +192,7 @@ module.exports.changeQuantity = async (req, res) => {
                 'elem.size': size,
               },
             ],
-          }
+          },
         );
         return res.json({ changed: true });
       } else {
@@ -226,13 +219,11 @@ module.exports.changeQuantity = async (req, res) => {
                 'elem.size': size,
               },
             ],
-          }
+          },
         );
         return res.json({ changed: true });
       } else {
-        return res
-          .status(400)
-          .json({ error: 'Quantity cannot be less than 1' });
+        return res.status(400).json({ error: 'Quantity cannot be less than 1' });
       }
     } else {
       return res.status(400).json({ error: 'Invalid status value' });
@@ -247,18 +238,12 @@ module.exports.proceedToCheckout = async (req, res) => {
   try {
     const userId = req.session.user?._id;
     const address = await Address.findOne({ user: userId });
-    const cart = await Cart.findOne({ user: userId }).populate(
-      'products.productId'
-    );
-    const coupon = await Coupon.find();
+    const cart = await Cart.findOne({ user: userId }).populate('products.productId');
     const wallet = await Wallet.findOne({ user: userId });
     const walletBalance = wallet ? wallet.balance : 0;
 
     // Calculate subtotal
-    const subtotal = cart.products.reduce(
-      (acc, product) => acc + product.totalPrice,
-      0
-    );
+    const subtotal = cart.products.reduce((acc, product) => acc + product.totalPrice, 0);
 
     // Calculate delivery charge
     const deliveryCharge = subtotal < 500 ? 80 : 0;
@@ -271,6 +256,24 @@ module.exports.proceedToCheckout = async (req, res) => {
     // Calculate final amount
     const finalAmount = subtotal + deliveryCharge - discount;
 
+    // Get the current date
+    const currentDate = new Date();
+
+    // Fetch and filter valid coupons
+    const coupons = await Coupon.find();
+    const validCoupons = coupons.filter((coupon) => {
+      // Check if the coupon is currently active
+      const isActive = coupon.activationDate <= currentDate && coupon.expiresDate > currentDate;
+
+      // Check if the coupon is applicable to the current final amount
+      const meetsMinOrderValue = coupon.minimumOrderValue <= finalAmount;
+
+      // Check if the coupon has not been used by the current user
+      const hasNotBeenUsedByUser = !coupon.userUsed.includes(userId);
+
+      return isActive && meetsMinOrderValue && hasNotBeenUsedByUser;
+    });
+
     res.render('checkOut', {
       address: address,
       products: cart.products,
@@ -279,7 +282,7 @@ module.exports.proceedToCheckout = async (req, res) => {
       discount,
       finalAmount,
       walletBalance,
-      coupon,
+      coupon: validCoupons,
     });
   } catch (error) {
     console.log(error);

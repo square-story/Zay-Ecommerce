@@ -168,20 +168,15 @@
                             <%= order.products.length %> item<%= order.products.length !== 1 ? 's' : '' %>
                           </td>
                           <td style="padding: 16px">
-                            <% const latestStatus = order.status; %>
-                            <% const greenStatuses = ['placed', 'outfordelivery', 'shipped', 'delivered']; %>
+                            <% const latestStatus = order.paymentStatus; %>
+                            <% const greenStatuses = ['completed']; %>
                             <% const badgeClass = greenStatuses.includes(latestStatus.toLowerCase()) ? 'bg-success' : 'bg-danger'; %>
                             <span class="badge <%= badgeClass %>"><%= latestStatus.toUpperCase() %></span>
                           </td>
-                          <% const formattedDate = new Date(order.date).toLocaleString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            hour12: true
-                          }); %>
-                          <td style="padding: 16px"><%= formattedDate %></td>
+                          <td style="padding: 16px">
+                            <% const formattedDate = moment(order.date).format('MMM D, YYYY h:mm A'); %>
+                            <%= formattedDate %>
+                          </td>
                           <td style="padding: 16px">
                             <% if (latestStatus === "failed") { %>
                               <a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="retryPayment('<%= order._id %>', '<%= order.totalAmount %>')"><i class="bi bi-credit-card-2-back-fill"> </i> Retry Payment</a>
@@ -245,6 +240,7 @@
     <script src="js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script> <!-- Include Moment.js -->
     <script>
       function retryPayment(orderId, amount) {
         fetch('/retry-payment', {
@@ -345,8 +341,8 @@
         });
       }
     </script>
-    
   </body>
+  
   
   
   

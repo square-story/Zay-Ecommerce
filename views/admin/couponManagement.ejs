@@ -56,7 +56,7 @@
 
                 <label for="form-label">Activation date</label>
                 <input
-                  type="text"
+                  type="date"
                   name="adate"
                   placeholder="dd-mm-yyyy"
                   class="form-control"
@@ -64,7 +64,7 @@
 
                 <label for="form-label">Expire date</label>
                 <input
-                  type="text"
+                  type="date"
                   name="edate"
                   placeholder="dd-mm-yyyy"
                   class="form-control"
@@ -72,33 +72,26 @@
 
                 <label for="form-label">Limit of use</label>
                 <input
-                  type="text"
+                  type="number"
                   name="limit"
                   placeholder="enter how many user can use"
                   class="form-control"
                 />
 
-                <label for="form-label">Dicount amount</label>
-                <input
-                  type="text"
-                  name="damount"
-                  placeholder="enter how many user can use"
-                  class="form-control"
-                />
+                <label for="form-label">Discount Percentage</label>
+                <input type="number" name="percentage" placeholder="Enter discount Percentage (%)" class="form-control" />
 
+                <label for="form-label">Maximum Discount Amount</label>
+                <input type="number" name="maxDiscountAmount" placeholder="Enter Maximum Discount Amount (e.g., 150)" class="form-control" />
+            
+                <label for="form-label">Minimum Order Value</label>
+                <input type="number" name="minOrderValue" placeholder="Enter minimum order value (e.g., 300)" class="form-control" />
+            
                 <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                  >
-                    Close
-                  </button>
-                  <button type="submit" class="btn btn-primary">
-                    Save changes
-                  </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
                 </div>
-              </form>
+            </form>
             </div>
           </div>
         </div>
@@ -139,7 +132,7 @@
 
                 <label for="form-label">Activation date</label>
                 <input
-                  type="text"
+                  type="date"
                   id="adate"
                   name="adate"
                   placeholder="dd-mm-yyyy"
@@ -148,7 +141,7 @@
 
                 <label for="form-label">Expire date</label>
                 <input
-                  type="text"
+                  type="date"
                   id="edate"
                   name="edate"
                   placeholder="dd-mm-yyyy"
@@ -157,19 +150,26 @@
 
                 <label for="form-label">Limit of use</label>
                 <input
-                  type="text"
+                  type="number"
                   id="limit"
                   name="limit"
                   placeholder="enter how many user can use"
                   class="form-control"
                 />
 
-                <label for="form-label">Dicount amount</label>
+                <label for="form-label">Discount Percentage</label>
+                <input type="number" id="percentage" name="percentage" placeholder="Enter discount Percentage (%)" class="form-control" />
+
+                <label for="form-label">Maximum Discount Amount</label>
+                <input type="number" id="maxDiscountAmount" name="maxDiscountAmount" placeholder="Enter Maximum Discount Amount (e.g., 150)" class="form-control" />
+            
+
+                <label for="form-label">Minimum Order Value</label>
                 <input
-                  type="text"
-                  id="damount"
-                  name="damount"
-                  placeholder="enter how many user can use"
+                  type="number"
+                  id="mamount"
+                  name="minOrderValue"
+                  placeholder="Enter minimum order value"
                   class="form-control"
                 />
 
@@ -236,10 +236,12 @@
                         </div>
                       </a>
                     </td>
-                    <td><%= c.couponCode%></td>
-                    <td><%= c.activationDate%></td>
-                    <td><%= c.expiresDate%></td>
-                    <td><%= c.discountAmount%></td>
+                    <td><%= c.couponCode %></td>
+                    <td><%= moment(c.activationDate).format('DD MM YYYY') %></td>
+                    <td><%= moment(c.expiresDate).format('DD MM YYYY') %></td>
+                    <td><%= c.percentage %>%</td>
+
+
 
                     <td class="text-end">
                       <button
@@ -255,7 +257,7 @@
                         id="button"
                         class="btn btn-sm btn-dark rounded font-sm mt-15"
                         data-user-id=""
-                        onclick="return editCoupon('<%= c._id %>', '<%= c.name %>', '<%= c.activationDate %>', '<%= c.expiresDate %>', '<%= c.discountAmount %>', '<%= c.limit %>')"
+                        onclick="return editCoupon('<%= c._id %>', '<%= c.name %>', '<%= c.activationDate %>', '<%= c.expiresDate %>', '<%= c.percentage %>', '<%= c.limit %>','<%= c.minimumOrderValue %>','<%= c.maxDiscountAmount %>')"
                         data-status=""
                         data-bs-toggle="modal"
                         data-bs-target="#exampleModal2"
@@ -368,210 +370,202 @@
 </script>
 
 <script>
-  function editCoupon(id, name, adate, edate, damount, limit) {
-    console.log("function is called");
+  function editCoupon(id, name, adate, edate, percentage, limit, minimumOrderValue,maxDiscountAmount) {
+    console.log("Function called with the following parameters:");
+    console.log("ID:", id);
+    console.log("Name:", name);
+    console.log("Activation Date:", adate);
+    console.log("Expiration Date:", edate);
+    console.log("Discount Amount:", percentage);
+    console.log("Limit:", limit);
+    console.log("Minimum Order Value:", minimumOrderValue);
+    console.log("Minimum Order Value:", maxDiscountAmount);
+
+    
     document.getElementById("couponId").value = id;
     document.getElementById("name").value = name;
-    document.getElementById("adate").value = adate;
-    document.getElementById("edate").value = edate;
-    document.getElementById("damount").value = damount;
+
+    // Assuming adate and edate need to be formatted for date inputs
+    document.getElementById("adate").value = formatDateForInput(adate);
+    document.getElementById("edate").value = formatDateForInput(edate);
+
+    document.getElementById("percentage").value = percentage;
     document.getElementById("limit").value = limit;
+    document.getElementById("mamount").value = minimumOrderValue;
+    document.getElementById("maxDiscountAmount").value = maxDiscountAmount;
+
+    
     return;
   }
+
+  function formatDateForInput(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Add this script after your form -->
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.querySelector("#exampleModal form");
-
-        form.addEventListener("submit", function (event) {
-            // Prevent the form from submitting by default
-            event.preventDefault();
-
-            // Remove previous error messages
-            clearErrorMessages();
-
-            // Perform validation
-            const name = form.elements.name.value.trim();
-            const adate = form.elements.adate.value.trim();
-            const edate = form.elements.edate.value.trim();
-            const limit = form.elements.limit.value.trim();
-            const damount = form.elements.damount.value.trim();
-
-            if (name === "") {
-                displayErrorMessage("name", "Please enter a coupon name.");
-                return;
-            }
-
-            if (adate === "") {
-                displayErrorMessage("adate", "Please enter an activation date.");
-                return;
-            }
-
-            if (edate === "") {
-                displayErrorMessage("edate", "Please enter an expiration date.");
-                return;
-            }
-
-            if (limit === "") {
-                displayErrorMessage("limit", "Please enter a limit of use.");
-                return;
-            }
-
-            if (damount === "") {
-                displayErrorMessage("damount", "Please enter a discount amount.");
-                return;
-            }
-
-            // Validate date format (dd-mm-yyyy)
-            const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
-            if (!dateRegex.test(adate) ) {
-                displayErrorMessage("adate", "Invalid date format. Please use dd-mm-yyyy.");
-                return;
-            } 
-            if( !dateRegex.test(edate)) {
-                displayErrorMessage("adate", "Invalid date format. Please use dd-mm-yyyy.");
-                return
-            }
-
-            // Validate discount amount is a number
-            if (isNaN(parseFloat(damount))) {
-                displayErrorMessage("damount", "Discount amount must be a valid number.");
-                return;
-            }
-
-            // If all validations pass, you can submit the form
-            form.submit();
-        });
-
-        function displayErrorMessage(fieldName, message) {
-            const field = form.elements[fieldName];
-            const errorDiv = document.createElement("div");
-            errorDiv.className = "error-message";
-            errorDiv.style.color = "red"; // Set color to red
-            errorDiv.textContent = message;
-            field.parentNode.insertBefore(errorDiv, field);
-
-            // Remove error message after 3000 milliseconds (3 seconds)
-            setTimeout(() => {
-                errorDiv.remove();
-            }, 3000);
-        }
-
-        function clearErrorMessages() {
-            const errorMessages = form.querySelectorAll(".error-message");
-            errorMessages.forEach((errorMessage) => {
-                errorMessage.remove();
-            });
-        }
-    });
-</script> -->
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Attach validation to the first form
-    attachFormValidation("#exampleModal form");
+document.addEventListener("DOMContentLoaded", function () {
+  attachFormValidation("#exampleModal form");
+  attachFormValidation("#exampleModal2 form");
 
-    // Attach validation to the second form
-    attachFormValidation("#exampleModal2 form");
+  function attachFormValidation(formSelector) {
+    const form = document.querySelector(formSelector);
 
-    function attachFormValidation(formSelector) {
-      const form = document.querySelector(formSelector);
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      clearErrorMessages(form);
 
-      form.addEventListener("submit", function (event) {
-        // Prevent the form from submitting by default
-        event.preventDefault();
+      let name = form.elements.name.value.trim();
+      const adate = form.elements.adate.value.trim();
+      const edate = form.elements.edate.value.trim();
+      const limit = form.elements.limit.value.trim();
+      const percentage = form.elements.percentage.value.trim();
+      const minOrderValue = form.elements.minOrderValue.value.trim();
+      const maxDiscountAmount = form.elements.maxDiscountAmount.value.trim();
 
-        // Remove previous error messages
-        clearErrorMessages(form);
+      // Remove special characters from name (allow only letters, numbers, spaces, hyphens, and underscores)
+      name = name.replace(/[^a-zA-Z0-9-_ ]/g, '');
 
-        // Perform validation
-        const name = form.elements.name.value.trim();
-        const adate = form.elements.adate.value.trim();
-        const edate = form.elements.edate.value.trim();
-        const limit = form.elements.limit.value.trim();
-        const damount = form.elements.damount.value.trim();
+      // General empty field validation
+      const requiredFields = ["name", "adate", "edate", "limit", "percentage", "minOrderValue", "maxDiscountAmount"];
+      for (const fieldName of requiredFields) {
+        if (form.elements[fieldName].value.trim() === "") {
+          displayErrorMessage(form, fieldName, `Please enter a ${fieldName.replace(/([A-Z])/g, ' $1').toLowerCase()}.`);
+          return;
+        }
+      }
+       // Check if the name is empty or contains only special characters
+        const specialCharacterRegex = /^[^a-zA-Z0-9]+$/;
+        const containsSpecialCharacterRegex = /^[!@#\$%\^\&*\)\(+=._-]+$/g;
 
-        if (name === "") {
-          displayErrorMessage(form, "name", "Please enter a coupon name.");
+        if (name === "" || specialCharacterRegex.test(name)) {
+          displayErrorMessage(form, "name", "Coupon name cannot be empty or contain only special characters.");
           return;
         }
 
-        if (adate === "") {
-          displayErrorMessage(
-            form,
-            "adate",
-            "Please enter an activation date."
-          );
+        if (containsSpecialCharacterRegex.test(name)) {
+          displayErrorMessage(form, "name", "Coupon name cannot start with a special character.");
           return;
         }
 
-        if (edate === "") {
-          displayErrorMessage(
-            form,
-            "edate",
-            "Please enter an expiration date."
-          );
+      // Validate dates
+      const currentDate = new Date().setHours(0, 0, 0, 0); // Midnight today
+      const activationDate = new Date(adate).setHours(0, 0, 0, 0);
+      const expirationDate = new Date(edate).setHours(0, 0, 0, 0);
+
+      if (isNaN(activationDate)) {
+        displayErrorMessage(form, "adate", "Please enter a valid activation date.");
+        return;
+      }
+
+      if (isNaN(expirationDate)) {
+        displayErrorMessage(form, "edate", "Please enter a valid expiration date.");
+        return;
+      }
+
+      if (activationDate < currentDate) {
+        displayErrorMessage(form, "adate", "Activation date must be today or in the future.");
+        return;
+      }
+
+      if (expirationDate <= activationDate) {
+        displayErrorMessage(form, "edate", "Expiration date must be after the activation date.");
+        return;
+      }
+
+      // Validate limit
+      if (isNaN(parseInt(limit)) || parseInt(limit) <= 0) {
+        displayErrorMessage(form, "limit", "Limit of use must be a valid number greater than zero.");
+        return;
+      }
+
+      // Validate percentage
+      if (isNaN(parseFloat(percentage)) || parseFloat(percentage) <= 0 || parseFloat(percentage) >= 80) {
+        displayErrorMessage(form, "percentage", "Percentage must be a valid number between 1% and 79%.");
+        return;
+      }
+
+      // Validate min order value
+      if (isNaN(parseFloat(minOrderValue)) || parseFloat(minOrderValue) <= 0) {
+        displayErrorMessage(form, "minOrderValue", "Minimum order value must be a valid number greater than zero.");
+        return;
+      }
+
+      // Validate max discount amount
+      if (isNaN(parseFloat(maxDiscountAmount)) || parseFloat(maxDiscountAmount) <= 0) {
+        displayErrorMessage(form, "maxDiscountAmount", "Max discount amount must be a valid number greater than zero.");
+        return;
+      }
+
+      // Ensure max discount amount does not exceed min order value
+      if (parseFloat(maxDiscountAmount) > parseFloat(minOrderValue)) {
+        displayErrorMessage(form, "maxDiscountAmount", "Max discount amount cannot exceed the minimum order value.");
+        return;
+      }
+
+      // Skip name existence check for #exampleModal2 (editing existing record)
+      if (formSelector === "#exampleModal form") {
+        try {
+          // Check for existing coupon name
+          const response = await fetch('/admin/check-coupon-name', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name })
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const result = await response.json();
+          if (result.exists) {
+            displayErrorMessage(form, "name", "Coupon with this name already exists.");
+            return;
+          }
+        } catch (error) {
+          displayErrorMessage(form, "name", "There was an error validating the coupon name. Please try again.");
           return;
         }
+      }
 
-        if (limit === "") {
-          displayErrorMessage(form, "limit", "Please enter a limit of use.");
-          return;
-        }
+      // Disable submit button to prevent double submission
+      form.querySelector('button[type="submit"]').disabled = true;
 
-        if (damount === "") {
-          displayErrorMessage(
-            form,
-            "damount",
-            "Please enter a discount amount."
-          );
-          return;
-        }
+      // Proceed with form submission if all checks pass
+      event.target.submit();
+    });
+  }
 
-        // Validate date format (dd-mm-yyyy)
-        const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
-        if (!dateRegex.test(adate) || !dateRegex.test(edate)) {
-          alert("Invalid date format. Please use dd-mm-yyyy.");
-          return;
-        }
+  function displayErrorMessage(form, fieldName, message) {
+    const field = form.elements[fieldName];
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "error-message";
+    errorDiv.style.color = "red";
+    errorDiv.textContent = message;
+    field.parentNode.insertBefore(errorDiv, field);
 
-        // Validate discount amount is a number
-        if (isNaN(parseFloat(damount))) {
-          displayErrorMessage(
-            form,
-            "damount",
-            "Discount amount must be a valid number."
-          );
-          return;
-        }
+    setTimeout(() => {
+      errorDiv.remove();
+    }, 3000);
+  }
 
-        // If all validations pass, you can submit the form
-        form.submit();
-      });
-    }
-
-    function displayErrorMessage(form, fieldName, message) {
-      const field = form.elements[fieldName];
-      const errorDiv = document.createElement("div");
-      errorDiv.className = "error-message";
-      errorDiv.style.color = "red"; // Set color to red
-      errorDiv.textContent = message;
-      field.parentNode.insertBefore(errorDiv, field);
-
-      // Remove error message after 3000 milliseconds (3 seconds)
-      setTimeout(() => {
-        errorDiv.remove();
-      }, 3000);
-    }
-
-    function clearErrorMessages(form) {
-      const errorMessages = form.querySelectorAll(".error-message");
-      errorMessages.forEach((errorMessage) => {
-        errorMessage.remove();
-      });
-    }
-  });
+  function clearErrorMessages(form) {
+    const errorMessages = form.querySelectorAll(".error-message");
+    errorMessages.forEach((errorMessage) => {
+      errorMessage.remove();
+    });
+  }
+});
 </script>
+
+
+

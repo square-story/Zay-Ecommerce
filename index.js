@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const flash = require('express-flash');
 const path = require('node:path');
+const moment = require('moment');
 
 const userRoute = require('./router/userRoute');
 const adminRoute = require('./router/adminRoute');
@@ -20,6 +21,11 @@ app.use(
     cookie: { secure: false }, // Set secure to true if using HTTPS
   }),
 );
+
+app.use((req, res, next) => {
+  res.locals.moment = moment;
+  next();
+});
 
 // Middleware to fetch wishlist data
 app.use(async (req, res, next) => {

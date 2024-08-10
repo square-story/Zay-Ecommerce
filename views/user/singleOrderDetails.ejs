@@ -50,33 +50,39 @@
           <h5 class="card-title">Order ID: <%= order._id.toString().slice(-6).toUpperCase() %></h5>
           <p><strong>Name:</strong> <%= order.user.name %></p>
           <p><strong>Email:</strong> <%= order.user.email %></p>
-          <p><strong>Total Amount:</strong> ₹<%= order.totalAmount %></p>
           <p><strong>Status:</strong> <%= order.status %></p>
-          <p><strong>Date:</strong> <%= new Date(order.date).toLocaleString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: true
-          }) %></p>
+          <p><strong>Date:</strong> <%= moment(order.date).format('ddd, MMM D, YYYY h:mm:ss A') %></p>
           <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+          <% if (order.paymentId) { %>
+            <p><strong>Payment ID:</strong> <%= order.paymentId %></p>
+          <% } %>
           <p><strong>Delivery Address:</strong> <%= order.deliveryDetails.address %>, <%= order.deliveryDetails.city %>, <%= order.deliveryDetails.state %>, <%= order.deliveryDetails.pincode %></p>
-          <p><strong>Expected Delivery Date:</strong> <%= new Date(order.expected_delivery).toLocaleDateString('en-US') %></p>
+          <p><strong>Expected Delivery Date:</strong> <%= moment(order.expected_delivery).format('MMM D, YYYY') %></p>
+  
+          <h5 class="mt-4">Order Summary:</h5>
+          <ul class="list-group">
+            <li class="list-group-item">
+              <strong>Subtotal:</strong> ₹<%= order.totalAmount + order.discountedAmount %>
+            </li>
+            <li class="list-group-item">
+              <strong>Discount Applied:</strong> ₹<%= order.discountedAmount %>
+            </li>
+            <li class="list-group-item">
+              <strong>Final Amount:</strong> ₹<%= order.totalAmount%>
+            </li>
+          </ul>
   
           <h5 class="mt-4">Products:</h5>
           <ul class="list-group">
-            <% order.products.forEach((product,i) => { %>
+            <% order.products.forEach((product, i) => { %>
               <li class="list-group-item">
-                <div class="row" onclick="singleOrder('<%= product.productId._id%>', '<%= i%>', '<%= product.size%>', '<%= order._id%>')">
+                <div class="row">
                   <div class="col-md-3">
                     <% if (product.productId.variant && product.productId.variant.length > 0 && product.product >= 0 && product.productId.variant[product.product].images && product.productId.variant[product.product].images.length > 0) { %>
                       <img src="/img/productImage/sharp/<%= product.productId.variant[product.product].images[0] %>" class="img-fluid" alt="<%= product.productId.name %>">
                     <% } %>
                   </div>
-                  <div class="col-md-9">
+                  <div class="col-md-6">
                     <p><strong>Product Name:</strong> <%= product.productId.name %></p>
                     <p><strong>Quantity:</strong> <%= product.quantity %></p>
                     <p><strong>Price:</strong> ₹<%= product.price %></p>
@@ -86,11 +92,19 @@
                       <% const size = match.find(size => size[0] === product.size); %>
                       <p><strong>Size:</strong> <%= size ? size[1] : product.size %></p>
                     <% } %>
+                    <% if (product.coupon > 0) { %>
+                      <p><strong>Coupon Discount:</strong> ₹<%= product.coupon %></p>
+                    <% } %>
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-primary" onclick="singleOrder('<%= product.productId._id %>', '<%= i %>', '<%= product.size %>', '<%= order._id %>')">
+                      View Details
+                    </button>
                   </div>
                 </div>
               </li>
             <% }) %>
-          </ul>
+          </ul>          
         </div>
       </div>
       <a href="/my-order" class="btn btn-primary mt-4 mb-4" style="width: 200px;">Back to Orders</a>

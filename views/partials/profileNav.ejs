@@ -28,7 +28,7 @@
           "
         >
           Hello <%= user.name %>
-          <p><span>Wallet amount : </span><%= walletBalance %></p>
+          <p><span>Wallet amount : </span><%= walletBalance.toFixed(2) %></p>
         </div>
       </div>
     </div>
@@ -43,7 +43,7 @@
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
       "
     >
-      <div class="menu-headinggg" style="padding-top: 1rem;">General</div>
+      <div class="menu-headinggg" style="padding-top: 1rem">General</div>
 
       <div class="menu-itemmm">
         <a href="/manage-address">ADDRESS</a>

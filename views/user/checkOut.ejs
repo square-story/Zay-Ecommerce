@@ -355,8 +355,9 @@
                                            style="border: 1px solid #e0e0e0; border-radius: 5px; transition: all 0.3s ease;">
                                           <div>
                                               <strong><%= coup.name %></strong>
-                                              <small class="d-block text-muted">ExpiresDate : <%= coup.expiresDate %></small>
-                                              <small class="d-block text-muted"><%= coup.discountType === 'percentage' ? coup.discountAmount + '%' : '₹' + coup.discountAmount %> off</small>
+                                              <small class="d-block text-muted">ExpiresDate : <%= moment(coup.expiresDate).format('DD MM YYYY') %></small>
+                                              <small class="d-block text-muted"><%= coup.percentage + '%' %> off</small>
+                                              <small class="d-block text-muted">UPTO <%= "₹" + coup.maxDiscountAmount %></small>
                                           </div>
                                           <button class="btn btn-sm btn-outline-success copy-btn" data-coupon="<%= coup.couponCode %>">Copy</button>
                                       </div>
@@ -369,6 +370,9 @@
                               <input type="text" class="form-control" id="applyCoupon" placeholder="Enter coupon code">
                               <button type="button" class="btn btn-success w-100 mt-2" onclick="return applyCoupon();">Apply Coupon</button>
                           </div>
+                          <div class="mt-3">
+                            <button id="removeCouponButton" class="btn btn-danger w-100 mt-2">Remove Coupon</button>
+                        </div>
                       </div>
                   </div>
 
@@ -379,11 +383,11 @@
                           <ul class="list-unstyled">
                               <li class="d-flex justify-content-between mb-2">
                                   <span>Price (<%= products.length %> <%= products.length > 1 ? "items" : "item" %>)</span>
-                                  <span>₹<%= subtotal %></span>
+                                  <span id="subtotal">₹<%= subtotal %></span>
                               </li>
                               <li class="d-flex justify-content-between mb-2">
                                   <span>Delivery Charges</span>
-                                  <% if (subtotal > 1000) { %>
+                                  <% if (subtotal > 500) { %>
                                       <span class="text-success"><del class="text-muted">₹80</del> Free</span>
                                   <% } else { %>
                                       <span>₹<%= deliveryCharge %></span>
@@ -563,47 +567,76 @@
   </script>
   
 <script>
-    function applyCoupon() {
-      const couponCode = document.getElementById('applyCoupon').value;
-      if (couponCode) {
+function applyCoupon() {
+    const couponCode = document.getElementById('applyCoupon').value;
+
+    if (couponCode) {
         const data = { couponCode: couponCode };
         $.ajax({
-          type: "POST",
-          url: "/check-coupon",
-          data: JSON.stringify(data),
-          contentType: 'application/json',
-          success: (response) => {
-            if (response.success) {
-              const subtotal = response.subtotal;
-              const discount = response.discount;
-  
-              document.getElementById('discountedAmount').innerText = `₹${subtotal}`;
-              document.getElementById('discountAmount').innerText = `₹${discount}`;
-              document.getElementById('place-order').setAttribute('data-subtotal', subtotal);
-              document.getElementById('place-order').setAttribute('data-couponApplied', '1');
-              document.getElementById('place-order').setAttribute('data-couponCode', couponCode);
-  
-              Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "Coupon applied successfully!",
-                showConfirmButton: false,
-                timer: 1500
-              });
-            } else {
-              fireSwal(response.message);
+            type: "POST",
+            url: "/check-coupon",
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: (response) => {
+                if (response.success) {
+                    const subtotal = response.subtotal.toFixed(0); // Round off to the nearest integer
+                    const discount = response.discount.toFixed(0); // Round off to the nearest integer
+
+                    document.getElementById('discountedAmount').innerText = `₹${subtotal}`;
+                    document.getElementById('discountAmount').innerText = `₹${discount}`;
+                    document.getElementById('place-order').setAttribute('data-subtotal', subtotal);
+                    document.getElementById('place-order').setAttribute('data-couponApplied', '1');
+                    document.getElementById('place-order').setAttribute('data-couponCode', couponCode);
+
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "Coupon applied successfully!",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    fireSwal(response.message);
+                }
+            },
+            error: (xhr, status, error) => {
+                fireSwal("Failed to apply coupon. Please try again later.");
+                console.error("Error applying coupon:", error);
             }
-          },
-          error: (xhr, status, error) => {
-            fireSwal("Failed to apply coupon. Please try again later.");
-            console.error("Error applying coupon:", error);
-          }
         });
-      } else {
+    } else {
         console.log('Coupon not applied');
-      }
     }
-  
+}
+
+
+function removeCoupon() {
+    document.getElementById('applyCoupon').value = ''; // Clear coupon input
+
+    // Reset the discount amount and final amount in the UI
+    const subtotal = parseFloat(document.getElementById('subtotal').innerText.replace('₹', '')); // Assuming you have a span with id 'subtotal'
+    const deliveryCharge = subtotal < 500 ? 0 : 80; // Delivery charge logic based on subtotal
+    const finalAmount = subtotal + deliveryCharge; // Calculate final amount without any discount
+
+    document.getElementById('discountAmount').innerText = '₹0'; // Clear discount amount
+    document.getElementById('discountedAmount').innerText = `₹${finalAmount}`; // Update final amount
+    document.getElementById('place-order').removeAttribute('data-couponApplied'); // Remove coupon applied attribute
+    document.getElementById('place-order').removeAttribute('data-couponCode'); // Remove coupon code attribute
+
+    Swal.fire({
+        position: "center",
+        icon: "info",
+        title: "Coupon removed",
+        showConfirmButton: false,
+        timer: 1500
+    });
+}
+
+// Ensure the remove button calls the removeCoupon function
+document.getElementById('removeCouponButton').addEventListener('click', function () {
+    removeCoupon();
+});
+
     function placeOrder() {
       try {
         const radioBtn = document.querySelector('input[name="address"]:checked');

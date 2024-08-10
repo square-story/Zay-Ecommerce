@@ -138,7 +138,6 @@ module.exports.placeOrder = async (req, res) => {
       }
       const productVariant = product.productId.variant[variantIndex];
       const requestedQuantity = product.quantity;
-      console.log(productVariant);
       if (!productVariant || !productVariant.stock || productVariant.stock < requestedQuantity) {
         outOfStockProducts.push({
           productName: product.productId.name,
@@ -153,30 +152,40 @@ module.exports.placeOrder = async (req, res) => {
     let deliveryCharge = subtotal < 500 ? 80 : 0;
     let discount = 0;
     let couponCode = null;
+    const total = cart.products.reduce((acc, crr) => acc + crr.totalPrice, 0);
 
     // Apply coupon if available
     if (isCoupon) {
       const coupon = await Coupon.findOne({ couponCode: isCoupon });
       if (coupon && coupon.limit >= coupon.userUsed.length) {
-        discount = coupon.discountAmount || 0;
+        // Calculate discount based on percentage
+        discount = Math.round((coupon.percentage / 100) * total || 0);
+
+        // Ensure the discount does not exceed the max discount amount
+        if (coupon.maxDiscountAmount) {
+          discount = Math.min(discount, coupon.maxDiscountAmount);
+        }
+
+        // Update the coupon usage
         coupon.userUsed.push(userId);
         await coupon.save();
 
-        const discountPerProduct = discount / products.length;
+        // Apply discount to products
+        const discountPerProduct =
+          discount / products.reduce((acc, product) => acc + product.totalPrice, 0);
         for (let product of products) {
-          const { totalPrice } = product;
-          const productDiscount = Math.min(totalPrice, discountPerProduct);
+          const productDiscount = product.totalPrice * discountPerProduct;
           product.totalPrice -= productDiscount;
           product.coupon = productDiscount;
         }
         couponCode = isCoupon;
       } else {
-        return res.json({ fail: true, message: 'Coupon limit exceeds' });
+        return res.json({ fail: true, message: 'Coupon limit exceeds or invalid coupon' });
       }
     }
 
-    let totalAmount = products.reduce((sum, product) => sum + product.totalPrice, 0);
-    let finalAmount = totalAmount + deliveryCharge;
+    const totalAmount = products.reduce((sum, product) => sum + product.totalPrice, 0);
+    const finalAmount = totalAmount + deliveryCharge;
 
     // Create Razorpay order if needed
     let razorpayOrder = null;
@@ -195,12 +204,13 @@ module.exports.placeOrder = async (req, res) => {
       deliveryDetails: selectedAddress,
       products: products,
       totalAmount: finalAmount,
+      discountedAmount: discount, // Save the total discount applied
       date: new Date(),
       expected_delivery: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-      status: payment_method === 'COD' ? 'placed' : 'pending', // Changed from "pending"
+      status: payment_method === 'COD' ? 'placed' : 'pending',
       paymentMethod: payment_method,
       razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
-      paymentStatus: payment_method === 'COD' ? 'completed' : 'pending', // Added paymentStatus
+      paymentStatus: payment_method === 'COD' ? 'completed' : 'pending',
       couponCode, // Save the coupon code used
     });
 
@@ -231,6 +241,7 @@ module.exports.placeOrder = async (req, res) => {
 
           // Update order status to "placed"
           order.status = 'placed';
+          order.paymentStatus = 'completed';
           await order.save();
 
           res.json({ success: true });

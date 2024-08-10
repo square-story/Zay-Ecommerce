@@ -79,6 +79,10 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  discountedAmount: {
+    type: Number, // Total discount applied to the order
+    default: 0,
+  },
   date: {
     type: Date,
     required: true,

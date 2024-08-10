@@ -42,11 +42,7 @@ adminRoute.get('/product', adminAuth.islogin, adminController.loadPoduct);
 
 // load add Product
 
-adminRoute.get(
-  '/addProduct',
-  adminAuth.islogin,
-  adminController.loadAddProduct
-);
+adminRoute.get('/addProduct', adminAuth.islogin, adminController.loadAddProduct);
 
 // load cetagory
 
@@ -65,69 +61,37 @@ adminRoute.post('/listCetagory', cetagoryContorller.listCetagory);
 adminRoute.post('/editCetagory', cetagoryContorller.editCetagory);
 
 //offer offers
-adminRoute.get(
-  '/offer-management',
-  adminAuth.islogin,
-  offerController.loadAdminOfferPage
-);
+adminRoute.get('/offer-management', adminAuth.islogin, offerController.loadAdminOfferPage);
 
 //create Offer
-adminRoute.post(
-  '/create-offer',
-  adminAuth.islogin,
-  offerController.createOfferPost
-);
+adminRoute.post('/create-offer', adminAuth.islogin, offerController.createOfferPost);
 
 //edit Offer
 adminRoute.put('/edit-offer', adminAuth.islogin, offerController.editOfferPost);
 
 //delete Offer
-adminRoute.delete(
-  '/delete-offer',
-  adminAuth.islogin,
-  offerController.deleteOffer
-);
+adminRoute.delete('/delete-offer', adminAuth.islogin, offerController.deleteOffer);
 
 // add-product
-adminRoute.post(
-  '/add-product',
-  multer.array('images'),
-  productController.addproduct
-);
+adminRoute.post('/add-product', multer.array('images'), productController.addproduct);
 
 // list / unlist product
 adminRoute.post('/listProduct', productController.listProduct);
 
 // load variant
-adminRoute.get(
-  '/loadVariant/:id',
-  adminAuth.islogin,
-  productController.loadVariant
-);
+adminRoute.get('/loadVariant/:id', adminAuth.islogin, productController.loadVariant);
 
 // add variant
 
-adminRoute.post(
-  '/addVariant',
-  multer.array('images'),
-  productController.addVariant
-);
+adminRoute.post('/addVariant', multer.array('images'), productController.addVariant);
 
 // load edit variant
 
-adminRoute.get(
-  '/edit-variant',
-  adminAuth.islogin,
-  productController.LoadeditVariant
-);
+adminRoute.get('/edit-variant', adminAuth.islogin, productController.LoadeditVariant);
 
 // edit variant
 
-adminRoute.post(
-  '/editVariant',
-  multer.array('images'),
-  productController.editVariant
-);
+adminRoute.post('/editVariant', multer.array('images'), productController.editVariant);
 
 // load admin login
 adminRoute.get('/login', adminAuth.logged, adminController.loadLogin);
@@ -141,25 +105,13 @@ adminRoute.post('/logout', adminController.logout);
 
 adminRoute.get('/order', adminAuth.islogin, adminController.loadOrder);
 
-adminRoute.get(
-  '/single-orderDetails',
-  adminAuth.islogin,
-  adminController.loadsingleOrder
-);
+adminRoute.get('/single-orderDetails', adminAuth.islogin, adminController.loadsingleOrder);
 
-adminRoute.get(
-  '/Cancelationdetails',
-  adminAuth.islogin,
-  adminController.loadSingleCancelation
-);
+adminRoute.get('/Cancelationdetails', adminAuth.islogin, adminController.loadSingleCancelation);
 
 adminRoute.post('/change-orderStatus', adminController.changeOrderStatus);
 
-adminRoute.get(
-  '/cancel-request',
-  adminAuth.islogin,
-  adminController.loadCancel
-);
+adminRoute.get('/cancel-request', adminAuth.islogin, adminController.loadCancel);
 
 adminRoute.post('/cancel-request', adminController.controlCancelation);
 
@@ -173,22 +125,16 @@ adminRoute.get('/load-coupon', adminAuth.islogin, couponController.loadCoupon);
 
 adminRoute.post('/create-coupon', couponController.createCoupon);
 
-adminRoute.put('/edit-coupon', couponController.createCoupon);
+adminRoute.put('/edit-coupon', couponController.editCoupon);
+
+adminRoute.post('/check-coupon-name', couponController.checkCouponName);
 
 adminRoute.delete('/deleteCoupon', couponController.deleteCoupon);
 
 adminRoute.post('/order-filter', adminController.filterDashboard);
 
-adminRoute.get(
-  '/sales-report',
-  adminAuth.islogin,
-  reportController.loadSalesReport
-);
+adminRoute.get('/sales-report', adminAuth.islogin, reportController.loadSalesReport);
 
-adminRoute.get(
-  '/download-sales-report',
-  adminAuth.islogin,
-  reportController.downloadSalesReport
-);
+adminRoute.get('/download-sales-report', adminAuth.islogin, reportController.downloadSalesReport);
 
 module.exports = adminRoute;
