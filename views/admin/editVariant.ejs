@@ -269,22 +269,39 @@
     <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <!-- Include SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>
 
 <script>
-  function previewImage(input, imageId, position) {
+  function previewImage(input, imageId) {
     const preview = document.getElementById(imageId);
     const file = input.files[0];
+
+    // Check if file exists
     if (file) {
+      // Validate the file type
+      const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+      if (!validImageTypes.includes(file.type)) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Image",
+          text: "Please upload a valid image file (JPEG, PNG, GIF, WEBP).",
+        });
+        input.value = ""; // Clear the input if the file is not valid
+        preview.src = "#"; // Reset the preview
+        return;
+      }
+
+      // If the file is valid, read and display the image
       const reader = new FileReader();
       reader.onload = function (e) {
         preview.src = e.target.result;
       };
-
       reader.readAsDataURL(file);
     } else {
-      preview.src = "#";
+      preview.src = "#"; // Reset the preview if no file is selected
     }
   }
 </script>
@@ -297,13 +314,18 @@
     let stock = document.getElementById("stock");
     let image = document.getElementById("image1");
     let size = document.querySelectorAll('[name="size"]');
-    console.log(size);
+
     if (
       price.value.trim() === "" ||
       Number(price.value) <= 0 ||
       isNaN(price.value)
     ) {
       price.style.border = "solid 1px red";
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Price",
+        text: "Please enter a valid price greater than 0.",
+      });
       setTimeout(function () {
         price.style.border = "";
       }, 3000);
@@ -314,13 +336,22 @@
       isNaN(oprice.value)
     ) {
       oprice.style.border = "solid 1px red";
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Offer Price",
+        text: "Please enter a valid offer price greater than 0.",
+      });
       setTimeout(function () {
         oprice.style.border = "";
       }, 3000);
       return false;
     } else if (color.value.trim() === "") {
       color.style.border = "solid 1px red";
-
+      Swal.fire({
+        icon: "error",
+        title: "Color Required",
+        text: "Please select a color.",
+      });
       setTimeout(function () {
         color.style.border = "";
       }, 3000);
@@ -331,7 +362,11 @@
       isNaN(stock.value)
     ) {
       stock.style.border = "solid 1px red";
-
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Stock",
+        text: "Please enter a valid stock number greater than 0.",
+      });
       setTimeout(function () {
         stock.style.border = "";
       }, 3000);
@@ -344,11 +379,15 @@
           count++;
         }
       });
-      if (count == 0) {
-        sizes[0].style.border = "solid 1px red";
-
+      if (count === 0) {
+        sizes[0].parentNode.style.border = "solid 1px red";
+        Swal.fire({
+          icon: "error",
+          title: "Size Selection Required",
+          text: "Please select at least one size.",
+        });
         setTimeout(function () {
-          size[0].style.border = "";
+          sizes[0].parentNode.style.border = "";
         }, 3000);
         return false;
       }
