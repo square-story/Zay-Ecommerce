@@ -6,18 +6,23 @@
     </div>
   </div>
 
-  <% if (messages.blocked) { %>
-    <div class="alert alert-danger" role="alert"><%= messages.blocked %></div>
-  <% } %> 
-  <% if (messages.pass) { %>
-    <div class="alert alert-success" role="alert"><%= messages.pass %></div>
-  <% } %> 
-  <% if (messages.found) { %>
-    <div class="alert alert-danger" role="alert"><%= messages.found %></div>
-  <% } %> 
-  <% if (message) { %>
-    <div class="alert alert-danger" role="alert"><%= message %></div>
-  <% } %>
+  <!-- Wrap alerts in a div with the same column width as the login form -->
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <% if (messages.blocked) { %>
+        <div class="alert alert-danger" role="alert"><%= messages.blocked %></div>
+      <% } %> 
+      <% if (messages.pass) { %>
+        <div class="alert alert-success" role="alert"><%= messages.pass %></div>
+      <% } %> 
+      <% if (messages.found) { %>
+        <div class="alert alert-danger" role="alert"><%= messages.found %></div>
+      <% } %> 
+      <% if (message) { %>
+        <div class="alert alert-danger" role="alert"><%= message %></div>
+      <% } %>
+    </div>
+  </div>
 
   <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
@@ -38,10 +43,13 @@
           <a href="/otpLogin" class="btn btn-outline-dark">OTP Login</a>
         </div>
 
-        <div class="text-center mt-3 mb-3 position-relative">
-          <img src="/img/google.png" alt="Google logo" style="position: absolute; width: 20px; height: 20px; top: 0.5rem; left: 6rem;" />
-          <a href="/auth/google" class="btn btn-outline-dark" style="padding-left: 50px;">Log in with Google</a>
+        <div class="text-center mt-3 mb-3">
+          <a href="/auth/google" class="btn btn-outline-dark d-flex align-items-center justify-content-center">
+            <img src="/img/google.png" alt="Google logo" class="me-2" style="width: 20px; height: 20px;" />
+            Log in with Google
+          </a>
         </div>
+        
 
         <div class="text-center">
           <p>Don't have an account? <a href="/signup" style="color: rgb(48, 94, 150);">Sign up</a></p>
