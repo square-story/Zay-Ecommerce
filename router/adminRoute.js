@@ -139,4 +139,6 @@ adminRoute.get('/sales-report', adminAuth.islogin, reportController.loadSalesRep
 
 adminRoute.get('/download-sales-report', adminAuth.islogin, reportController.downloadSalesReport);
 
+adminRoute.get('/download-sales-report-excel', adminAuth.islogin, reportController.downloadExcel);
+
 module.exports = adminRoute;

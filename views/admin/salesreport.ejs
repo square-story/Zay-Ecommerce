@@ -97,6 +97,7 @@
                 Apply Filter
               </button>
               <button type="button" onclick="downloadPDF()" class="btn btn-secondary btn-block">Download PDF</button>
+              <button type="button" onclick="downloadExcel()" class="btn btn-info btn-block">Download Excel</button>
             </form>
   
             <div class="mt-3">
@@ -155,38 +156,130 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
   <script>
-    function downloadPDF() {
+function isValidDate(dateStr) {
+    const date = new Date(dateStr);
+    return !isNaN(date.getTime());
+}
+
+function isValidDateRange(startDateStr, endDateStr) {
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+
+    return isValidDate(startDateStr) && isValidDate(endDateStr) && startDate <= endDate;
+}
+
+function downloadPDF() {
     const urlParams = new URLSearchParams(window.location.search);
     const startDate = urlParams.get('startDate');
     const endDate = urlParams.get('endDate');
-    window.location.href = `/admin/download-sales-report?startDate=${startDate}&endDate=${endDate}`;
-  }
-  
-    function applyFilter(filterType) {
-      const startDateInput = document.getElementById('startDate');
-      const endDateInput = document.getElementById('endDate');
-      const currentDate = new Date();
-  
-      let startDate, endDate;
-  
-      if (filterType === 'daily') {
+
+    if (!startDate || !endDate) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Missing Dates',
+            text: 'Please select both start and end dates before downloading the report.',
+        });
+        return;
+    }
+
+    if (!isValidDateRange(startDate, endDate)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Dates',
+            text: 'Please ensure that both dates are valid and that the start date is before the end date.',
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Download PDF Report?',
+        text: 'You are about to download the sales report in PDF format.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Download',
+        cancelButtonText: 'Cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = `/admin/download-sales-report?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+        }
+    });
+}
+
+function downloadExcel() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const startDate = urlParams.get('startDate');
+    const endDate = urlParams.get('endDate');
+
+    if (!startDate || !endDate) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Missing Dates',
+            text: 'Please select both start and end dates before downloading the report.',
+        });
+        return;
+    }
+
+    if (!isValidDateRange(startDate, endDate)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Dates',
+            text: 'Please ensure that both dates are valid and that the start date is before the end date.',
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Download Excel Report?',
+        text: 'You are about to download the sales report in Excel format.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Download',
+        cancelButtonText: 'Cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = `/admin/download-sales-report-excel?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+        }
+    });
+}
+
+
+function applyFilter(filterType) {
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const currentDate = new Date();
+
+    let startDate, endDate;
+
+    if (filterType === 'daily') {
         startDate = new Date(currentDate);
         endDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
-      } else if (filterType === 'weekly') {
+    } else if (filterType === 'weekly') {
         startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
         endDate = new Date();
-      } else if (filterType === 'yearly') {
+    } else if (filterType === 'yearly') {
         startDate = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1));
         endDate = new Date();
-      }
-  
-      startDateInput.value = startDate.toISOString().split('T')[0];
-      endDateInput.value = endDate.toISOString().split('T')[0];
-  
-      startDateInput.form.submit();
     }
+
+    if (endDate < startDate) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Date Range',
+            text: 'End date cannot be earlier than start date.',
+        });
+        return;
+    }
+
+    startDateInput.value = startDate.toISOString().split('T')[0];
+    endDateInput.value = endDate.toISOString().split('T')[0];
+
+    startDateInput.form.submit();
+}
+
   </script>
 </body>
 </html>
