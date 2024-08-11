@@ -126,6 +126,7 @@ const orderSchema = new mongoose.Schema({
   couponCode: {
     type: String, // Add this field to store the applied coupon code
   },
+  couponMinimumAmount: { type: Number, default: 0 }, // New field
 });
 
 module.exports = mongoose.model('Order', orderSchema);

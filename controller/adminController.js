@@ -5,6 +5,8 @@ const product = require('../models/product');
 const Order = require('../models/order');
 const Wallet = require('../models/walletModel');
 const adminHelpers = require('../helpers/adminHelper');
+const { updateWallet } = require('./walletController');
+const Coupon = require('../models/couponModel');
 require('dotenv').config();
 
 // load admin home page
@@ -413,8 +415,19 @@ module.exports.controlCancelation = async (req, res) => {
   try {
     const { orderId, productId, index, decision } = req.body;
 
+    // Fetch the order
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    const userId = order.user;
+    const orderProduct = order.products[index];
+
     if (decision === 'accepted') {
-      return Order.findByIdAndUpdate(
+      // Update the product status to canceled
+      await Order.findByIdAndUpdate(
         { _id: orderId, 'products.productId': productId },
         {
           $set: {
@@ -425,27 +438,61 @@ module.exports.controlCancelation = async (req, res) => {
         {
           new: true,
         },
-      )
-        .then(async (data) => {
-          const amount =
-            data.products[index].coupon > 0
-              ? data.products[index].coupon
-              : data.products[index].price;
-          console.log(typeof amount, amount);
-          const quantity = data.products[index].quantity;
-          return product.findOneAndUpdate(
-            { _id: productId },
-            {
-              $inc: {
-                [`variant.${index}.stock`]: quantity,
-              },
-            },
-          );
-        })
-        .then(() => {
-          res.json({ success: true });
+      );
+
+      // Adjust the stock for the canceled product
+      const quantity = orderProduct.quantity;
+      await product.findOneAndUpdate(
+        { _id: productId },
+        {
+          $inc: {
+            [`variant.${index}.stock`]: quantity,
+          },
+        },
+      );
+
+      // Check the remaining total amount after this product's return
+      const remainingTotal = order.products
+        .filter((prod, i) => i !== index && prod.status !== 'canceled')
+        .reduce((sum, prod) => sum + prod.totalPrice, 0);
+
+      let refundAmount = orderProduct.totalPrice;
+
+      // If there's a coupon applied and the remaining total doesn't meet the minimum required amount
+      if (order.couponCode && remainingTotal < order.couponMinimumAmount) {
+        // Adjust the refund by removing the coupon discount
+        refundAmount -= order.couponAmount;
+      }
+
+      // Round the refund amount to 2 decimal places
+      refundAmount = parseFloat(refundAmount.toFixed(2));
+
+      // Refund amount to wallet or initiate Razorpay refund if applicable
+      if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
+        await updateWallet(userId, refundAmount, 'credit', `Order Cancelled - ${orderId}`);
+      }
+
+      // If the coupon was applied and removed, update the coupon's usage
+      if (order.couponCode && remainingTotal < order.couponMinimumAmount) {
+        await Coupon.findOneAndUpdate(
+          { couponCode: order.couponCode },
+          { $pull: { userUsed: userId } },
+        );
+      }
+
+      // Check if all products in the order are canceled/returned
+      const allProductsCanceled = order.products.every((prod) => prod.status === 'canceled');
+
+      // If all products are canceled, update the order status
+      if (allProductsCanceled) {
+        await Order.findByIdAndUpdate(orderId, {
+          $set: { status: 'returned' },
         });
+      }
+
+      res.json({ success: true });
     } else if (decision === 'denied') {
+      // If the decision is 'denied', just update the cancel request status
       await Order.findByIdAndUpdate(
         { _id: orderId, 'products.productId': productId },
         {
@@ -496,8 +543,23 @@ module.exports.returns = async (req, res) => {
   console.log('returns');
   try {
     const { orderId, productId, index, decision } = req.body;
+
     if (decision === 'accepted') {
-      return Order.findByIdAndUpdate(
+      // Fetch the order
+      const order = await Order.findById(orderId);
+
+      if (!order) {
+        return res.status(404).json({ success: false, message: 'Order not found' });
+      }
+
+      const userId = order.user;
+      const orderProduct = order.products[index];
+      const appliedCoupon = order.couponCode
+        ? await Coupon.findOne({ couponCode: order.couponCode })
+        : null;
+
+      // Update the product status to returned
+      await Order.findByIdAndUpdate(
         { _id: orderId, 'products.productId': productId },
         {
           $set: {
@@ -508,38 +570,75 @@ module.exports.returns = async (req, res) => {
         {
           new: true,
         },
-      )
-        .then(async (data) => {
-          const amount =
-            data.products[index].coupon > 0
-              ? data.products[index].coupon
-              : data.products[index].price;
-          console.log(typeof amount, amount);
-          const quantity = data.products[index].quantity;
-          return product.findOneAndUpdate(
-            { _id: productId },
-            {
-              $inc: {
-                [`variant.${index}.stock`]: quantity,
-              },
-            },
-          );
-        })
-        .then(() => {
-          res.json({ success: true });
+      );
+
+      // Adjust the stock for the returned product
+      const quantity = orderProduct.quantity;
+      await product.findOneAndUpdate(
+        { _id: productId },
+        {
+          $inc: {
+            [`variant.${index}.stock`]: quantity,
+          },
+        },
+      );
+
+      // Calculate the remaining total amount after this product's return
+      const remainingTotal = order.products
+        .filter((prod, i) => i !== index && prod.status !== 'returned')
+        .reduce((sum, prod) => sum + (prod.totalPrice || 0), 0);
+
+      let refundAmount = orderProduct.totalPrice;
+
+      // If there's a coupon applied and the remaining total doesn't meet the minimum required amount
+      if (appliedCoupon && remainingTotal < appliedCoupon.minimumOrderValue) {
+        // Adjust the refund by removing the coupon discount
+        refundAmount -= appliedCoupon.couponAmount;
+      }
+
+      // Round the refund amount to 2 decimal places
+      refundAmount = parseFloat(refundAmount.toFixed(2));
+
+      // Refund amount to wallet or Razorpay
+      if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
+        await updateWallet(userId, refundAmount, 'credit', `Order Returned - ${orderId}`);
+      }
+
+      // If the coupon was applied and the remaining total is below the minimum amount, update the coupon's usage
+      if (order.couponCode && remainingTotal < appliedCoupon.minimumOrderValue) {
+        await Coupon.findOneAndUpdate(
+          { couponCode: order.couponCode },
+          { $pull: { userUsed: userId } },
+        );
+      }
+
+      // Check if all products in the order are returned
+      const allProductsReturned = order.products.every((prod) => prod.status === 'returned');
+
+      // If all products are returned, update the order status
+      if (allProductsReturned) {
+        await Order.findByIdAndUpdate(orderId, {
+          $set: { status: 'returned' },
         });
-    } else {
+      }
+
+      res.json({ success: true });
+    } else if (decision === 'denied') {
+      // If the decision is 'denied', just update the return request status
       await Order.findByIdAndUpdate(
         { _id: orderId, 'products.productId': productId },
         {
           $set: {
-            [`products.${index}. returnRequest`]: decision,
+            [`products.${index}.returnRequest`]: decision,
           },
         },
       );
       res.json({ success: true });
+    } else {
+      res.status(400).json({ success: false, message: 'Invalid decision' });
     }
   } catch (error) {
     console.log(error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };

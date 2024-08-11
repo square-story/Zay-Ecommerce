@@ -152,33 +152,30 @@ module.exports.placeOrder = async (req, res) => {
     let deliveryCharge = subtotal < 500 ? 80 : 0;
     let discount = 0;
     let couponCode = null;
+    let couponMinimumAmount;
     const total = cart.products.reduce((acc, crr) => acc + crr.totalPrice, 0);
 
-    // Apply coupon if available
     if (isCoupon) {
       const coupon = await Coupon.findOne({ couponCode: isCoupon });
       if (coupon && coupon.limit >= coupon.userUsed.length) {
-        // Calculate discount based on percentage
+        // Calculate total discount
         discount = Math.round((coupon.percentage / 100) * total || 0);
-
-        // Ensure the discount does not exceed the max discount amount
         if (coupon.maxDiscountAmount) {
           discount = Math.min(discount, coupon.maxDiscountAmount);
         }
 
-        // Update the coupon usage
-        coupon.userUsed.push(userId);
-        await coupon.save();
+        // Apply discount to products proportionally
+        const totalProductPrice = products.reduce((sum, product) => sum + product.totalPrice, 0);
+        const discountPerProduct = discount / totalProductPrice;
 
-        // Apply discount to products
-        const discountPerProduct =
-          discount / products.reduce((acc, product) => acc + product.totalPrice, 0);
         for (let product of products) {
           const productDiscount = product.totalPrice * discountPerProduct;
           product.totalPrice -= productDiscount;
-          product.coupon = productDiscount;
+          product.coupon = productDiscount; // Store the discount applied to this product
         }
-        couponCode = isCoupon;
+        couponMinimumAmount = coupon.minimumOrderValue;
+        coupon.userUsed.push(userId);
+        await coupon.save();
       } else {
         return res.json({ fail: true, message: 'Coupon limit exceeds or invalid coupon' });
       }
@@ -212,6 +209,7 @@ module.exports.placeOrder = async (req, res) => {
       razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
       paymentStatus: payment_method === 'COD' ? 'completed' : 'pending',
       couponCode, // Save the coupon code used
+      couponMinimumAmount,
     });
 
     const orderDetails = await order.save();
@@ -411,22 +409,9 @@ module.exports.orderCancellation = async (req, res) => {
         $set: {
           [`products.${index}.cancelRequest`]: 'requested',
           [`products.${index}.cancelReason`]: cancelReason,
-          status: 'cancelled', // Update order status
         },
       },
     );
-
-    // Refund amount to wallet if paid through wallet or Razorpay
-    const order = await Order.findById(orderId);
-    if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
-      await updateWallet(
-        userId,
-        order.products[index].totalPrice,
-        'credit',
-        `Order Cancelled - ${orderId}`,
-      );
-    }
-
     res.json({
       success: true,
       message: 'Cancellation request sent successfully',
@@ -454,26 +439,9 @@ module.exports.productReturn = async (req, res) => {
         $set: {
           [`products.${index}.returnRequest`]: 'requested',
           [`products.${index}.returnReason`]: returnReason,
-          status: 'returned', // Update order status
         },
       },
     );
-
-    // Refund amount to wallet if paid through wallet or Razorpay
-    const order = await Order.findById(orderId);
-    if (
-      order.paymentMethod === 'wallet' ||
-      order.paymentMethod === 'razorpay' ||
-      order.paymentMethod === 'COD'
-    ) {
-      await updateWallet(
-        userId,
-        order.products[index].totalPrice,
-        'credit',
-        `Order Returned - ${orderId}`,
-      );
-    }
-
     res.json({ success: true, message: 'Return request sent successfully' });
   } catch (error) {
     console.error('Error returning product:', error);
