@@ -24,9 +24,20 @@
     <%- include('../partials/sidenav.ejs') -%>
     <main class="main-wrap">
       <section class="content-main">
-        <div class="content-header">
+        <div class="content-header d-flex justify-content-between align-items-center">
           <h2 class="content-title">Customer details</h2>
-        </div>
+          <form method="GET" action="/admin/user" class="search-form d-flex align-items-center">
+            <input
+              type="text"
+              name="search"
+              value="<%= searchQuery %>"
+              placeholder="Search by name"
+              class="form-control"
+              style="max-width: 300px; margin-right: 10px;"
+            />
+            <button type="submit" class="btn btn-primary">Search</button>
+          </form>
+        </div>        
         <div class="card mb-4">
           <div class="card-body">
             <div class="table-responsive" id="Reload">
@@ -42,26 +53,22 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <% if(Array.isArray(users) && users.length > 0) { %> 
+                  <% if (Array.isArray(users) && users.length > 0) { %>
                     <% users.map((user) => { %>
                       <tr>
                         <td width="40%">
                           <a href="#" class="itemside">
                             <div class="left">
                               <img
-                                src="/img/profile.jpg"
+                                src="https://api.dicebear.com/9.x/big-smile/svg?seed=<%= user._id %>&scale=100"
                                 class="img-sm"
                                 alt="Userpic"
                               />
                             </div>
                             <div class="info pl-3">
-                              <h6
-                                class="mb-0 title"
-                                style="text-transform: capitalize"
-                              >
+                              <h6 class="mb-0 title" style="text-transform: capitalize">
                                 <%= user.name %>
                               </h6>
-                              <small class="text-muted">Seller ID:</small>
                             </div>
                           </a>
                         </td>
@@ -72,12 +79,7 @@
                             <%= user.isBlocked ? 'Blocked' : 'Active' %>
                           </span>
                         </td>
-                        <% const formattedDate =
-                          user.created.toLocaleString('en-US', { weekday: 'short',
-                          month: 'short', day: 'numeric', year: 'numeric', hour:
-                          'numeric', minute: 'numeric', second: 'numeric', hour12:
-                          true }); %>
-                        <td><%= formattedDate %></td>
+                        <td><%= moment(user.created).format('ddd, MMM D, YYYY h:mm:ss A') %></td>
                         <td class="text-end">
                           <button
                             class="btn btn-sm btn-<%= user.isBlocked ? 'success' : 'danger' %> rounded font-sm mt-15"
@@ -89,7 +91,7 @@
                           </button>
                         </td>
                       </tr>
-                    <% }) %> 
+                    <% }) %>
                   <% } else { %>
                     <tr>
                       <td colspan="6">No user found</td>
@@ -134,6 +136,7 @@
       </section>
       <%- include('../partials/adminFooter.ejs') -%>
     </main>
+    
 
     <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>

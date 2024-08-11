@@ -17,7 +17,7 @@
             <td><strong><%= transaction.type %></strong></td>
             <td><%= transaction.amount %></td>
             <td><%= transaction.description %></td>
-            <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+            <td><%= moment(transaction.date).format('DD/MM/YYYY') %></td>
           </tr>
         <% }); %>
       </tbody>

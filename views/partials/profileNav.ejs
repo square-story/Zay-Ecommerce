@@ -11,12 +11,11 @@
       "
     >
       <img
-        src="<% if (user.picture) { %>
-          <%= user.picture %>
-        <% }else{%>/img/profileImage.jpg<%}%>"
+        src="https://api.dicebear.com/9.x/big-smile/svg?seed=<%= user._id %>"
+        alt="avatar"
         style="width: 100px; height: 100px; border-radius: 50%; vertical-align: middle"
-        alt=""
       />
+
       <div style="display: flex; flex-grow: 1">
         <div
           style="

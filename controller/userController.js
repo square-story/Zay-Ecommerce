@@ -837,8 +837,11 @@ module.exports.transactionHistroy = async (req, res) => {
     // Get the total number of transactions for pagination
     const totalTransactions = wallet.transactions.length;
 
+    // Reverse the transactions to show the latest one first
+    const reversedTransactions = wallet.transactions.reverse();
+
     // Get the transactions for the current page
-    const transactions = wallet.transactions.slice(skip, skip + limit);
+    const transactions = reversedTransactions.slice(skip, skip + limit);
 
     const totalPages = Math.ceil(totalTransactions / limit);
 

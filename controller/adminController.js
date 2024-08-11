@@ -169,23 +169,30 @@ module.exports.login = async (req, res) => {
 //user page loding with data
 module.exports.loadUser = async (req, res) => {
   try {
-    const page = req.query.page;
-    const userCount = await User.find();
-    return User.find()
+    const page = parseInt(req.query.page) || 0;
+    const searchQuery = req.query.search || '';
+
+    // Create a filter based on the search query
+    const filter = searchQuery ? { name: { $regex: searchQuery, $options: 'i' } } : {};
+
+    // Get the total count of users matching the filter
+    const userCount = await User.countDocuments(filter);
+
+    // Fetch the users with pagination and search applied
+    const users = await User.find(filter)
       .skip(page * 4)
-      .limit(4)
-      .then((user) => {
-        res.render('userManagement', {
-          users: user,
-          userLength: userCount.length,
-          page: parseInt(page),
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      .limit(4);
+
+    // Render the user management page with the data
+    res.render('userManagement', {
+      users: users,
+      userLength: Math.ceil(userCount / 4), // Total pages
+      page: page,
+      searchQuery: searchQuery, // Pass the search query to the view
+    });
   } catch (error) {
     console.log(error);
+    res.status(500).send('Error loading users');
   }
 };
 
