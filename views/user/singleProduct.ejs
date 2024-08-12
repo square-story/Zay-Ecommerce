@@ -403,12 +403,13 @@
             </div>
             <div class="col-md-8 col-12 download-section mt-3 mt-md-0">
                 <div class="d-flex justify-content-md-end justify-content-start">
-                    <% if (order.status !== 'failed' && order.status !== "cancelled" && order.status !== "returned" && (order.paymentMethod === 'razorpay' || order.paymentMethod === 'wallet' || (order.paymentMethod === 'COD' && product.status === 'delivered'))) { %>
+                    <% if (order.status !== 'failed' && order.status !== 'cancelled' && order.status !== 'returned' && (order.paymentMethod === 'razorpay' || order.paymentMethod === 'wallet' || (order.paymentMethod === 'COD' && product.status === 'delivered')) && product.status !== 'returned' && product.status !== 'canceled') { %>
                         <a href="/invoice?orderId=<%= orderId %>&index=<%= index %>" class="btn btn-primary">
                             <span>Download Invoice</span>
                         </a>
                     <% } %>
                 </div>
+                
             </div>
         </div>
     </div>
