@@ -217,11 +217,13 @@
                                     product.variant[index].price%>
                                     <%const percentageDiscount=discount * 100%>
                                         <%const off=Math.floor(percentageDiscount)%>
-                                            <h3 class="p-2">₹<del><%=
-                                                product.variant[index].price%></del><span> ₹<%= product.variant[index].offerPrice%></span> <span class=""
-                                                        style="color: rgb(51, 181, 51); text-decoration: none; font-size: 16px;">
-                                                        <%= off %>% off
-                                                    </span></h3>
+                                        <h3 class="p-2">
+                                            ₹<del id="price"><%= product.variant[index].price %></del>
+                                            <span id="offerPrice">₹<%= product.variant[index].offerPrice %></span> 
+                                            <span id="discount" style="color: rgb(51, 181, 51); text-decoration: none; font-size: 16px;">
+                                                <%= off %>% off
+                                            </span>
+                                        </h3>                                        
                                             <p class="p-2">
                                                 <%= product.description%>
                                             </p>
@@ -430,43 +432,54 @@
 
 <!-- Variant Selection Script -->
 <script>
-    function selectVariant(pId, pIndex) {
-        $.ajax({
-            type: "GET",
-            url: `/productDetails?index=${pIndex}&id=${pId}`,
-            success: (response) => {
-                if (response.product) {
-                    document.getElementById('productName').setAttribute('data-index', response.index);
-                    document.getElementById('quantity').setAttribute('data-stock', response.product.variant[response.index].stock);
+function selectVariant(pId, pIndex) {
+    $.ajax({
+        type: "GET",
+        url: `/productDetails?index=${pIndex}&id=${pId}`,
+        success: (response) => {
+            if (response.product) {
+                const selectedVariant = response.product.variant[response.index];
 
-                    // Update the navigation tabs
-                    const navTabs = document.querySelectorAll('.nav-tabs .nav-link');
-                    navTabs.forEach((tab, i) => {
-                        tab.classList.toggle('active', i === 0); // Activate the first tab
+                document.getElementById('productName').setAttribute('data-index', response.index);
+                document.getElementById('quantity').setAttribute('data-stock', selectedVariant.stock);
 
-                        const img = tab.querySelector('img');
-                        if (img) {
-                            img.setAttribute('src', `/img/productImage/sharp/${response.product.variant[response.index].images[i]}`);
-                        }
-                    });
+                // Update the price and offer price
+                document.getElementById('price').innerHTML = `<del>${selectedVariant.price}</del>`;
+                document.getElementById('offerPrice').innerHTML = `₹${selectedVariant.offerPrice}`;
+                
+                const discount = (selectedVariant.price - selectedVariant.offerPrice) / selectedVariant.price;
+                const percentageDiscount = Math.floor(discount * 100);
+                document.getElementById('discount').innerHTML = `${percentageDiscount}% off`;
 
-                    // Update the tab content
-                    const tabContent = document.querySelectorAll('.tab-content .tab-pane');
-                    tabContent.forEach((tab, i) => {
-                        tab.classList.toggle('active', i === 0); // Show the content of the first tab
-                        const img = tab.querySelector('img');
-                        if (img) {
-                            img.setAttribute('src', `/img/productImage/${response.product.variant[response.index].images[i]}`);
-                        }
-                    });
-                }
-            },
-            error: (xhr) => {
-                console.error("Failed to fetch product details:", xhr);
-                showSnackbar('Failed to load product details. Please try again.');
+                // Update the navigation tabs
+                const navTabs = document.querySelectorAll('.nav-tabs .nav-link');
+                navTabs.forEach((tab, i) => {
+                    tab.classList.toggle('active', i === 0); // Activate the first tab
+
+                    const img = tab.querySelector('img');
+                    if (img) {
+                        img.setAttribute('src', `/img/productImage/sharp/${selectedVariant.images[i]}`);
+                    }
+                });
+
+                // Update the tab content
+                const tabContent = document.querySelectorAll('.tab-content .tab-pane');
+                tabContent.forEach((tab, i) => {
+                    tab.classList.toggle('active', i === 0); // Show the content of the first tab
+                    const img = tab.querySelector('img');
+                    if (img) {
+                        img.setAttribute('src', `/img/productImage/${selectedVariant.images[i]}`);
+                    }
+                });
             }
-        });
-    }
+        },
+        error: (xhr) => {
+            console.error("Failed to fetch product details:", xhr);
+            showSnackbar('Failed to load product details. Please try again.');
+        }
+    });
+}
+
 </script>
 
 <!-- Focus and Variant Border Management -->

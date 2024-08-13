@@ -326,7 +326,6 @@ module.exports.editVariant = async (req, res) => {
 module.exports.productdetiles = async (req, res) => {
   try {
     const { id, index } = req.query;
-    console.log(id, index);
 
     // Find the current product
     const product = await Product.findOne({ _id: id }).populate('cetagory');
@@ -335,8 +334,8 @@ module.exports.productdetiles = async (req, res) => {
     const relatedProducts = await Product.find({
       isListed: true,
       cetagory: product.cetagory._id,
-      _id: { $ne: id }, // Exclude the current product
-    }).limit(3); // Limit to 3 related products
+      _id: { $ne: id },
+    }).limit(3);
 
     // Fetch reviews for the current product
     const reviews = await Review.find({ productId: id }).populate('user');
@@ -368,12 +367,11 @@ module.exports.productdetiles = async (req, res) => {
     );
 
     if (req.xhr) {
-      console.log('ajax');
-      res.json({ product: product, index: index });
+      res.json({ product, index });
     } else {
       res.render('productDetails', {
-        product: product,
-        index: index,
+        product,
+        index,
         image: product.variant[index].images[0],
         totalRating,
         reviews,
