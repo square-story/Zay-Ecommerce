@@ -46,6 +46,7 @@
                                 <% let totalAmount = 0 %>
                                 <% let total = 0 %>
                                 <% let items = 0 %>
+                                <% let outOfStock = false %> <!-- New variable to track out-of-stock status -->
                                 <% products.forEach((item, i) => { %>
                                 <tr>
                                     <td class="product__cart__item">
@@ -76,7 +77,8 @@
                                         totalAmount += item.totalPrice;
                                         %>
                                         <% } else { %>
-                                        <div class="alert alert-warning">Out of Stock</div>
+                                        <div><button class="p-2 border-gray-200 border mr-2 mb-2 hover:bg-black hover:text-white cursor-pointer focus:border-black null" role="button" tabindex="0" disabled>Out-Of-Stock</button></div>
+                                        <% outOfStock = true %> <!-- Set outOfStock to true if any item is out of stock -->
                                         <% } %>
                                     </td>
                                     <% if (item.productId.variant[item.product].stock > 0) { %>
@@ -117,7 +119,11 @@
                             <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount + 80 %></span></li>
                             <% } %>
                         </ul>
+                        <% if (outOfStock) { %> <!-- Disable button if any item is out of stock -->
+                        <button type="button" class="primary-btn" disabled style="background-color: grey; cursor: not-allowed;">Some items are out of stock</button>
+                        <% } else { %>
                         <button type="button" id="btn" data-session="<%= logedIn %>" onclick="proccedTOCheckOut()" class="primary-btn">Proceed to checkout</button>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -132,6 +138,7 @@
         </div>
         <% } %>
     </section>
+    
     
     
 
