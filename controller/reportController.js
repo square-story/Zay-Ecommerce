@@ -258,36 +258,43 @@ function drawFooter(doc, pageNumber) {
 
 module.exports.downloadInvoice = async (req, res) => {
   try {
-    const { orderId, index } = req.query;
+    const { orderId } = req.query;
     const order = await Order.findOne({ _id: orderId })
       .populate('user')
       .populate('products.productId');
 
-    const doc = new PDFDocument();
+    if (!order || !order.products || order.products.length === 0) {
+      return res.status(404).send('Order not found or no products in order');
+    }
 
-    // Set response to application/pdf
+    const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 10 });
+
+    // Set response headers
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
 
-    // Pipe the document to the response
+    // Pipe the PDF into the response
     doc.pipe(res);
 
     // Add content to the PDF
-    doc.fontSize(25).text('Invoice', { align: 'center' });
+    doc.fontSize(25).text('GST Invoice', { align: 'center' });
 
-    doc.fontSize(18).text('Bill To:', { underline: true });
+    // Bill To
+    doc.fontSize(10).text('Bill To:', { underline: true });
     doc.text(
       `Zay Fashion\nCalicut, Kerala, 673001\nEmail: Zay e-commerce\nPhone: +91-90488-34867\nGSTIN: 29ABCDE1234F2Z5`,
     );
 
+    // Ship To
     doc.moveDown();
-    doc.fontSize(18).text('Ship To:', { underline: true });
+    doc.fontSize(10).text('Ship To:', { underline: true });
     doc.text(
       `${order.user.name}\n${order.deliveryDetails.address}\n${order.deliveryDetails.city}, ${order.deliveryDetails.state} ${order.deliveryDetails.pincode}, ${order.deliveryDetails.country}\nPhone: ${order.deliveryDetails.phone}\nEmail: ${order.deliveryDetails.email}`,
     );
 
+    // Invoice Details
     doc.moveDown();
-    doc.fontSize(18).text('Invoice Details:', { underline: true });
+    doc.fontSize(10).text('Invoice Details:', { underline: true });
     doc.text(`Invoice Number: ${order._id}`);
     const invoiceDate = new Date(order.date);
     const formattedDate = invoiceDate.toLocaleDateString('en-US', {
@@ -297,27 +304,92 @@ module.exports.downloadInvoice = async (req, res) => {
     });
     doc.text(`Invoice Date: ${formattedDate}`);
 
+    // Table Header
     doc.moveDown();
-    doc.fontSize(18).text('Products:');
+    doc.fontSize(18).text('Products:', { underline: true });
     doc.fontSize(14);
-    const product = order.products[index];
-    if (product) {
-      const preTaxPrice = product.price / 1.18; // Remove 18% tax
-      const taxAmount = (product.price - preTaxPrice) * product.quantity;
-      const totalAmount = product.price * product.quantity;
-      doc.text(
-        `Name: ${product.productId.name}\nQuantity: ${
-          product.quantity
-        }\nUnit Price (excluding tax): ${preTaxPrice.toFixed(2)}\nTAX (18%): ${taxAmount.toFixed(
-          2,
-        )}\nTotal (including tax): ${totalAmount.toFixed(2)}`,
-      );
-    }
+
+    const tableTop = doc.y;
+    const tableMargin = 20;
+    const rowHeight = 30;
+    const columnWidths = [300, 100, 200, 100, 200]; // Adjust column widths for landscape
+    const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
+
+    // Draw table header
+    doc.rect(doc.page.margins.left, tableTop, tableWidth, rowHeight).stroke();
+    doc.text('Name', doc.page.margins.left + 5, tableTop + 5);
+    doc.text('Quantity', doc.page.margins.left + columnWidths[0] + 5, tableTop + 5);
+    doc.text(
+      'Unit Price (excl. tax)',
+      doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
+      tableTop + 5,
+    );
+    doc.text(
+      'TAX (18%)',
+      doc.page.margins.left + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5,
+      tableTop + 5,
+    );
+    doc.text(
+      'Total (incl. tax)',
+      doc.page.margins.left +
+        columnWidths[0] +
+        columnWidths[1] +
+        columnWidths[2] +
+        columnWidths[3] +
+        5,
+      tableTop + 5,
+    );
 
     doc.moveDown();
-    doc.fontSize(18).text(`Total Amount (including tax): ${order.totalAmount.toFixed(2)}`);
+    let currentY = tableTop + rowHeight;
 
-    // Finalize the PDF and end the stream
+    // Draw table rows
+    order.products.forEach((product) => {
+      if (product.status !== 'returned' && product.status !== 'canceled') {
+        const preTaxPrice = product.price / 1.18; // Remove 18% tax
+        const taxAmount = (product.price - preTaxPrice) * product.quantity;
+        const totalAmount = product.price * product.quantity;
+
+        doc.rect(doc.page.margins.left, currentY, tableWidth, rowHeight).stroke();
+        doc.text(product.productId.name, doc.page.margins.left + 5, currentY + 5);
+        doc.text(product.quantity, doc.page.margins.left + columnWidths[0] + 5, currentY + 5);
+        doc.text(
+          `${preTaxPrice.toFixed(2)}`,
+          doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
+          currentY + 5,
+        );
+        doc.text(
+          `${taxAmount.toFixed(2)}`,
+          doc.page.margins.left + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5,
+          currentY + 5,
+        );
+        doc.text(
+          `${totalAmount.toFixed(2)}`,
+          doc.page.margins.left +
+            columnWidths[0] +
+            columnWidths[1] +
+            columnWidths[2] +
+            columnWidths[3] +
+            5,
+          currentY + 5,
+        );
+
+        currentY += rowHeight;
+      }
+    });
+
+    // Draw table footer
+    doc.moveDown();
+    doc.y = currentY + 10;
+    const totalDiscount = order.discountedAmount + order.totalAmount; // Assuming discountAmount is part of the order
+
+    // Center-align total amounts
+    const centerX = doc.page.width / 2;
+    const totalAmountText = `Total (excluding tax): ${totalDiscount.toFixed(2)}\nDiscount: ${order.discountedAmount.toFixed(2)}\nTotal Amount (including tax): ${order.totalAmount.toFixed(2)}`;
+
+    doc.fontSize(18).text(totalAmountText, centerX, doc.y, { align: 'center' });
+
+    // Finalize the PDF
     doc.end();
   } catch (error) {
     console.error(error);

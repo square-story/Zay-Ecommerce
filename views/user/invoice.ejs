@@ -45,7 +45,7 @@
         </div>
       </div>
     </div>
-
+  
     <div class="row">
       <div class="col-md-12">
         <div class="invoice-body">
@@ -57,7 +57,7 @@
             Phone: +91-90488-34867<br>
             GSTIN: 29ABCDE1234F2Z5
           </p>
-
+  
           <h4>Ship To:</h4>
           <p>
             <%= deliveryAddress.fullName %><br>
@@ -65,9 +65,9 @@
             Phone: <%= deliveryAddress.phone %><br>
             Email: <%= deliveryAddress.email %>
           </p>
-
+  
           <hr>
-
+  
           <h4>Invoice Details:</h4>
           <p>
             Invoice Number: <%= order._id %><br>
@@ -75,7 +75,7 @@
             <% const formattedDate = invoiceDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
             Invoice Date: <%= formattedDate %>
           </p>
-
+  
           <table class="table table-bordered">
             <thead>
               <tr>
@@ -87,18 +87,21 @@
               </tr>
             </thead>
             <tbody>
-              <% if (order.products && order.products.length > 0 && order.products[index]) { %>
-                <% const product = order.products[index]; %>
-                <% const preTaxPrice = (product.price / 1.18).toFixed(2); %>
-                <% const taxAmount = (product.price - preTaxPrice) * product.quantity; %>
-                <% const totalAmount = (product.price * product.quantity).toFixed(2); %>
-                <tr>
-                  <td><%= product.productId.name %></td>
-                  <td><%= product.quantity %></td>
-                  <td>₹<%= preTaxPrice %></td>
-                  <td>₹<%= taxAmount.toFixed(2) %></td>
-                  <td>₹<%= totalAmount %></td>
-                </tr>
+              <% if (order.products.length > 0) { %>
+                <% order.products.forEach((product) => { %>
+                  <% if (product.status !== 'returned' && product.status !== 'canceled') { %>
+                    <% const preTaxPrice = (product.price / 1.18).toFixed(2); %>
+                    <% const taxAmount = (product.price - preTaxPrice) * product.quantity; %>
+                    <% const totalAmount = (product.price * product.quantity).toFixed(2); %>
+                    <tr>
+                      <td><%= product.productId.name %></td>
+                      <td><%= product.quantity %></td>
+                      <td>₹<%= preTaxPrice %></td>
+                      <td>₹<%= taxAmount.toFixed(2) %></td>
+                      <td>₹<%= totalAmount %></td>
+                    </tr>
+                  <% } %>
+                <% }) %>
               <% } else { %>
                 <tr>
                   <td colspan="5">Product details not available.</td>
@@ -106,18 +109,19 @@
               <% } %>
             </tbody>
           </table>
-
+  
           <hr>
-
+  
           <h4>Total Amount (including tax): ₹<%= order.totalAmount.toFixed(2) %></h4>
         </div>
       </div>
     </div>
-
+  
     <div class="download-button">
       <button type="button" class="btn btn-primary mb-3" onclick="downloadPdf()">Download</button>
     </div>
   </div>
+  
 
   <script>
     function downloadPdf() {

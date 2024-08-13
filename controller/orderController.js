@@ -480,10 +480,15 @@ module.exports.loadInvoice = async (req, res) => {
       return res.status(404).send('Order not found or no products in order');
     }
 
+    // Filter out products with status 'returned' or 'canceled'
+    const filteredProducts = order.products.filter(
+      (product) => product.status !== 'returned' && product.status !== 'canceled',
+    );
+
     res.render('invoice', {
-      order,
+      order: { ...order.toObject(), products: filteredProducts }, // Pass filtered products
       deliveryAddress: order.deliveryDetails,
-      index: index || 0,
+      index: index || 0, // Ensure `index` is passed here
     });
   } catch (error) {
     console.log(error);
