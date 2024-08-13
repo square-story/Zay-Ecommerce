@@ -27,126 +27,113 @@
            
 
 
-        <section class="shopping-cart spad" id="ReloadArea">
-
-            <%if(products && products.length > 0) {%>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="shopping__cart__table" id="Reload">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>image</th>
-                                      
-                                        <th>Quantity</th>
-                                        <th>Total</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+    <section class="shopping-cart spad" id="ReloadArea">
+        <% if (products && products.length > 0) { %>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="shopping__cart__table" id="Reload">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% let totalAmount = 0 %>
+                                <% let total = 0 %>
+                                <% let items = 0 %>
+                                <% products.forEach((item, i) => { %>
+                                <tr>
+                                    <td class="product__cart__item">
+                                        <div class="product__cart__item__pic">
+                                            <img class="" style="width: 100px; height: 100px;" src="/img/productImage/sharp/<%= item.productId.variant[item.product].images[0] %>" alt="">
+                                        </div>
+                                        <div class="product__cart__item__text">
+                                            <h6 style="font-size: 12px;"><%= item.productId.name %></h6>
+                                            <h5 style="font-size: 15px;">₹<%= item.price %></h5>
     
-                                    
-                                       <% let totalAmount = 0%>
-                                       <% let total = 0%>
-                                       <% let items = 0%>
-                                    <%products.forEach((item, i) => {%>
-    
-                                       
-                                    <tr>
-                                        <td class="product__cart__item">
-                                            <div class="product__cart__item__pic">
-    
-                                                <img class="" style="width: 100px; height: 100px;" src="/img/productImage/sharp/<%= item.productId.variant[item.product].images[0] %>" alt="">
-                                            </div>
-                                            <div class="product__cart__item__text">
-                                                <h6 style="font-size: 12px;"><%= item.productId.name %></h6>
-                                                <h5 style="font-size: 15px;">₹<%= item.price%></h5>
-                                                 
-                                                <% const match = [['S', 'Small'], ['M', 'Medium'], ['L', "Large"], ['XL', 'Exel'], ['XXL', 'Double exel']]%>
-                                                <%const size = match.find((size) => (size[0] === item.size)) %>
-                                                <%console.log(size)%>
-                                                <span>Size: <%= size[1]%></span>
-                                            </div>
-                                        </td>
-                                        <td class="quantity__item">
-                                            <div class="quantity">
-                                              <div class="quantity buttons_added pro-qty-2" id="newID-<%= item.productId._id %>">
+                                            <% const match = [['S', 'Small'], ['M', 'Medium'], ['L', 'Large'], ['XL', 'Exel'], ['XXL', 'Double exel']] %>
+                                            <% const size = match.find((size) => size[0] === item.size) %>
+                                            <span>Size: <%= size[1] %></span>
+                                        </div>
+                                    </td>
+                                    <td class="quantity__item">
+                                        <% if (item.productId.variant[item.product].stock > 0) { %>
+                                        <div class="quantity">
+                                            <div class="quantity buttons_added pro-qty-2" id="newID-<%= item.productId._id %>">
                                                 <input type="button" value="-" class="minus counter" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>">
-                                                <input type="number" step="1" min="1" name="quantity" max="5" value="<%= item.quantity %>" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>" class="input-text qty text" readonly>
+                                                <input type="number" step="1" min="1" name="quantity" max="<%= item.productId.variant[item.product].stock %>" value="<%= item.quantity %>" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>" class="input-text qty text" readonly>
                                                 <input type="button" value="+" class="plus counter" data-productid="<%= item.productId._id %>" data-size="<%= item.size %>" data-index="<%= item.product %>">
-                                              </div>
                                             </div>
-                                          </td>
-                                          
-                                        <%total += (item.productId.variant[item.product].price * item.quantity)%>
-                                        <% items += item.quantity%>
-                                        <%totalAmount +=item.totalPrice%>
-                                        <td class="cart__price text-end text-md-start">₹<%= item.totalPrice %></td>
-                                       
-                                        <td class="cart__close" onclick="remove_from_cart('<%= item.productId._id%>','<%= item.product%>', '<%= item.size%>')"><i class="fa fa-close"></i></td>
-                                    </tr>
-    
-                                    <%})%>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                <div class="continue__btn">
-                                    <a class="btn btn-outline-dark" href="/shop">Continue Shopping</a>
-                                </div>
+                                        </div>
+                                        <% 
+                                        total += (item.productId.variant[item.product].price * item.quantity);
+                                        items += item.quantity;
+                                        totalAmount += item.totalPrice;
+                                        %>
+                                        <% } else { %>
+                                        <div class="alert alert-warning">Out of Stock</div>
+                                        <% } %>
+                                    </td>
+                                    <% if (item.productId.variant[item.product].stock > 0) { %>
+                                    <td class="cart__price text-end text-md-start">₹<%= item.totalPrice %></td>
+                                    <% } else { %>
+                                    <td class="cart__price text-end text-md-start">N/A</td>
+                                    <% } %>
+                                    <td class="cart__close" onclick="remove_from_cart('<%= item.productId._id%>','<%= item.product%>', '<%= item.size%>')"><i class="fa fa-close"></i></td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="continue__btn">
+                                <a class="btn btn-outline-dark" href="/shop">Continue Shopping</a>
                             </div>
-                            
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        
-                        <div class="cart__total" id="price">
-                            <h6>Cart total</h6>
-                            <ul>
-                                
-
-                                <li>Price (<%= items %> <%= items > 1? "items" : "item"%>)<span style="color: black;">₹<%= total%></span></li>
-                                <li>Discount <span style="color: green;">₹<%= total - totalAmount%></span></li>
-
-                                <%if(totalAmount > 500) {%>
-
-                                    <li>Delivery Charges<span style="color: green;"><del style="color: black;">₹80</del> Free</span></li>
-                            
-                                <%} else{%>
-
-                                    <li>Delivery Charges<span style="color: black;">₹80</span></li>
-
-                                <%}%>
-                                
-                                <% if (totalAmount > 500) { %>
-                                    <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount%></span></li>
-                                <% }else{ %>
-                                    <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount+80%></span></li>
-                                    <%}%>
-                            </ul>
-                            <button type="button" id="btn" data-session="<%= logedIn %>" onclick="proccedTOCheckOut()" class="primary-btn">Proceed to checkout</button>
                         </div>
                     </div>
                 </div>
-            </div>
-
-
-            
-        <%} else {%>
-           
-
-            <div style="display: flex; justify-content: center; align-items: center; height: 30rem;">
-                <div style="text-align: center;">
-                    <img src="/img/emptycart.png" alt="Empty Cart Image" style="width: 150px; height: 150px; margin-bottom: 20px;">
-                    <p style="font-size: 1.5rem; color: #555;">Your cart is currently empty.</p>
-                    <a href="/shop" class="btn btn-outline-dark btn-lg">Explore Our Shop</a>
+                <div class="col-lg-4">
+                    <div class="cart__total" id="price">
+                        <h6>Cart total</h6>
+                        <ul>
+                            <li>Price (<%= items %> <%= items > 1 ? "items" : "item" %>)<span style="color: black;">₹<%= total %></span></li>
+                            <li>Discount <span style="color: green;">₹<%= total - totalAmount %></span></li>
+    
+                            <% if (totalAmount > 500) { %>
+                            <li>Delivery Charges<span style="color: green;"><del style="color: black;">₹80</del> Free</span></li>
+                            <% } else { %>
+                            <li>Delivery Charges<span style="color: black;">₹80</span></li>
+                            <% } %>
+    
+                            <% if (totalAmount > 500) { %>
+                            <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount %></span></li>
+                            <% } else { %>
+                            <li style="font-size: larger; font-weight: 800;">Total <span style="color: black;">₹<%= totalAmount + 80 %></span></li>
+                            <% } %>
+                        </ul>
+                        <button type="button" id="btn" data-session="<%= logedIn %>" onclick="proccedTOCheckOut()" class="primary-btn">Proceed to checkout</button>
+                    </div>
                 </div>
             </div>
-
-        <%}%>
-     </section>
+        </div>
+        <% } else { %>
+        <div style="display: flex; justify-content: center; align-items: center; height: 30rem;">
+            <div style="text-align: center;">
+                <img src="/img/emptycart.png" alt="Empty Cart Image" style="width: 150px; height: 150px; margin-bottom: 20px;">
+                <p style="font-size: 1.5rem; color: #555;">Your cart is currently empty.</p>
+                <a href="/shop" class="btn btn-outline-dark btn-lg">Explore Our Shop</a>
+            </div>
+        </div>
+        <% } %>
+    </section>
+    
+    
 
 
 
