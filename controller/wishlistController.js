@@ -4,25 +4,28 @@ const Wallet = require('../models/walletModel');
 module.exports.loadWhislist = async (req, res) => {
   try {
     const userId = req.session.user?._id;
+
+    if (!userId) {
+      return res.status(500).send('User not found');
+    }
+
     const wallet = await Wallet.findOne({ user: userId });
     const walletBalance = wallet ? wallet.balance : 0;
-    if (!userId) {
-      return res.status(500).send('user not found');
+
+    // Find or create the user's wishlist
+    let wishlist = await Wishlist.findOne({ user: userId }).populate('products.productId');
+
+    if (!wishlist) {
+      wishlist = new Wishlist({ user: userId, products: [] });
+      await wishlist.save();
     }
 
-    const products = await Wishlist.find({ user: userId }).populate(
-      'products.productId'
-    );
+    const wishlistProducts = wishlist.products; // Access the products array from the wishlist
 
-    // Check for empty results
-    if (!products || !products.length) {
-      return res.render('404'); // Or send a different response
-    }
-
-    const wishlistProducts = products[0].products; // Access only if products exists
     res.render('wishlist', { wishlistProducts, walletBalance });
   } catch (error) {
     console.log(error);
+    res.status(500).send('Internal Server Error'); // Send a proper error response
   }
 };
 
@@ -55,7 +58,7 @@ module.exports.addTOWhishlist = async (req, res) => {
             $push: {
               products: data,
             },
-          }
+          },
         );
       } else {
         return res.json({ already: true });
@@ -92,7 +95,7 @@ module.exports.removeFromWishlist = async (req, res) => {
         $pull: {
           products: { productId: productId, index: index },
         },
-      }
+      },
     );
     res.json({ success: true });
   } catch (error) {
