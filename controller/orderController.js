@@ -484,9 +484,17 @@ module.exports.loadInvoice = async (req, res) => {
     const filteredProducts = order.products.filter(
       (product) => product.status !== 'returned' && product.status !== 'canceled',
     );
+    console.log(filteredProducts);
+
+    // Calculate the total amount by excluding returned products
+    const totalAmount = filteredProducts.reduce((acc, product) => {
+      return acc + product.price * product.quantity;
+    }, 0);
+
+    console.log(totalAmount);
 
     res.render('invoice', {
-      order: { ...order.toObject(), products: filteredProducts }, // Pass filtered products
+      order: { ...order.toObject(), products: filteredProducts, totalAmount }, // Pass filtered products
       deliveryAddress: order.deliveryDetails,
       index: index || 0, // Ensure `index` is passed here
     });

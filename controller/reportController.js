@@ -343,18 +343,24 @@ module.exports.downloadInvoice = async (req, res) => {
     doc.moveDown();
     let currentY = tableTop + rowHeight;
 
+    let subTotal = 0; // Accumulate subtotal
+    let totalTax = 0; // Accumulate total tax
+
     // Draw table rows
     order.products.forEach((product) => {
       if (product.status !== 'returned' && product.status !== 'canceled') {
-        const preTaxPrice = product.price / 1.18; // Remove 18% tax
-        const taxAmount = (product.price - preTaxPrice) * product.quantity;
+        const unitPrice = product.price / 1.18; // Remove 18% tax
+        const taxAmount = (product.price - unitPrice) * product.quantity;
         const totalAmount = product.price * product.quantity;
+
+        subTotal += unitPrice * product.quantity;
+        totalTax += taxAmount;
 
         doc.rect(doc.page.margins.left, currentY, tableWidth, rowHeight).stroke();
         doc.text(product.productId.name, doc.page.margins.left + 5, currentY + 5);
         doc.text(product.quantity, doc.page.margins.left + columnWidths[0] + 5, currentY + 5);
         doc.text(
-          `${preTaxPrice.toFixed(2)}`,
+          `${unitPrice.toFixed(2)}`,
           doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
           currentY + 5,
         );
@@ -381,13 +387,11 @@ module.exports.downloadInvoice = async (req, res) => {
     // Draw table footer
     doc.moveDown();
     doc.y = currentY + 10;
-    const totalDiscount = order.discountedAmount + order.totalAmount; // Assuming discountAmount is part of the order
 
-    // Center-align total amounts
-    const centerX = doc.page.width / 2;
-    const totalAmountText = `Total (excluding tax): ${totalDiscount.toFixed(2)}\nDiscount: ${order.discountedAmount.toFixed(2)}\nTotal Amount (including tax): ${order.totalAmount.toFixed(2)}`;
+    // Final amounts
+    const totalAmountText = `Subtotal (excluding tax): ${subTotal.toFixed(2)}\nTotal Tax: ${totalTax.toFixed(2)}\nTotal Amount (including tax): ${(subTotal + totalTax).toFixed(2)}`;
 
-    doc.fontSize(18).text(totalAmountText, centerX, doc.y, { align: 'center' });
+    doc.fontSize(18).text(totalAmountText, doc.page.margins.left, doc.y);
 
     // Finalize the PDF
     doc.end();

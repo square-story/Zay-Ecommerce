@@ -127,7 +127,8 @@
     function downloadPdf() {
       const orderId = '<%= order._id %>';
       const index = '<%= index %>' || 0; // Make sure you pass the index correctly
-      window.open(`/downloadInvoice?orderId=${orderId}&index=${index}`);
+      const total = '<%=order.totalAmount%>'
+      window.open(`/downloadInvoice?orderId=${orderId}&index=${index}&orderTotal=${total}`);
     }
   </script>
 
