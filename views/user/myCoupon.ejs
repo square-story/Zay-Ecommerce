@@ -153,10 +153,10 @@
                 <div class="card-body">
                   <h5 class="card-title"><%= el.name %></h5>
                   <p class="card-text">
-                    Coupons start from <%= el.activationDate %>
+                    Coupons start from <%= moment(el.activationDate).format('dddd'); %>
                   </p>
                   <p class="card-text mb-1">
-                    Coupons expire on <%= el.expiresDate %>
+                    Coupons expire on <%= moment(el.expiresDate).format('dddd'); %>
                   </p>
                   <p class="card-text"><%= el.couponCode %></p>
                   <button
