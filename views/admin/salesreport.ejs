@@ -124,6 +124,7 @@
           </tr>
         </thead>
         <tbody>
+          <% let totalAmount = 0; %>
           <% report.forEach((el, i) => { %>
           <tr>
             <th scope="row"><%= (currentPage - 1) * itemsPerPage + i + 1 %></th>
@@ -133,10 +134,18 @@
             <td><%= el.totalAmount %></td>
             <td><%= new Date(el.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %></td>
           </tr>
+          <% totalAmount += el.totalAmount; %>
           <% }) %>
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="text-end"><strong>Total Sales Amount:</strong></td>
+            <td colspan="2"><strong><%= totalAmount.toFixed(2) %></strong></td>
+          </tr>
+        </tfoot>
       </table>
     </div>
+    
   
     <div class="pagination">
       <% if (currentPage > 1) { %>

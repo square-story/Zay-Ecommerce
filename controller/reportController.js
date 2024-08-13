@@ -26,7 +26,11 @@ module.exports.loadSalesReport = async (req, res) => {
       throw new Error('Invalid date format');
     }
 
-    query = { date: { $gte: startDate, $lte: endDate } };
+    query = {
+      date: { $gte: startDate, $lte: endDate },
+      paymentStatus: 'completed', // Filter for completed payments only
+      status: { $nin: ['returned', 'canceled', 'failed'] }, // Exclude returned or canceled orders
+    };
 
     const totalOrders = await Order.countDocuments(query);
     const totalPages = Math.ceil(totalOrders / itemsPerPage);
