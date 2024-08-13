@@ -10,7 +10,6 @@ Welcome to the Zay E-commerce Project! This project is a comprehensive e-commerc
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 
@@ -111,9 +110,3 @@ zay-ecommerce/
 ## Contributing
 
 Contributions are welcome! Please fork the repository and create a pull request with your changes. Ensure your code follows the project's coding standards and includes relevant tests.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-Feel free to adjust the details as per your project's specifics.
