@@ -78,7 +78,7 @@
                       <td>
                         <b>
                           <img
-                            src="/img/productImage/sharp/<%= el.productId.variant[el.product].images[0]%>"
+                            src="<%= el.productId.variant[el.product].images[0].startsWith('http') ? el.productId.variant[el.product].images[0] : '/img/productImage/sharp/' + el.productId.variant[el.product].images[0] %>"
                             alt=""
                             style="width: 80px; height: 80px"
                           />

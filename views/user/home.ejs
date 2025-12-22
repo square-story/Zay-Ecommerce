@@ -149,7 +149,7 @@
               <div class="col-12 col-md-4 mb-4">
                 <div class="card h-100">
                   <a href="/productDetails?id=<%= prod._id %>&index=0">
-                    <img src="/img/productImage/sharp/<%= prod.variant[0].images[0] %>" class="card-img-top" alt="...">
+                    <img src="<%= prod.variant[0].images[0].startsWith('http') ? prod.variant[0].images[0] : '/img/productImage/sharp/' + prod.variant[0].images[0] %>" class="card-img-top" alt="...">
                   </a>
                   <div class="card-body">
                     <ul class="list-unstyled d-flex justify-content-between">

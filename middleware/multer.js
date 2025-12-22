@@ -1,31 +1,15 @@
-const e = require('express');
-const multer = require('multer');
-const path = require('node:path');
+const multre = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(
-      null,
-      path.join(__dirname, '../public/img/productImage'),
-      (err, success) => {
-        if (err) {
-          console.log(err);
-        }
-      }
-    );
-  },
-
-  filename: (req, file, cb) => {
-    const filename = Math.random() * 1e17 + '-' + file.originalname; // BigInt
-
-    cb(null, filename, (err, success) => {
-      if (err) {
-        console.log(err);
-      }
-    });
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'zay-ecommerce',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multre({ storage: storage });
 
 module.exports = upload;

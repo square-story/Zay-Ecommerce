@@ -7,14 +7,12 @@ const Wallet = require('../models/walletModel');
 const adminHelpers = require('../helpers/adminHelper');
 const { updateWallet } = require('./walletController');
 const Coupon = require('../models/couponModel');
-require('dotenv').config();
 
 // load admin home page
 module.exports.loadAdmin = async (req, res) => {
   try {
     const currentDate = new Date();
     const startDate = new Date(currentDate - 30 * 24 * 60 * 60 * 1000);
-
     // Fetch all users
     const users = await User.find();
     const userCount = users.length;
@@ -62,12 +60,20 @@ module.exports.loadAdmin = async (req, res) => {
     });
 
     // Fetch best selling name, category, and brand
+    console.log('Fetching best selling data...');
     const bestSellingName = await adminHelpers.bestSelling('_id');
+    console.log('Best selling name fetched');
     const bestSellingCategory = await adminHelpers.bestSelling('cetagory');
+    console.log('Best selling category fetched:', bestSellingCategory ? bestSellingCategory.length : 0);
     const bestSellingBrand = await adminHelpers.bestSelling('brand');
+    console.log('Best selling brand fetched');
+
+    // Check if bestSellingCategory is valid before mapping
     const topTenCategories = await adminHelpers.mapCategory(bestSellingCategory);
+    console.log('Top ten categories mapped');
 
     // Render admin dashboard with data
+    console.log('Rendering admin dashboard...');
     res.render('adminDashboard', {
       monthlyData,
       userCount,
@@ -81,6 +87,7 @@ module.exports.loadAdmin = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    console.log(req.session.admin);
     // Handle errors appropriately, maybe render an error page
     res.status(500).send('Internal Server Error');
   }
@@ -149,11 +156,13 @@ module.exports.login = async (req, res) => {
   try {
     const email = process.env.EMAIL;
     const password = process.env.PASSWORD;
+
     console.log(email, password);
 
     if (req.body.email == email) {
       if (req.body.password == password) {
         req.session.admin = email;
+        console.log(req.session.admin);
         res.redirect('/admin/');
       } else {
         req.flash('password', 'incorrect password');
@@ -165,7 +174,9 @@ module.exports.login = async (req, res) => {
       res.redirect('/admin/login');
       console.log('incorrect email');
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 //user page loding with data
@@ -280,26 +291,27 @@ module.exports.loadPoduct = async (req, res) => {
 
 // load add product page
 
-module.exports.loadAddProduct = (req, res) => {
+
+module.exports.loadAddProduct = async (req, res) => {
   try {
-    return Catagery.find()
-      .then((data) => {
-        console.log(data[1].name);
-        res.render('addProduct', {
-          cetagory: data,
-          messages: {
-            blocked: req.flash('blocked'),
-            pass: req.flash('pass'),
-            found: req.flash('found'),
-          },
-          data: req.flash('data')[0] || {},
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    console.log('Loading add product page...');
+    const data = await Catagery.find();
+
+    // Safely log category count instead of unsafe array access
+    console.log(`Loaded ${data.length} categories`);
+
+    res.render('addProduct', {
+      cetagory: data,
+      messages: {
+        blocked: req.flash('blocked'),
+        pass: req.flash('pass'),
+        found: req.flash('found'),
+      },
+      data: req.flash('data')[0] || {},
+    });
   } catch (error) {
-    console.log(error);
+    console.log('Error loading add product page:', error);
+    res.status(500).send('Internal Server Error');
   }
 };
 

@@ -68,7 +68,7 @@
                                                 <td width="40%">
                                                     <a href="#" class="itemside">
                                                         <div class="left">
-                                                            <img src="/img/productImage/<%= product.variant[0]?.images[0] %>" class="img-sm" alt="Userpic" />
+                                                            <img src="<%= product.variant[0]?.images[0]?.startsWith('http') ? product.variant[0]?.images[0] : '/img/productImage/' + product.variant[0]?.images[0] %>" class="img-sm" alt="Userpic" />
                                                         </div>
                                                     </a>
                                                 </td>

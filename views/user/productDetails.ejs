@@ -170,7 +170,7 @@
                                             <div class="div focus"
                                                 data-setbg="/img/shop-details/thumb-<%= i + 1 %>.png">
                                                 <img class="hower"
-                                                    src="/img/productImage/sharp/<%= product.variant[index].images[i] %>"
+                                                    src="<%= product.variant[index].images[i].startsWith('http') ? product.variant[index].images[i] : '/img/productImage/sharp/' + product.variant[index].images[i] %>"
                                                     alt="">
                                             </div>
                                         </a>
@@ -188,7 +188,7 @@
                                             style="overflow: hidden;">
                                             <!-- Use unique IDs for each image and class 'zoom-trigger' for event binding -->
                                             <img id="zoom-image-<%= i + 1 %>" class="zoom-trigger"
-                                                src="/img/productImage/<%= product.variant[index].images[i] %>" alt="">
+                                                src="<%= product.variant[index].images[i].startsWith('http') ? product.variant[index].images[i] : '/img/productImage/' + product.variant[index].images[i] %>" alt="">
                                         </div>
                                     </div>
                                     <% } %>
@@ -251,7 +251,7 @@
                                                             onclick="selectVariant('<%= product._id%>', '<%= i %>')"
                                                             class="c-1 variant" for="sp-1">
 
-                                                            <img src="/img/productImage/sharp/<%= el.images[0] %>"
+                                                            <img src="<%= el.images[0].startsWith('http') ? el.images[0] : '/img/productImage/sharp/' + el.images[0] %>"
                                                                 alt="">
 
                                                         </span>
@@ -368,7 +368,7 @@
                   <div class="col-12 col-md-4 mb-4">
                     <div class="card h-100">
                       <a href="/productDetails?id=<%= item._id %>&index=0">
-                        <img src="/img/productImage/sharp/<%= item.variant[0].images[0] %>" class="card-img-top" alt="...">
+                        <img src="<%= item.variant[0].images[0].startsWith('http') ? item.variant[0].images[0] : '/img/productImage/sharp/' + item.variant[0].images[0] %>" class="card-img-top" alt="...">
                       </a>
                       <div class="card-body">
                         <ul class="list-unstyled d-flex justify-content-between">
@@ -458,7 +458,11 @@ function selectVariant(pId, pIndex) {
 
                     const img = tab.querySelector('img');
                     if (img) {
-                        img.setAttribute('src', `/img/productImage/sharp/${selectedVariant.images[i]}`);
+                    if (img) {
+                        const imagePath = selectedVariant.images[i];
+                        const src = imagePath.startsWith('http') ? imagePath : `/img/productImage/sharp/${imagePath}`;
+                        img.setAttribute('src', src);
+                    }
                     }
                 });
 
@@ -468,7 +472,9 @@ function selectVariant(pId, pIndex) {
                     tab.classList.toggle('active', i === 0); // Show the content of the first tab
                     const img = tab.querySelector('img');
                     if (img) {
-                        img.setAttribute('src', `/img/productImage/${selectedVariant.images[i]}`);
+                        const imagePath = selectedVariant.images[i];
+                        const src = imagePath.startsWith('http') ? imagePath : `/img/productImage/${imagePath}`;
+                        img.setAttribute('src', src);
                     }
                 });
             }

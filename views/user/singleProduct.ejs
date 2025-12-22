@@ -427,7 +427,7 @@
                     <div class="col-4">
                         <a href="" rel="noopener noreferrer">
                             <div class="" style="height: 75px; width: 75px;">
-                                <img class="img-fluid" alt="" src="/img/productImage/sharp/<%= product.productId.variant[product.product].images[0] %>">
+                                <img class="img-fluid" alt="" src="<%= product.productId.variant[product.product].images[0].startsWith('http') ? product.productId.variant[product.product].images[0] : '/img/productImage/sharp/' + product.productId.variant[product.product].images[0] %>">
                             </div>
                         </a>
                     </div>

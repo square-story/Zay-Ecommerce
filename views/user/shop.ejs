@@ -115,7 +115,7 @@
                             <a href="/productDetails?id=<%= item._id %>&index=0" class="text-decoration-none">
                                 <div class="card mb-4 product-wap rounded-0">
                                     <div class="card rounded-0 position-relative">
-                                        <img class="card-img rounded-0 img-fluid" src="/img/productImage/sharp/<%= item.variant[0].images[0] %>" alt="<%= item.name %>">
+                                        <img class="card-img rounded-0 img-fluid" src="<%= item.variant[0].images[0].startsWith('http') ? item.variant[0].images[0] : '/img/productImage/sharp/' + item.variant[0].images[0] %>" alt="<%= item.name %>">
                                         <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
                                             <ul class="list-unstyled">
                                                 <li><a class="btn btn-success text-white" onclick="addToWishlist('<%= item._id %>')"><i class="far fa-heart"></i></a></li>

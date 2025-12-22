@@ -302,7 +302,7 @@
 
                         <div class="left me-2">
                           <img
-                            src="/img/productImage/<%= item.images[i] %>"
+                            src="<%= item.images[i].startsWith('http') ? item.images[i] : '/img/productImage/' + item.images[i] %>"
                             class="img-sm"
                             alt="Userpic"
                           />

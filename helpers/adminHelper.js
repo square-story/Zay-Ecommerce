@@ -45,17 +45,24 @@ function bestSelling(sort) {
   }
 }
 
-function mapCategory(cetagory) {
-  return new Promise((resolve, reject) => {
-    const topTenCetagory = [];
-    cetagory.forEach(async (el, i) => {
-      const cat = await Cetagory.findById({ _id: el._id.category });
-      topTenCetagory.push(cat.name);
-      if (i == cetagory.length - 1) {
-        resolve(topTenCetagory);
-      }
+async function mapCategory(cetagory) {
+  if (!cetagory || cetagory.length === 0) {
+    return [];
+  }
+
+  try {
+    const promises = cetagory.map(async (el) => {
+      // Check if category ID exists before querying
+      if (!el._id || !el._id.category) return 'Unknown';
+      const cat = await Cetagory.findById(el._id.category);
+      return cat ? cat.name : 'Unknown';
     });
-  });
+
+    return Promise.all(promises);
+  } catch (error) {
+    console.error('Error in mapCategory:', error);
+    return [];
+  }
 }
 
 module.exports = {

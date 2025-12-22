@@ -58,20 +58,9 @@ module.exports.addproduct = async (req, res) => {
     const images = [];
 
     // Pushing images to array
+    // Pushing images to array
     for (let i = 0; i < req.files.length; i++) {
-      images.push(req.files[i].filename);
-
-      const selectedPath = path.resolve(
-        __dirname,
-        '..',
-        'public',
-        'img',
-        'productImage',
-        'sharp',
-        `${req.files[i].filename}`,
-      );
-
-      await sharp(req.files[i].path).resize(500, 500).toFile(selectedPath);
+      images.push(req.files[i].path);
     }
 
     const sizes = size ? (Array.isArray(size) ? size : [size]) : [];
@@ -182,19 +171,7 @@ module.exports.addVariant = async (req, res) => {
 
       const images = [];
       for (let i = 0; i < req.files.length; i++) {
-        images.push(req.files[i].filename);
-
-        const dirPath = path.resolve(
-          __dirname,
-          '..',
-          'public',
-          'img',
-          'productImage',
-          'sharp',
-          `${req.files[i].filename}`,
-        );
-
-        await sharp(req.files[i].path).resize(500, 500).toFile(dirPath);
+        images.push(req.files[i].path);
       }
       console.log('offer', req.body.offerPrice);
       console.log(images, sizes);
@@ -274,21 +251,8 @@ module.exports.editVariant = async (req, res) => {
     console.log(images, 'heloo');
     console.log(req.files, 'files');
     for (let i = 0; i < 4; i++) {
-      const image = req.files[i]?.filename || images[i];
-      console.log(image, 'refddddddddddddddddddddddddd');
+      const image = req.files[i]?.path || images[i];
       newImage.push(image);
-      if (req.files[i]) {
-        const dirPath = path.resolve(
-          __dirname,
-          '..',
-          'public',
-          'img',
-          'productImage',
-          'sharp',
-          `${image}`,
-        );
-        await sharp(req.files[i].path).resize(500, 500).toFile(dirPath);
-      }
     }
     console.log(newImage, 'helllssjsjjsjsjsjsjsjsjjs');
     const price = parseInt(req.body.price);
