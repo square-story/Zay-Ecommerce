@@ -100,6 +100,9 @@ userRoute.post('/otpLogin', userController.otpLogin);
 // load login with otp page
 userRoute.get('/otpLogin', userMiddleware.isLogined, userController.OTPlogin);
 
+// send otp for login
+userRoute.post('/send-otp', userController.sendOtpForLogin);
+
 // Logout the user
 userRoute.post('/logout', userController.userLogout);
 

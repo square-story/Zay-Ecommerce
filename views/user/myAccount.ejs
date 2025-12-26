@@ -166,7 +166,7 @@
                     >Personal information
                     <button
                       onclick="edit('editUserName')"
-                      class="btn editUserName"
+                      class="btn editUserName edit-btn"
                       style="color: rgb(46, 92, 171); font-size: 16px; font-weight: 600"
                     >
                       edit
@@ -187,7 +187,7 @@
                     <button
                       onclick="save('editUserName')"
                       style="margin-left: 5px; display: none"
-                      class="btn btn-dark editUserName"
+                      class="btn btn-dark editUserName save-btn"
                     >
                       Save
                     </button>
@@ -199,7 +199,7 @@
                   <label for=""
                     >Email address
                     <button
-                      class="btn editEmail"
+                      class="btn editEmail edit-btn"
                       onclick="edit('editEmail')"
                       style="color: rgb(46, 92, 171); font-size: 16px; font-weight: 600"
                     >
@@ -221,7 +221,7 @@
                     <button
                       onclick="save('editEmail')"
                       style="margin-left: 5px; display: none"
-                      class="btn btn-dark editEmail"
+                      class="btn btn-dark editEmail save-btn"
                     >
                       Save
                     </button>
@@ -232,7 +232,7 @@
                 >
                   <label for=""
                     >Phone number<button
-                      class="btn editPhone"
+                      class="btn editPhone edit-btn"
                       onclick="edit('editPhone')"
                       style="color: rgb(46, 92, 171); font-size: 16px; font-weight: 600"
                     >
@@ -254,7 +254,7 @@
                     <button
                       onclick="save('editPhone')"
                       style="margin-left: 5px; display: none"
-                      class="btn btn-dark editPhone"
+                      class="btn btn-dark editPhone save-btn"
                     >
                       Save
                     </button>
@@ -432,6 +432,97 @@
         },
       });
     }
+  }
+
+  function edit(className) {
+    const inputs = document.getElementsByClassName(className);
+    for (let i = 0; i < inputs.length; i++) {
+        const element = inputs[i];
+        if(element.tagName === 'INPUT') {
+            element.removeAttribute('disabled');
+            element.focus();
+            // Move cursor to end of input
+            const val = element.value;
+            element.value = '';
+            element.value = val;
+        }
+        if(element.tagName === 'BUTTON') {
+             if(element.classList.contains('save-btn')) {
+                 element.style.display = 'inline-block';
+             }
+             if(element.classList.contains('edit-btn')) {
+                 element.style.display = 'none';
+             }
+        }
+    }
+  }
+
+  function save(className) {
+    let value;
+    const inputs = document.getElementsByClassName(className);
+    for (let i = 0; i < inputs.length; i++) {
+        if(inputs[i].tagName === 'INPUT') {
+            value = inputs[i].value;
+            break;
+        }
+    }
+
+    if(!value) {
+        showSwalMessage("Value cannot be empty");
+        return;
+    }
+
+    $.ajax({
+       url: '/change-details',
+       method: 'POST',
+       contentType: 'application/json',
+       data: JSON.stringify({
+           value: value,
+           cls: className
+       }),
+       success: function(response) {
+           if(response.success) {
+                Swal.fire({
+                    title: 'Success',
+                    text: response.message,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Reset UI
+                    for (let i = 0; i < inputs.length; i++) {
+                        const element = inputs[i];
+                        if(element.tagName === 'INPUT') {
+                            element.setAttribute('disabled', 'true');
+                        }
+                        if(element.tagName === 'BUTTON') {
+                             if(element.classList.contains('save-btn')) {
+                                 element.style.display = 'none';
+                             }
+                             if(element.classList.contains('edit-btn')) {
+                                 element.style.display = 'inline-block';
+                             }
+                        }
+                    }
+                    // Clear errors
+                    const errorSpan = document.querySelector(`span.${className}`);
+                    if(errorSpan) errorSpan.innerText = '';
+                });
+           } else {
+               // Show error in the span if possible, or generic swal
+               const errorSpan = document.querySelector(`span.${className}`);
+               if(errorSpan && response.message) {
+                   errorSpan.innerText = response.message;
+               } else {
+                   showSwalMessage(response.message || response.error || 'An error occurred');
+               }
+           }
+       },
+       error: function(err) {
+           console.error(err);
+           showSwalMessage("An unexpected error occurred");
+       }
+    });
   }
 
   function showSwalMessage(message) {

@@ -255,6 +255,51 @@ module.exports.loadotp = async (req, res) => {
 
 // load login with otp page
 
+module.exports.sendOtpForLogin = async (req, res) => {
+  try {
+    const email = req.body.email;
+    if (!email) {
+      req.flash('blocked', 'Email is required');
+      return res.redirect('/otpLogin');
+    }
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      req.flash('blocked', 'User not found');
+      return res.redirect('/otpLogin');
+    }
+
+    if (user.isBlocked) {
+      req.flash('blocked', 'Your account is blocked');
+      return res.redirect('/otpLogin');
+    }
+
+    // Clean up old OTPs and send new one
+    await verifyOtp.deleteMany({ Email: email });
+    await sentOtp(email);
+
+    // Redirect to the OTP verification page
+    // We pass verify=true (or similar if needed) but the existing otp.ejs handles 'verify' param differently?
+    // Looking at loadotp: const verify = user1.verified;
+    // Looking at otp.ejs: const route = verify ? '/otpLogin...' : '/otp...'
+    // If I want the form to post to /otpLogin (which logs in), I need to ensure the view knows this.
+    // However, the /otp route just renders 'otp.ejs'.
+    // In 'otp.ejs', the logic is: `<% const route = verify ? '/otpLogin?email=' + encodeURIComponent(email) : '/otp?email=' + encodeURIComponent(email); %>`
+    // Wait, 'verify' seems to come from `user.verified`.
+    // If user is verified, it posts to `/otpLogin`. That matches my need (login with OTP).
+    // So if I redirect to `/otp?email=...`, loadotp will find the user, see they are verified (hopefully), and pass `verify: true` to the view.
+    // Then otp.ejs will set action to `/otpLogin`.
+    // This seems correct for established users.
+    res.redirect(`/otp?email=${email}`);
+
+  } catch (error) {
+    console.log(error);
+    req.flash('blocked', 'Something went wrong');
+    res.redirect('/otpLogin');
+  }
+};
+
 module.exports.OTPlogin = (req, res) => {
   try {
     res.render('otpLogin');
@@ -735,88 +780,74 @@ module.exports.personalDetails = async (req, res) => {
     const userId = req.session.user?._id;
     const { value, cls } = req.body;
     console.log(req.body);
+
     if (!userId) {
-      res.redirect('/');
+      return res.status(401).json({ success: false, error: 'User not logged in' });
     }
 
     if (cls === 'editUserName') {
       if (!/^\w+$/.test(value)) {
-        res.json({ username: true, massage: 'enter correct username' });
-      } else {
-        const username = await User.findOne({ name: value });
-
-        if (username) {
-          res.json({ username: true, massage: 'username alreay exist' });
-        } else {
-          const username = await User.findByIdAndUpdate(
-            { _id: userId },
-            {
-              $set: {
-                name: value,
-              },
-            },
-          );
-          if (username) {
-            return res.json({
-              success: true,
-              massage: 'username successfully updated',
-            });
-          }
-        }
+        return res.json({ success: false, message: 'Enter correct username (alphanumeric only)' });
       }
+
+      const existingUser = await User.findOne({ name: value });
+      if (existingUser) {
+        return res.json({ success: false, message: 'Username already exists' });
+      }
+
+      await User.findByIdAndUpdate(
+        { _id: userId },
+        { $set: { name: value } }
+      );
+
+      // Update session data if needed
+      if (req.session.user) req.session.user.name = value;
+
+      return res.json({ success: true, message: 'Username successfully updated' });
+
     } else if (cls === 'editEmail') {
       if (value.indexOf('@') == -1 || !value.endsWith('gmail.com')) {
-        res.json({ email: true, massage: 'enter correct email' });
-      } else {
-        const email = await User.findOne({ email: value });
-
-        if (email) {
-          res.json({ email: true, massage: 'email already exist' });
-        } else {
-          const username = await User.findByIdAndUpdate(
-            { _id: userId },
-            {
-              $set: {
-                email: value,
-              },
-            },
-          );
-          if (username) {
-            return res.json({
-              success: true,
-              massage: 'email successfully updated',
-            });
-          }
-        }
+        return res.json({ success: false, message: 'Enter correct gmail address' });
       }
+
+      const existingEmail = await User.findOne({ email: value });
+      if (existingEmail) {
+        return res.json({ success: false, message: 'Email already exists' });
+      }
+
+      await User.findByIdAndUpdate(
+        { _id: userId },
+        { $set: { email: value } }
+      );
+
+      // Update session data if needed
+      if (req.session.user) req.session.user.email = value;
+
+      return res.json({ success: true, message: 'Email successfully updated' });
+
     } else if (cls === 'editPhone') {
       if (value.trim().length < 10 || !/^\d+$/.test(value)) {
-        res.json({ phone: true, massage: 'enter correct phone number' });
-      } else {
-        const phone = await User.findOne({ mobile: value });
-
-        if (phone) {
-          res.json({ phone: true, massage: 'phone number alreay exist' });
-        } else {
-          const username = await User.findByIdAndUpdate(
-            { _id: userId },
-            {
-              $set: {
-                mobile: value,
-              },
-            },
-          );
-          if (username) {
-            return res.json({
-              success: true,
-              massage: 'phone number successfully updated',
-            });
-          }
-        }
+        return res.json({ success: false, message: 'Enter correct phone number' });
       }
+
+      const existingPhone = await User.findOne({ mobile: value });
+      if (existingPhone) {
+        return res.json({ success: false, message: 'Phone number already exists' });
+      }
+
+      await User.findByIdAndUpdate(
+        { _id: userId },
+        { $set: { mobile: value } }
+      );
+
+      return res.json({ success: true, message: 'Phone number successfully updated' });
     }
+
+    return res.json({ success: false, message: 'Invalid field' });
+
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
   }
 };
 
