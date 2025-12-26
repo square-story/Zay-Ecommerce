@@ -390,8 +390,8 @@ module.exports.successGoogleLogin = async (req, res) => {
     });
     req.session.user = {
       _id: createNewUser._id,
-      name: user.name,
-      email: user.email,
+      name: createNewUser.name,
+      email: createNewUser.email,
     };
     res.redirect('/');
   }
@@ -445,13 +445,13 @@ module.exports.checkSession = (req, res) => {
 module.exports.loadAbout = (req, res) => {
   try {
     res.render('aboutUs');
-  } catch (error) {}
+  } catch (error) { }
 };
 
 module.exports.loadContact = (req, res) => {
   try {
     res.render('contact');
-  } catch (error) {}
+  } catch (error) { }
 };
 
 //load forget password page
@@ -486,7 +486,7 @@ async function sendVerificationEmail(user, token) {
     subject: 'Account Verification',
     html: `
       <p>Click on the link below to verify your account:</p>
-      <a href="https://zayfashion.shop/change-password/${user._id}/${token}">Verify Account</a>
+      <a href=${process.env.PROJECT_URL}/change-password/${user._id}/${token}">Verify Account</a>
     `,
   };
 
