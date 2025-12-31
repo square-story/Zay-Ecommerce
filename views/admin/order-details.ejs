@@ -37,7 +37,7 @@
               <table class="table table-hover">
                 <thead>
                   <tr>
-                    <th>Index</th>
+                    <th>Order ID</th>
                     <th scope="col">Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">Total</th>
@@ -50,7 +50,7 @@
                   <%if(order) {%> <%order.forEach((item, i) => {%>
 
                   <tr>
-                    <td><%= i + 1%></td>
+                    <td><%= item._id.toString().slice(-6).toUpperCase() %></td>
                     <td><b><%= item.user.name%></b></td>
                     <td><%= item.user.name%></td>
                     <td><%= item.totalAmount%></td>

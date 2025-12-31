@@ -43,6 +43,10 @@
                 <!-- Add user details here, you can customize this section -->
                 <h5>User Details</h5>
                 <p>
+                  <strong>Order ID:</strong>
+                  <%= order._id.toString().slice(-6).toUpperCase() %>
+                </p>
+                <p>
                   <strong>Name:</strong>
                   <%= order.deliveryDetails.fullName %>
                 </p>
