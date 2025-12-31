@@ -130,7 +130,7 @@
             <% name.forEach((el, i) => { %>
               <div class="col-md-4 mb-4">
                 <div class="card <%= i < 3 ? 'highlight' : '' %>" style="width: 18rem">
-                  <img src="<%= el.data.products.variant[0].images[0].startsWith('http') ? el.data.products.variant[0].images[0] : '/img/productImage/sharp/' + el.data.products.variant[0].images[0] %>" 
+                  <img src="<%= el.data.products.variant[0].images[0] && el.data.products.variant[0].images[0].startsWith('http') ? el.data.products.variant[0].images[0] : '/img/productImage/sharp/' + el.data.products.variant[0].images[0] %>" 
                        style="width: 300px; height: 300px" 
                        class="card-img-top" alt="Product 1" />
                   <div class="card-body">

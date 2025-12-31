@@ -32,9 +32,21 @@
                 </div>
                 
                 <form id="searchForm" action="/admin/product" method="get" class="mb-4">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control" placeholder="Search products" value="<%= search || '' %>">
-                        <button class="btn btn-dark" type="submit">Search</button>
+                    <div class="row gx-2">
+                        <div class="col-lg-6 col-md-6 mb-2">
+                            <input type="text" name="search" class="form-control" placeholder="Search products" value="<%= search || '' %>">
+                        </div>
+                        <div class="col-lg-4 col-md-4 mb-2">
+                            <select name="category" class="form-select">
+                                <option value="" selected>Category not selected</option>
+                                <% categories.forEach(category => { %>
+                                    <option value="<%= category._id %>" <%= selectedCategory == category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-2">
+                            <button class="btn btn-dark w-100" type="submit">Search</button>
+                        </div>
                     </div>
                 </form>
                 
@@ -68,7 +80,7 @@
                                                 <td width="40%">
                                                     <a href="#" class="itemside">
                                                         <div class="left">
-                                                            <img src="<%= product.variant[0]?.images[0]?.startsWith('http') ? product.variant[0]?.images[0] : '/img/productImage/' + product.variant[0]?.images[0] %>" class="img-sm" alt="Userpic" />
+                                                            <img src="<%= product.variant[0]?.images[0] && product.variant[0]?.images[0]?.startsWith('http') ? product.variant[0]?.images[0] : '/img/productImage/' + product.variant[0]?.images[0] %>" class="img-sm" alt="Userpic" />
                                                         </div>
                                                     </a>
                                                 </td>
@@ -98,12 +110,12 @@
                     <nav aria-label="Page navigation example">
                         <ul class="pagination">
                             <% if (page > 0) { %>
-                                <a class="page-link" href="?page=<%= page - 1 %>&search=<%= search || '' %>"><i class="material-icons md-chevron_left"></i></a>
+                                <a class="page-link" href="?page=<%= page - 1 %>&search=<%= search || '' %>&category=<%= selectedCategory || '' %>"><i class="material-icons md-chevron_left"></i></a>
                             <% } %>
                             <% for (let i = 0; i < Math.ceil(productLength / limit); i++) { %>
                                 <% if (i === 0 || i === Math.ceil(productLength / limit) - 1 || (i >= page - 2 && i <= page + 2)) { %>
                                     <li class="page-item <%= page === i ? 'active' : '' %>">
-                                        <a class="page-link" href="?page=<%= i %>&search=<%= search || '' %>"><%= i + 1 %></a>
+                                        <a class="page-link" href="?page=<%= i %>&search=<%= search || '' %>&category=<%= selectedCategory || '' %>"><%= i + 1 %></a>
                                     </li>
                                 <% } else if (i === page - 3 || i === page + 3) { %>
                                     <li class="page-item disabled">
@@ -112,7 +124,7 @@
                                 <% } %>
                             <% } %>
                             <% if (page < Math.ceil(productLength / limit) - 1) { %>
-                                <a class="page-link" href="?page=<%= page + 1 %>&search=<%= search || '' %>"><i class="material-icons md-chevron_right"></i></a>
+                                <a class="page-link" href="?page=<%= page + 1 %>&search=<%= search || '' %>&category=<%= selectedCategory || '' %>"><i class="material-icons md-chevron_right"></i></a>
                             <% } %>
                         </ul>
                     </nav>

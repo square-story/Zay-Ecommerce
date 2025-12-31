@@ -85,10 +85,12 @@
               </div>
 
               <label for="type" class="form-label">Offer Type</label>
-              <select name="type" class="form-select" onchange="toggleOfferTypeFields(this.value)">
+              <select name="type" class="form-select" id="offerType" onchange="toggleOfferTypeFields(this.value)">
+                <option value="" disabled selected>Select offer type</option>
                 <option value="product">Product</option>
                 <option value="category">Category</option>
               </select>
+              <div class="validation-error" id="typeError"></div>
 
               <div id="productOfferFields" class="mt-3" style="display: none;">
                 <label class="form-label">Select Products</label>
@@ -166,9 +168,11 @@
 
               <label for="editType" class="form-label">Offer Type</label>
               <select id="editType" name="type" class="form-select" onchange="toggleEditOfferTypeFields(this.value)">
+                <option value="" disabled selected>Select offer type</option>
                 <option value="product">Product</option>
                 <option value="category">Category</option>
               </select>
+              <div class="validation-error" id="editTypeError"></div>
 
               <div id="editProductOfferFields" class="mt-3" style="display: none;">
                 <label class="form-label">Select Products</label>
@@ -285,6 +289,7 @@
       var adate = form.querySelector('input[name="adate"]');
       var edate = form.querySelector('input[name="edate"]');
       var damount = form.querySelector('input[name="damount"]');
+      var type = form.querySelector('select[name="type"]');
   
       // Validate name
       var nameErrorElement = document.getElementById(formId === 'createOfferForm' ? 'nameError' : 'editNameError');
@@ -348,6 +353,15 @@
         isValid = false;
       } else {
         damountErrorElement.innerText = '';
+      }
+
+      // Validate offer type
+      var typeErrorElement = document.getElementById(formId === 'createOfferForm' ? 'typeError' : 'editTypeError');
+      if (type.value === '') {
+        typeErrorElement.innerText = 'Please select an offer type.';
+        isValid = false;
+      } else {
+        typeErrorElement.innerText = '';
       }
   
       return isValid;

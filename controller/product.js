@@ -143,7 +143,6 @@ module.exports.loadVariant = async (req, res) => {
     const id = req.params.id;
     if (id) {
       const product = await Product.findOne({ _id: id }, { name: 1, variant: 1 });
-      console.log(product.variant[0].images[0]);
 
       if (product) {
         res.render('variantManagement', { product: product });
@@ -239,7 +238,7 @@ module.exports.editVariant = async (req, res) => {
   try {
     console.log('recccccccccccccccc');
     const id = req.body.id;
-    const name = req.body.name;
+    const name = req.body.pname;
     const description = req.body.description;
     const index = req.body.index;
     if (name) await Product.updateOne({ _id: id }, { $set: { name: name } });

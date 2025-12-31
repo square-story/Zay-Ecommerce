@@ -22,8 +22,9 @@
     />
   </head>
 
-  <body class="bg-info-subtle">
-    <main class="">
+  <body>
+    <%- include('../partials/sidenav.ejs') -%>
+    <main class="main-wrap">
       <section class="content-main bg-body-tertiary">
         <div class="content-header justify-content-center py-3">
           <div class="text-center">
@@ -41,6 +42,10 @@
               <div class="col-md-6">
                 <!-- Add user details here, you can customize this section -->
                 <h5>User Details</h5>
+                <p>
+                  <strong>Order ID:</strong>
+                  <%= order._id.toString().slice(-6).toUpperCase() %>
+                </p>
                 <p>
                   <strong>Name:</strong>
                   <%= order.deliveryDetails.fullName %>
@@ -78,7 +83,7 @@
                       <td>
                         <b>
                           <img
-                            src="<%= el.productId.variant[el.product].images[0].startsWith('http') ? el.productId.variant[el.product].images[0] : '/img/productImage/sharp/' + el.productId.variant[el.product].images[0] %>"
+                            src="<%= el.productId.variant[el.product].images[0] && el.productId.variant[el.product].images[0].startsWith('http') ? el.productId.variant[el.product].images[0] : '/img/productImage/sharp/' + el.productId.variant[el.product].images[0] %>"
                             alt=""
                             style="width: 80px; height: 80px"
                           />

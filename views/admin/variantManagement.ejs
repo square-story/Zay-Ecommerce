@@ -220,7 +220,7 @@
                           accept="image/*"
                           placeholder="Add image"
                           name="images"
-                          onclick="previewImage2(this, 'imagePreview2<%= i %>')"
+                          onchange="previewImage2(this, 'imagePreview2<%= i %>')"
                           class="form-control"
                           id="image<%= i + 1%>"
                         />
@@ -302,9 +302,9 @@
 
                         <div class="left me-2">
                           <img
-                            src="<%= item.images[i].startsWith('http') ? item.images[i] : '/img/productImage/' + item.images[i] %>"
+                            src="<%= item.images[i] && item.images[i].startsWith('http') ? item.images[i] : (item.images[i] ? '/img/productImage/' + item.images[i] : '/assets/imgs/theme/upload.svg') %>"
                             class="img-sm"
-                            alt="Userpic"
+                            alt="Product image"
                           />
                         </div>
 
