@@ -250,21 +250,30 @@ class AdminController {
   // load product management page
   loadPoduct = async (req, res) => {
     const search = req.query.search;
+    const categoryFilter = req.query.category; // New category filter
     const page = parseInt(req.query.page) || 0; // Default to 0 if not provided
     const limit = 4; // Number of products per page
 
     // Build search query
     let query = {};
-    if (search) {
-      query = {
-        $or: [
-          { name: new RegExp(search, 'i') }, // Case-insensitive search in name
-          { 'cetagory.name': new RegExp(search, 'i') }, // Case-insensitive search in category name
-        ],
-      };
+    if (search || categoryFilter) {
+      query.$and = [];
+      if (search) {
+        query.$and.push({
+          $or: [
+            { name: new RegExp(search, 'i') }, // Case-insensitive search in name
+          ],
+        });
+      }
+      if (categoryFilter) {
+        query.$and.push({ cetagory: categoryFilter });
+      }
     }
 
     try {
+      // Get all categories for the filter dropdown
+      const allCategories = await Catagery.find({ isListed: true });
+
       // Get the total number of products matching the search query
       const totalProducts = await product.countDocuments(query);
 
@@ -281,6 +290,8 @@ class AdminController {
         productLength: totalProducts,
         page,
         search,
+        selectedCategory: categoryFilter,
+        categories: allCategories, // Pass categories to view
         limit,
       });
     } catch (error) {
