@@ -255,7 +255,7 @@
                     <td class="product__cart__item">
                       <div class="product__cart__item__pic">
                         <img class="img-fluid" style="width: 100px; height: 100px"
-                          src="<%= item.productId.variant[item.index].images[0].startsWith('http') ? item.productId.variant[item.index].images[0] : '/img/productImage/sharp/' + item.productId.variant[item.index].images[0] %>" alt="" />
+                          src="<%= item.productId.variant[item.index].images[0] && item.productId.variant[item.index].images[0].startsWith('http') ? item.productId.variant[item.index].images[0] : '/img/productImage/sharp/' + item.productId.variant[item.index].images[0] %>" alt="" />
                       </div>
                       <div class="product__cart__item__text">
                         <h6 style="font-size: 12px"><%= item.productId.name %></h6>

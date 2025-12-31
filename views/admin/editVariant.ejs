@@ -214,7 +214,7 @@
                     <% for (let i=0; i < 4; i++) { %>
                     <div class="mb-4 col-lg-3 me-2">
                       <img
-                        src="<%= product.images[i].startsWith('http') ? product.images[i] : '/img/productImage/sharp/' + product.images[i] %>"
+                        src="<%= product.images && product.images[i] ? (product.images[i].startsWith('http') ? product.images[i] : '/img/productImage/sharp/' + product.images[i]) : '/assets/imgs/theme/upload.svg' %>"
                         id="image<%= i + 1 %>"
                         alt="Product image"
                         style="

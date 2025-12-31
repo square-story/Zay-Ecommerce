@@ -79,7 +79,7 @@
                 <div class="row">
                   <div class="col-md-3">
                     <% if (product.productId.variant && product.productId.variant.length > 0 && product.product >= 0 && product.productId.variant[product.product].images && product.productId.variant[product.product].images.length > 0) { %>
-                      <img src="<%= product.productId.variant[product.product].images[0].startsWith('http') ? product.productId.variant[product.product].images[0] : '/img/productImage/sharp/' + product.productId.variant[product.product].images[0] %>" class="img-fluid" alt="<%= product.productId.name %>">
+                      <img src="<%= product.productId.variant[product.product].images[0] && product.productId.variant[product.product].images[0].startsWith('http') ? product.productId.variant[product.product].images[0] : '/img/productImage/sharp/' + product.productId.variant[product.product].images[0] %>" class="img-fluid" alt="<%= product.productId.name %>">
                     <% } %>
                   </div>
                   <div class="col-md-6">
