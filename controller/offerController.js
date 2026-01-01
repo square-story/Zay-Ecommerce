@@ -161,8 +161,8 @@ class OfferController {
         return res.redirect('/admin/offer-management');
       }
 
-      if (discountAmount > 100) {
-        req.flash('errorMessages', 'Discount amount cannot exceed 100%.');
+      if (discountAmount > 79) {
+        req.flash('errorMessages', 'Discount amount cannot exceed 79%.');
         return res.redirect('/admin/offer-management');
       }
 
