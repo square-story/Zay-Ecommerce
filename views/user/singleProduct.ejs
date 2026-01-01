@@ -722,15 +722,24 @@
                 // Assuming response.success is true if the request was successful
                 if (response.success) {
                     $('#orderCancelation').modal('hide'); // Hide the modal
+                    // Update confirmation modal text
+                    $('#orderCancelationSent .modal-title').text('Order Canceled');
+                    $('#orderCancelationSent .modal-body').text(response.message || 'Order canceled successfully.');
                     $('#orderCancelationSent').modal('show'); // Show confirmation message
+                    
+                    // Reload page when modal is closed to update status
+                    $('#orderCancelationSent').on('hidden.bs.modal', function () {
+                        window.location.reload();
+                    });
                 } else {
                     // Handle error case
-                    alert('Failed to send cancellation request.');
+                    alert(response.message || 'Failed to cancel order.');
                 }
             },
-            error: function () {
+            error: function (err) {
                 // Handle error case
-                alert('Failed to send cancellation request.');
+                console.error(err);
+                alert('Failed to cancel order.');
             }
         });
     });
