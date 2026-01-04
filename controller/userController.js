@@ -190,11 +190,9 @@ module.exports.insertUser = async (req, res) => {
 
 const sentOtp = async (email) => {
   try {
+    console.log('Sending OTP...');
     const transport = nodemailer.createTransport({
       service: 'gmail',
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
       auth: {
         user: process.env.USER_AUTH,
         pass: process.env.USER_AUTH_PASS,
@@ -516,9 +514,6 @@ function generateResetToken() {
 async function sendVerificationEmail(user, token) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
     auth: {
       user: process.env.USER_AUTH,
       pass: process.env.USER_AUTH_PASS,
