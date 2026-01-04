@@ -192,10 +192,17 @@ const sentOtp = async (email) => {
   try {
     console.log('Sending OTP...');
     const transport = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      requireTLS: true,
       auth: {
         user: process.env.USER_AUTH,
         pass: process.env.USER_AUTH_PASS,
+      },
+      family: 4,
+      tls: {
+        rejectUnauthorized: true,
       },
     });
 
@@ -513,10 +520,17 @@ function generateResetToken() {
 
 async function sendVerificationEmail(user, token) {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    requireTLS: true,
     auth: {
       user: process.env.USER_AUTH,
       pass: process.env.USER_AUTH_PASS,
+    },
+    family: 4,
+    tls: {
+      rejectUnauthorized: true,
     },
   });
 
