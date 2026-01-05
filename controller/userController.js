@@ -191,6 +191,13 @@ module.exports.insertUser = async (req, res) => {
 const sentOtp = async (email) => {
   try {
     console.log('Sending OTP...');
+    console.log('SMTP Config:', {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      user: process.env.SMTP_USER,
+      passExists: !!process.env.SMTP_PASS
+    });
+
     const transport = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT, // 587
