@@ -102,14 +102,14 @@ class CetagoryController {
       const data = req.body.data;
 
       console.log(id, data);
-      const sameName = await Catagery.findOne({ name: data });
+      const sameName = await Catagery.findOne({ name: data.toLowerCase() });
       if (sameName) {
         return res.json({ fail: true });
       }
       if (id) {
         const update = await Catagery.updateOne(
           { _id: id },
-          { $set: { name: data } }
+          { $set: { name: data.toLowerCase() } }
         );
         if (update) {
           res.json({ updated: true });
