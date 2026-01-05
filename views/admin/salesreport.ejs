@@ -1,315 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sales Report</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-    .card-title {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    .btn-block {
-      margin-top: 10px;
-    }
-    .pagination {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .pagination .btn {
-      margin: 0 2px;
-    }
-    .hidden-page {
-      display: none;
-    }
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #f1f1f1;
-    }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sales Report</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="/assets/imgs/theme/favicon.svg"
+    />
+    <link href="/assets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+  </head>
 
-  <section class="breadcrumb-option">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="breadcrumb__text">
-                    <h4><a href="/admin/" style="text-decoration: none;">Back</a></h4>
-                </div>
-            </div>
+  <body>
+    <%- include('../partials/sidenav.ejs') -%>
+
+    <main class="main-wrap">
+      <section class="content-main">
+        <div class="content-header">
+          <h2 class="content-title">Sales Report</h2>
         </div>
-    </div>
-</section>
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-md-6 offset-md-3">
-        <div class="card">
+
+        <div class="card mb-4">
           <div class="card-body">
-            <h5 class="card-title text-center mb-4">Sales Report</h5>
-  
-            <form action="/admin/sales-report" method="get">
-              <div class="form-group">
-                <label for="startDate">Start Date</label>
-                <input
-                  type="date"
-                  class="form-control"
-                  name="startDate"
-                  id="startDate"
-                  value="<%= startDate %>"
-                />
+            <div class="row">
+              <div class="col-md-12">
+                <form action="/admin/sales-report" method="get" class="mb-4">
+                  <div class="row align-items-end">
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          name="startDate"
+                          id="startDate"
+                          value="<%= startDate %>"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input
+                          type="date"
+                          name="endDate"
+                          class="form-control"
+                          id="endDate"
+                          value="<%= endDate %>"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-md rounded font-sm">
+                          Apply Filter
+                        </button>
+                        <button
+                          type="button"
+                          onclick="downloadPDF()"
+                          class="btn btn-secondary btn-md rounded font-sm"
+                        >
+                          PDF
+                        </button>
+                        <button
+                          type="button"
+                          onclick="downloadExcel()"
+                          class="btn btn-light btn-md rounded font-sm"
+                        >
+                          Excel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                
+                <div class="mb-4">
+                    <button onclick="applyFilter('daily')" class="btn btn-xs">Daily</button>
+                    <button onclick="applyFilter('weekly')" class="btn btn-xs">Weekly</button>
+                    <button onclick="applyFilter('yearly')" class="btn btn-xs">Yearly</button>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="endDate">End Date</label>
-                <input
-                  type="date"
-                  name="endDate"
-                  class="form-control"
-                  id="endDate"
-                  value="<%= endDate %>"
-                />
-              </div>              
-              <button type="submit" class="btn btn-success btn-block">
-                Apply Filter
-              </button>
-              <button type="button" onclick="downloadPDF()" class="btn btn-secondary btn-block">Download PDF</button>
-              <button type="button" onclick="downloadExcel()" class="btn btn-info btn-block">Download Excel</button>
-            </form>
-  
-            <div class="mt-3">
-              <button onclick="applyFilter('daily')" class="btn btn-dark">Daily</button>
-              <button onclick="applyFilter('weekly')" class="btn btn-dark">Weekly</button>
-              <button onclick="applyFilter('yearly')" class="btn btn-dark">Yearly</button>
             </div>
+
+            <div class="table-responsive">
+              <h6 class="text-center mb-3">SALE REPORT - Page <%= currentPage %></h6>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Index</th>
+                    <th scope="col">Users</th>
+                    <th scope="col">Payment Method</th>
+                    <th scope="col">Coupon Amount</th>
+                    <th scope="col">Total Amount</th>
+                    <th scope="col">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% let totalAmount = 0; %> <% report.forEach((el, i) => { %>
+                  <tr>
+                    <td><%= (currentPage - 1) * itemsPerPage + i + 1 %></td>
+                    <td><%= el.user.name %></td>
+                    <td><%= el.paymentMethod %></td>
+                    <td><%= el.discountedAmount %></td>
+                    <td><%= el.totalAmount %></td>
+                    <td>
+                      <%= new Date(el.date).toLocaleDateString('en-US', {
+                      weekday: 'short', month: 'short', day: 'numeric' }) %>
+                    </td>
+                  </tr>
+                  <% totalAmount += el.totalAmount; %> <% }) %>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="text-end">
+                      <strong>Total Sales Amount:</strong>
+                    </td>
+                    <td colspan="2">
+                      <strong><%= totalAmount.toFixed(2) %></strong>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-area mt-30 mb-50">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-start">
+                        <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/admin/sales-report?page=<%= currentPage - 1 %>&startDate=<%= startDate %>&endDate=<%= endDate %>">
+                                <i class="material-icons md-chevron_left"></i>
+                            </a>
+                        </li>
+                        <% } %>
+
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="/admin/sales-report?page=<%= i %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %></a>
+                        </li>
+                        <% } %>
+
+                        <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/admin/sales-report?page=<%= currentPage + 1 %>&startDate=<%= startDate %>&endDate=<%= endDate %>">
+                                <i class="material-icons md-chevron_right"></i>
+                            </a>
+                        </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+
           </div>
         </div>
-      </div>
-    </div>
-  
-    <div id="salesReport" class="mt-4">
-      <h6 class="text-center">SALE REPORT - Page <%= currentPage %></h6>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Index</th>
-            <th scope="col">Users</th>
-            <th scope="col">Payment Method</th>
-            <th scope="col">Coupon Amount</th>
-            <th scope="col">Total Amount</th>
-            <th scope="col">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% let totalAmount = 0; %>
-          <% report.forEach((el, i) => { %>
-          <tr>
-            <th scope="row"><%= (currentPage - 1) * itemsPerPage + i + 1 %></th>
-            <td><%= el.user.name %></td>
-            <td><%= el.paymentMethod %></td>
-            <td><%= el.discountedAmount %></td>
-            <td><%= el.totalAmount %></td>
-            <td><%= new Date(el.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %></td>
-          </tr>
-          <% totalAmount += el.totalAmount; %>
-          <% }) %>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="4" class="text-end"><strong>Total Sales Amount:</strong></td>
-            <td colspan="2"><strong><%= totalAmount.toFixed(2) %></strong></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-    
-  
-    <div class="pagination">
-      <% if (currentPage > 1) { %>
-      <a href="/admin/sales-report?page=<%= currentPage - 1 %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="btn btn-dark">Previous</a>
-      <% } %>
-      <% for (let i = 1; i <= totalPages; i++) { %>
-      <a href="/admin/sales-report?page=<%= i %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="btn btn-dark"><%= i %></a>
-      <% } %>
-      <% if (currentPage < totalPages) { %>
-      <a href="/admin/sales-report?page=<%= currentPage + 1 %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="btn btn-dark">Next</a>
-      <% } %>
-    </div>
-  </div>
+      </section>
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+          <div class="col-sm-6">
+            <script>
+              document.write(new Date().getFullYear());
+            </script>
+            &copy; Nest - HTML Ecommerce Template .
+          </div>
+          <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+          </div>
+        </div>
+      </footer>
+    </main>
 
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
         const startDateInput = document.getElementById('startDate');
         const endDateInput = document.getElementById('endDate');
-    
+
+        // Set max date to today
+        const today = new Date().toISOString().split('T')[0];
+        startDateInput.setAttribute('max', today);
+        endDateInput.setAttribute('max', today);
+
         function isValidDate(dateStr) {
-            const date = new Date(dateStr);
-            return !isNaN(date.getTime());
+          const date = new Date(dateStr);
+          return !isNaN(date.getTime());
         }
-    
+
         function isValidDateRange(startDateStr, endDateStr) {
-            const startDate = new Date(startDateStr);
-            const endDate = new Date(endDateStr);
-            return isValidDate(startDateStr) && isValidDate(endDateStr) && startDate <= endDate;
+          const startDate = new Date(startDateStr);
+          const endDate = new Date(endDateStr);
+          const now = new Date();
+           // Normalize now to eliminate time component for fair comparison
+           now.setHours(0,0,0,0);
+           // Also normalize start/end dates from string to eliminate potential issues
+           startDate.setHours(0,0,0,0);
+           endDate.setHours(0,0,0,0);
+
+          if (startDate > now || endDate > now) {
+              return false;
+          }
+          return isValidDate(startDateStr) && isValidDate(endDateStr) && startDate <= endDate;
         }
-    
+
         function updateEndDateMin() {
-            const startDateValue = new Date(startDateInput.value);
-            if (startDateValue && isValidDate(startDateInput.value)) {
-                const minEndDate = new Date(startDateValue);
-                minEndDate.setDate(minEndDate.getDate() + 1); // Set endDate to be at least 1 day after startDate
-                endDateInput.setAttribute('min', minEndDate.toISOString().split('T')[0]);
-            } else {
-                endDateInput.removeAttribute('min');
-            }
+          const startDateValue = new Date(startDateInput.value);
+          if (startDateValue && isValidDate(startDateInput.value)) {
+            const minEndDate = new Date(startDateValue);
+            // endDateInput.setAttribute('min', minEndDate.toISOString().split('T')[0]);
+            // If we want same day to be allowed, we don't add +1 day.
+            // But if we want at least same day:
+            endDateInput.setAttribute('min', startDateInput.value);
+          } else {
+            endDateInput.removeAttribute('min');
+          }
         }
-    
+
         startDateInput.addEventListener('change', updateEndDateMin);
         updateEndDateMin(); // Initial setup
-    
-        function downloadPDF() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const startDate = urlParams.get('startDate');
-            const endDate = urlParams.get('endDate');
-    
-            if (!startDate || !endDate) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Missing Dates',
-                    text: 'Please select both start and end dates before downloading the report.',
-                });
-                return;
-            }
-    
-            if (!isValidDateRange(startDate, endDate)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Dates',
-                    text: 'Please ensure that both dates are valid and that the start date is before the end date.',
-                });
-                return;
-            }
-    
+
+        window.downloadPDF = function() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const startDate = urlParams.get('startDate') || startDateInput.value;
+          const endDate = urlParams.get('endDate') || endDateInput.value;
+
+          if (!startDate || !endDate) {
             Swal.fire({
-                title: 'Download PDF Report?',
-                text: 'You are about to download the sales report in PDF format.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Download',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = `/admin/download-sales-report?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
-                }
+              icon: 'error',
+              title: 'Missing Dates',
+              text: 'Please select both start and end dates before downloading the report.',
             });
-        }
-    
-        function downloadExcel() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const startDate = urlParams.get('startDate');
-            const endDate = urlParams.get('endDate');
-    
-            if (!startDate || !endDate) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Missing Dates',
-                    text: 'Please select both start and end dates before downloading the report.',
-                });
-                return;
-            }
-    
-            if (!isValidDateRange(startDate, endDate)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Dates',
-                    text: 'Please ensure that both dates are valid and that the start date is before the end date.',
-                });
-                return;
-            }
-    
+            return;
+          }
+
+          if (!isValidDateRange(startDate, endDate)) {
             Swal.fire({
-                title: 'Download Excel Report?',
-                text: 'You are about to download the sales report in Excel format.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Download',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = `/admin/download-sales-report-excel?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
-                }
+              icon: 'error',
+              title: 'Invalid Dates',
+              text: 'Start date cannot be after end date, and dates cannot be in the future.',
             });
-        }
-    
-        function applyFilter(filterType) {
-            const currentDate = new Date();
-            let startDate, endDate;
-    
-            if (filterType === 'daily') {
-                startDate = new Date(currentDate);
-                endDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
-            } else if (filterType === 'weekly') {
-                startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
-                endDate = new Date();
-            } else if (filterType === 'yearly') {
-                startDate = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1));
-                endDate = new Date();
+            return;
+          }
+
+          Swal.fire({
+            title: 'Download PDF Report?',
+            text: 'You are about to download the sales report in PDF format.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Download',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#3BB77E', 
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = `/admin/download-sales-report?startDate=${encodeURIComponent(
+                startDate,
+              )}&endDate=${encodeURIComponent(endDate)}`;
             }
-    
-            if (endDate < startDate) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Date Range',
-                    text: 'End date cannot be earlier than start date.',
-                });
-                return;
-            }
-    
-            startDateInput.value = startDate.toISOString().split('T')[0];
-            endDateInput.value = endDate.toISOString().split('T')[0];
-    
-            // Trigger the input event to update the min value of endDateInput
-            startDateInput.dispatchEvent(new Event('change'));
-            startDateInput.form.submit();
+          });
         }
-    
-        // Expose functions to the global scope if needed
-        window.downloadPDF = downloadPDF;
-        window.downloadExcel = downloadExcel;
-        window.applyFilter = applyFilter;
-    });
+
+        window.downloadExcel = function() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const startDate = urlParams.get('startDate') || startDateInput.value;
+          const endDate = urlParams.get('endDate') || endDateInput.value;
+
+          if (!startDate || !endDate) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Missing Dates',
+              text: 'Please select both start and end dates before downloading the report.',
+            });
+            return;
+          }
+
+          if (!isValidDateRange(startDate, endDate)) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Invalid Dates',
+              text: 'Start date cannot be after end date, and dates cannot be in the future.',
+            });
+            return;
+          }
+
+          Swal.fire({
+            title: 'Download Excel Report?',
+            text: 'You are about to download the sales report in Excel format.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Download',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#3BB77E', 
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = `/admin/download-sales-report-excel?startDate=${encodeURIComponent(
+                startDate,
+              )}&endDate=${encodeURIComponent(endDate)}`;
+            }
+          });
+        }
+
+        window.applyFilter = function(filterType) {
+          const currentDate = new Date();
+          let startDate, endDate;
+
+          if (filterType === 'daily') {
+            startDate = new Date(currentDate);
+            endDate = new Date(currentDate); 
+          } else if (filterType === 'weekly') {
+            startDate = new Date(currentDate);
+            startDate.setDate(currentDate.getDate() - 7);
+            endDate = new Date(); // To today
+          } else if (filterType === 'yearly') {
+             startDate = new Date(currentDate);
+            startDate.setFullYear(currentDate.getFullYear() - 1);
+            endDate = new Date();
+          }
+          
+          if(!startDate || !endDate) return;
+
+          startDateInput.value = startDate.toISOString().split('T')[0];
+          endDateInput.value = endDate.toISOString().split('T')[0];
+
+          // Trigger the input event to update the min value of endDateInput
+          startDateInput.dispatchEvent(new Event('change'));
+          startDateInput.form.submit();
+        }
+      });
     </script>
-    
-</body>
+  </body>
 </html>
