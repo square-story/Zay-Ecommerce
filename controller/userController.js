@@ -174,7 +174,7 @@ module.exports.insertUser = async (req, res) => {
     const savedUser = await user.save();
 
     if (savedUser) {
-      sentOtp(user.email);
+      await sentOtp(user.email);
       res.redirect(`/otp?email=${user.email}`);
     } else {
       console.log('User not saved.');
@@ -192,32 +192,32 @@ const sentOtp = async (email) => {
   try {
     console.log('Sending OTP...');
     const transport = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT, // 587
+      secure: false,
       requireTLS: true,
       auth: {
-        user: process.env.USER_AUTH,
-        pass: process.env.USER_AUTH_PASS,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
-      family: 4,
       tls: {
-        rejectUnauthorized: true,
+        rejectUnauthorized: false,
       },
     });
+
 
     const createdOTP = `${Math.floor(1000 + Math.random() * 9000)}`;
 
     const mailOption = {
-      from: process.env.USER_AUTH,
+      from: process.env.SMTP_USER,
       to: email,
       subject: 'OTP Verification',
       html: `Your otp is ${createdOTP}`,
     };
 
-    await transport.sendMail(mailOption);
+    const sendMail = await transport.sendMail(mailOption);
     const hashOTP = await bcrypt.hash(createdOTP, 10);
-
+    console.log(hashOTP, sendMail);
     const otp = new verifyOtp({
       Email: email,
       otp: hashOTP,
@@ -469,7 +469,7 @@ module.exports.resend = async (req, res) => {
     console.log(email);
     if (email) {
       await verifyOtp.deleteMany({ Email: email });
-      sentOtp(email);
+      await sentOtp(email);
       res.json({ ok: true });
     } else {
       console.log("Email is Doesn't Recived");
@@ -520,22 +520,21 @@ function generateResetToken() {
 
 async function sendVerificationEmail(user, token) {
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT, // 587
     secure: false,
     requireTLS: true,
     auth: {
-      user: process.env.USER_AUTH,
-      pass: process.env.USER_AUTH_PASS,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
-    family: 4,
     tls: {
-      rejectUnauthorized: true,
+      rejectUnauthorized: false,
     },
   });
 
   const mailOptions = {
-    from: process.env.USER_AUTH,
+    from: process.env.SMTP_USER,
     to: user.email,
     subject: 'Account Verification',
     html: `
