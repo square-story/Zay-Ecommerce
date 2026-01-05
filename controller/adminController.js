@@ -336,8 +336,8 @@ class AdminController {
 
   loadOrder = async (req, res) => {
     try {
-      const page = req.query.page;
-      const orderLength = await Order.find();
+      const page = req.query.page || 0;
+      const totalOrders = await Order.countDocuments();
       const order = await Order.find()
         .populate('user')
         .populate('products.productId')
@@ -349,7 +349,7 @@ class AdminController {
       res.render('order-details', {
         order: order,
         page: parseInt(page),
-        orderLength: orderLength.length,
+        orderLength: Math.ceil(totalOrders / 8),
       });
     } catch (error) {
       console.log(error);

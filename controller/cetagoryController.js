@@ -3,8 +3,8 @@ const Catagery = require('../models/cetagory');
 class CetagoryController {
   loadCategory = async (req, res) => {
     try {
-      const page = req.query.page;
-      const CetageryLength = await Catagery.find();
+      const page = parseInt(req.query.page) || 0;
+      const totalCategories = await Catagery.countDocuments();
       return Catagery.find()
         .skip(page * 4)
         .limit(4)
@@ -12,8 +12,8 @@ class CetagoryController {
           if (data) {
             res.render('Catagery', {
               cetagorys: data,
-              page: parseInt(page),
-              cetagoryLength: CetageryLength.length,
+              page: page,
+              cetagoryLength: Math.ceil(totalCategories / 4),
             });
           }
         });
