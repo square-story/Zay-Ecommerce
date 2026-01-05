@@ -493,7 +493,7 @@ class AdminController {
 
         // Refund amount to wallet or Razorpay
         if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
-          await updateWallet(userId, refundAmount, 'credit', `Order Returned - ${orderId}`);
+          await updateWallet(userId, refundAmount, 'credit', `Order Returned - Order id:${orderId.toString().slice(-6).toUpperCase()}`);
         }
 
         // If the coupon was applied and the remaining total is below the minimum amount, update the coupon's usage

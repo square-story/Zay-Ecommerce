@@ -309,7 +309,7 @@ const handleCOD = async (orderDetails, userId, products) => {
 };
 
 async function handleWalletPayment(userId, finalAmount, orderId) {
-  const result = await updateWallet(userId, finalAmount, 'debit', `Order Payment - ${orderId}`);
+  const result = await updateWallet(userId, finalAmount, 'debit', `Order Payment - Order id:${orderId.toString().slice(-6).toUpperCase()}`);
   return result;
 }
 
@@ -510,7 +510,7 @@ module.exports.orderCancellation = async (req, res) => {
     // Refund amount to wallet or initiate Razorpay refund if applicable
     // Only if payment was completed.
     if ((order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') && order.paymentStatus === 'completed') {
-      await updateWallet(userId, refundAmount, 'credit', `Order Cancelled - ${orderId}`);
+      await updateWallet(userId, refundAmount, 'credit', `Order Cancelled - Order id:${orderId.toString().slice(-6).toUpperCase()}`);
     }
 
     // If the coupon was applied and removed, update the coupon's usage
