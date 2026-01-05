@@ -200,8 +200,8 @@ const sentOtp = async (email) => {
 
     const transport = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT, // 587
-      secure: false,
+      port: process.env.SMTP_PORT,
+      secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
       requireTLS: true,
       auth: {
         user: process.env.SMTP_USER,
@@ -528,8 +528,8 @@ function generateResetToken() {
 async function sendVerificationEmail(user, token) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT, // 587
-    secure: false,
+    port: process.env.SMTP_PORT,
+    secure: Number(process.env.SMTP_PORT) === 465,
     requireTLS: true,
     auth: {
       user: process.env.SMTP_USER,
