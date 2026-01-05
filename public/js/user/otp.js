@@ -1,98 +1,115 @@
 // script.js
 const inputs = document.getElementById('inputs');
+const resendBtn = document.getElementById('resend');
+const timerElement = document.getElementById('timer');
 
-inputs.addEventListener('input', function (e) {
-  const target = e.target;
-  const val = target.value;
+// Focus handling for OTP inputs
+if (inputs) {
+  inputs.addEventListener('input', function (e) {
+    const target = e.target;
+    const val = target.value;
 
-  if (isNaN(val)) {
-    target.value = '';
-    return;
-  }
-
-  if (val != '') {
-    const next = target.nextElementSibling;
-    if (next) {
-      next.focus();
+    if (isNaN(val)) {
+      target.value = '';
+      return;
     }
-  }
-});
 
-inputs.addEventListener('keyup', function (e) {
-  const target = e.target;
-  const key = e.key.toLowerCase();
-
-  if (key == 'backspace' || key == 'delete') {
-    target.value = '';
-    const prev = target.previousElementSibling;
-    if (prev) {
-      prev.focus();
+    if (val != '') {
+      const next = target.nextElementSibling;
+      if (next) {
+        next.focus();
+      }
     }
-    return;
-  }
-});
+  });
+
+  inputs.addEventListener('keyup', function (e) {
+    const target = e.target;
+    const key = e.key.toLowerCase();
+
+    if (key == 'backspace' || key == 'delete') {
+      target.value = '';
+      const prev = target.previousElementSibling;
+      if (prev) {
+        prev.focus();
+      }
+      return;
+    }
+  });
+}
 
 let countdownInterval;
+const COUNTDOWN_TIME = 60;
+
 function startCountdown(initialValue) {
   let n = initialValue;
+
+  // Disable button and ensure styling reflects it
+  resendBtn.style.pointerEvents = 'none';
+  resendBtn.style.opacity = '0.5';
+  resendBtn.style.cursor = 'not-allowed';
+
+  if (timerElement) {
+    timerElement.style.display = 'inline';
+    timerElement.textContent = `Verify in ${n}s`;
+  }
+
+  clearInterval(countdownInterval); // Clear any existing interval
   countdownInterval = setInterval(() => {
-    if (n === 0) {
-      clearInterval(countdownInterval);
+    n--;
+    if (timerElement) {
+      timerElement.textContent = `Verify in ${n}s`;
     }
-    document.querySelector('.time').innerHTML = n;
-    n = n - 1;
+
+    if (n <= 0) {
+      clearInterval(countdownInterval);
+      enableResend();
+    }
   }, 1000);
 }
 
-function resend() {
-  clearInterval(countdownInterval);
-  startCountdown(60);
-}
-startCountdown(60);
-
-document.getElementById('resend').onclick = function () {
-  resend();
-};
-
-document.getElementById('resend').addEventListener('click', () => {
-  try {
-    // const currentUrl = window.location.href;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email');
-
-    console.log(email);
-
-    const postUrl =
-      '/resend' + (email ? `?email=${encodeURIComponent(email)}` : '');
-    console.log(postUrl);
-    fetch(postUrl, {
-      method: 'POST',
-    })
-      .then((response) => {
-        if (response.ok) {
-          console.log('Resend request successful');
-        } else {
-          console.error('Resend request failed');
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  } catch (error) {
-    console.error('Error:', error);
+function enableResend() {
+  if (timerElement) {
+    timerElement.style.display = 'none'; // Hide timer when finished
   }
-});
 
-function reset(btn) {
-  setTimeout(() => {
-    btn.classList.remove('text-danger');
-  }, 3000);
+  resendBtn.style.pointerEvents = 'auto';
+  resendBtn.style.opacity = '1';
+  resendBtn.style.cursor = 'pointer';
+  resendBtn.textContent = 'Resend OTP';
 }
 
-const btn = document.getElementById('resend');
+function handleResend() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const email = urlParams.get('email');
 
-btn.addEventListener('click', () => {
-  btn.classList.add('text-danger');
-  reset(btn);
-});
+  console.log('Resending OTP to:', email);
+
+  const postUrl = '/resend' + (email ? `?email=${encodeURIComponent(email)}` : '');
+
+  fetch(postUrl, {
+    method: 'POST',
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log('Resend request successful');
+        // Restart countdown only on success or as desired logic
+        startCountdown(COUNTDOWN_TIME);
+      } else {
+        console.error('Resend request failed');
+        // Optional: Show error message to user
+        alert('Failed to resend OTP. Please try again.');
+        enableResend(); // Re-enable if failed so they can try again
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      alert('An error occurred. Please check your connection.');
+      enableResend();
+    });
+}
+
+// Initialize
+if (resendBtn) {
+  resendBtn.addEventListener('click', handleResend);
+  startCountdown(COUNTDOWN_TIME);
+}

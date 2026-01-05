@@ -1,39 +1,41 @@
 <%- include('../layout/header.ejs') -%>
 
-<div class="wrapper">
-  <div class="" style="margin-left: 5rem">
-    <img src="assets2\img\apple-icon.png" alt="" />
-  </div>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+  <div class="card shadow-lg p-5" style="max-width: 500px; width: 100%; border-radius: 1rem;">
+    <div class="text-center mb-4">
+      <img src="assets2/img/apple-icon.png" alt="Logo" style="width: 50px; height: auto; margin-bottom: 1rem;">
+      <h3 class="fw-bold">OTP Login</h3>
+      <p class="text-muted">Enter your email to receive a One-Time Password.</p>
+    </div>
 
-  <div class="text-center mb-4">
-    <h3>OTP Login</h3>
-  </div>
+    <% if (messages && messages.blocked) { %>
+      <div class="alert alert-danger text-center" role="alert"><%= messages.blocked %></div>
+    <% } %>
+    <% if (messages && messages.error) { %>
+      <div class="alert alert-danger text-center" role="alert"><%= messages.error %></div>
+    <% } %>
 
-  <div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-      <% if (messages && messages.blocked) { %>
-        <div class="alert alert-danger" role="alert"><%= messages.blocked %></div>
-      <% } %>
-      <% if (messages && messages.error) { %>
-        <div class="alert alert-danger" role="alert"><%= messages.error %></div>
-      <% } %>
+    <form id="myform" action="/send-otp" method="post">
+      <div class="mb-4">
+        <label for="input" class="form-label visually-hidden">Email Address</label>
+        <input
+          class="form-control form-control-lg"
+          type="email"
+          name="email"
+          placeholder="Enter your email"
+          id="input"
+          required
+        />
+      </div>
+      <div class="d-grid gap-2">
+        <button class="btn btn-success btn-lg" type="submit">Send OTP</button>
+      </div>
+    </form>
+    
+    <div class="text-center mt-3">
+        <a href="/login" class="text-decoration-none">Back to Login</a>
     </div>
   </div>
-
-  <form id="myform" action="/send-otp" method="post">
-    <div class="input-box mb-3">
-      <input
-        class="form-control"
-        type="email"
-        name="email"
-        placeholder="Enter your email"
-        id="input"
-        required
-      />
-    </div>
-    <div class="input-box button d-grid">
-      <input class="btn btn-outline-dark" type="Submit" value="Send OTP" />
-    </div>
-  </form>
 </div>
+
 <%- include('../layout/footer.ejs') -%>
