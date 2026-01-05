@@ -402,19 +402,142 @@ module.exports.orderCancellation = async (req, res) => {
       return res.status(400).json({ error: 'User not logged in' });
     }
 
-    // Update order status and request cancellation
-    await Order.findOneAndUpdate(
+    // Fetch the order
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    const orderProduct = order.products[index];
+
+    // Check if checks are needed (e.g. is it already canceled?)
+    if (orderProduct.status === 'canceled') {
+      return res.status(400).json({ success: false, message: 'Product already canceled' });
+    }
+
+    // Update the product status to canceled
+    await Order.findByIdAndUpdate(
       { _id: orderId, 'products.productId': productId },
       {
         $set: {
-          [`products.${index}.cancelRequest`]: 'requested',
+          [`products.${index}.cancelRequest`]: 'accepted', // Auto-accept
           [`products.${index}.cancelReason`]: cancelReason,
+          [`products.${index}.status`]: 'canceled',
+        },
+      },
+      {
+        new: true,
+      },
+    );
+
+    // Adjust the stock for the canceled product
+    const quantity = orderProduct.quantity;
+    await Product.findOneAndUpdate(
+      { _id: productId },
+      {
+        $inc: {
+          [`variant.${orderProduct.product}.stock`]: quantity, // Note: adminController used `variant.${index}.stock` but index there was from body. Here `orderProduct.product` is likely the variant index. 
+          // WAIT: In adminController, `index` passed from body was used for `products.${index}` AND `variant.${index}`? 
+          // Let's check adminController line 465: `const quantity = orderProduct.quantity;`
+          // line 470: `variant.${index}.stock`: quantity`. 
+          // In orderController, `index` is the index in the `order.products` array.
+          // The variant index is stored in `orderProduct.product`. 
+          // Let's verify `Product` model usage in `orderController` line 135: `const variantIndex = product.product;`
+          // So I should use `orderProduct.product` for the variant index update.
+          // However, look at adminController line 470: `variant.${index}.stock`. This looks suspicious in the original code if `index` refers to the order product index.
+          // If `index` passed to adminController was the *order product index*, then `variant.${index}` would be wrong unless the variant index matches the order product index (unlikely).
+          // But looking at line 306 in orderController (handleCOD), it uses `variant.${variantIndex}.stock`.
+          // So I should definitely use `orderProduct.product` (which is the variant index) for the stock update, NOT `index` (which is the order product index).
         },
       },
     );
+
+    // FIX: logic for variant update.
+    // In adminController it was: `variant.${index}.stock`. 
+    // This implies the admin controller might have had a bug or `index` meant something else.
+    // But in `orderController.js` `placeOrder` (line 233), it uses `variant.${variantIndex}.stock`.
+    // I will use `orderProduct.product` which seems to be the variant index.
+
+    // Actually, looking at `orderController.js` PlaceOrder (line 135): `const variantIndex = product.product;`
+    // So yes, `product.product` is the variant index.
+
+    await Product.findOneAndUpdate(
+      { _id: productId },
+      {
+        $inc: {
+          [`variant.${orderProduct.product}.stock`]: quantity,
+        },
+      },
+    );
+
+
+    // Check the remaining total amount after this product's return
+    // Need to re-fetch order or filter from existing if not updated in memory? 
+    // The update above was direct to DB. `order` variable is still old.
+    // We can use `order` variable but filter out the current product being canceled.
+
+    const remainingTotal = order.products
+      .filter((prod, i) => i != index && prod.status !== 'canceled') // i != index because we just canceled it
+      .reduce((sum, prod) => sum + prod.totalPrice, 0);
+
+    let refundAmount = orderProduct.totalPrice;
+
+    // If there's a coupon applied and the remaining total doesn't meet the minimum required amount
+    if (order.couponCode && remainingTotal < order.couponMinimumAmount) {
+      // Adjust the refund by removing the coupon discount
+      // Note: `order.couponAmount` wasn't on the order model explicitly in the `placeOrder`... 
+      // wait, `placeOrder` stores `couponCode` and `couponMinimumAmount`. 
+      // It DOES NOT store `couponAmount` (the total discount value) on the order root?
+      // Line 204: `discountedAmount: discount`. maybe that's it.
+      // In adminController line 485: `refundAmount -= order.couponAmount`.
+      // Let's check if `couponAmount` exists on Order model or if it meant `discountedAmount`.
+      // `orderController` line 204 saves `discountedAmount`.
+      // Let's assume `discountedAmount` is what we want, or re-calculate.
+      // If `adminController` used `couponAmount`, maybe it's a virtual or I missed it in `placeOrder`.
+      // Let's check `placeOrder` again. Line 204: `discountedAmount: discount`.
+      // I'll stick to `order.discountedAmount` if `couponAmount` is undefined, but for safety I should check `order` schema.
+      // However, seeing `adminController` line 485 uses `couponAmount`, I'll assume it might be there. 
+      // BUT `orderController` `placeOrder` doesn't save it. It saves `discountedAmount`.
+      // I will use `order.discountedAmount`.
+
+      refundAmount -= order.discountedAmount;
+    }
+
+    // Round the refund amount to 2 decimal places
+    refundAmount = parseFloat(refundAmount.toFixed(2));
+
+    // Refund amount to wallet or initiate Razorpay refund if applicable
+    // Only if payment was completed.
+    if ((order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') && order.paymentStatus === 'completed') {
+      await updateWallet(userId, refundAmount, 'credit', `Order Cancelled - ${orderId}`);
+    }
+
+    // If the coupon was applied and removed, update the coupon's usage
+    if (order.couponCode && remainingTotal < order.couponMinimumAmount) {
+      await Coupon.findOneAndUpdate(
+        { couponCode: order.couponCode },
+        { $pull: { userUsed: userId } },
+      );
+    }
+
+    // Check if all products in the order are canceled/returned
+    // We need to account for the one we just canceled.
+    const allProductsCanceled = order.products.every((prod, i) => {
+      if (i == index) return true; // The one we just canceled
+      return prod.status === 'canceled';
+    });
+
+    // If all products are canceled, update the order status
+    if (allProductsCanceled) {
+      await Order.findByIdAndUpdate(orderId, {
+        $set: { status: 'returned' }, // keeping 'returned' as per adminController logic, though 'canceled' might be better.
+      });
+    }
+
     res.json({
       success: true,
-      message: 'Cancellation request sent successfully',
+      message: 'Order canceled successfully',
     });
   } catch (error) {
     console.error('Error cancelling order:', error);

@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const Wallet = require('../models/walletModel');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
+const axios = require('axios');
 const verifyOtp = require('../models/otpVerification');
 const Product = require('../models/product');
 const Address = require('../models/address');
@@ -174,7 +175,7 @@ module.exports.insertUser = async (req, res) => {
     const savedUser = await user.save();
 
     if (savedUser) {
-      sentOtp(user.email);
+      await sentOtp(user.email);
       res.redirect(`/otp?email=${user.email}`);
     } else {
       console.log('User not saved.');
@@ -188,42 +189,47 @@ module.exports.insertUser = async (req, res) => {
 
 // sent otp and load otp page
 
+const sendEmailViaBrevo = async (toEmail, subject, htmlContent) => {
+  try {
+    const response = await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: { email: process.env.SMTP_USER },
+        to: [{ email: toEmail }],
+        subject: subject,
+        htmlContent: htmlContent,
+      },
+      {
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json',
+          'accept': 'application/json',
+        },
+      }
+    );
+    console.log('Email sent successfully via Brevo API:', response.data);
+    return true;
+  } catch (error) {
+    console.error('Error sending email via Brevo API:', error.response ? error.response.data : error.message);
+    return false;
+  }
+};
+
 const sentOtp = async (email) => {
   try {
-    const transport = nodemailer.createTransport({
-      service: 'gmail',
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.USER_AUTH,
-        pass: process.env.USER_AUTH_PASS,
-      },
-    });
-
+    console.log('Sending OTP via Brevo API...');
     const createdOTP = `${Math.floor(1000 + Math.random() * 9000)}`;
+    const htmlContent = `<p>Your otp is ${createdOTP}</p>`;
 
-    const mailOption = {
-      from: process.env.USER_AUTH,
-      to: email,
-      subject: 'OTP Verification',
-      html: `Your otp is ${createdOTP}`,
-    };
+    await sendEmailViaBrevo(email, 'OTP Verification', htmlContent);
 
-    await transport.sendMail(mailOption);
     const hashOTP = await bcrypt.hash(createdOTP, 10);
-
     const otp = new verifyOtp({
       Email: email,
       otp: hashOTP,
     });
 
     await otp.save();
-    // const isSave = await otp.save();
-
-    // if(isSave) {
-
-    // }
   } catch (error) {
     console.log(error);
   }
@@ -464,7 +470,7 @@ module.exports.resend = async (req, res) => {
     console.log(email);
     if (email) {
       await verifyOtp.deleteMany({ Email: email });
-      sentOtp(email);
+      await sentOtp(email);
       res.json({ ok: true });
     } else {
       console.log("Email is Doesn't Recived");
@@ -514,33 +520,12 @@ function generateResetToken() {
 }
 
 async function sendVerificationEmail(user, token) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.USER_AUTH,
-      pass: process.env.USER_AUTH_PASS,
-    },
-  });
+  const htmlContent = `
+    <p>Click on the link below to verify your account:</p>
+    <a href="${process.env.PROJECT_URL}/change-password/${user._id}/${token}">Verify Account</a>
+  `;
 
-  const mailOptions = {
-    from: process.env.USER_AUTH,
-    to: user.email,
-    subject: 'Account Verification',
-    html: `
-      <p>Click on the link below to verify your account:</p>
-      <a href=${process.env.PROJECT_URL}/change-password/${user._id}/${token}">Verify Account</a>
-    `,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('Verification email sent to:', user.email);
-  } catch (error) {
-    console.error('Error sending email:', error);
-  }
+  await sendEmailViaBrevo(user.email, 'Account Verification', htmlContent);
 }
 
 // User verification controller
