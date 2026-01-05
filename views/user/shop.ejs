@@ -29,6 +29,9 @@
         <form action="" method="get" class="modal-content modal-body border-0 p-0">
             <div class="input-group mb-2">
                 <input type="text" class="form-control" id="inputModalSearch" name="q" placeholder="Search ...">
+                <button type="button" class="input-group-text bg-white text-muted border-start-0" id="clearModalSearch" style="display: none; cursor: pointer;">
+                    <i class="fa fa-times"></i>
+                </button>
                 <button type="submit" class="input-group-text bg-success text-light">
                     <i class="fa fa-fw fa-search text-white"></i>
                 </button>
@@ -46,7 +49,12 @@
             <h1 class="h2 pb-4">Sort By</h1>
             <div class="pb-3">
                 <label for="searchQuery" class="form-label">Search</label>
-                <input type="text" id="searchQuery" class="form-control" placeholder="Search products..." value="<%= searchQuery %>">
+                <div class="input-group">
+                    <input type="text" id="searchQuery" class="form-control" placeholder="Search products..." value="<%= searchQuery %>">
+                    <button type="button" class="input-group-text bg-white text-muted border-start-0" id="clearShopSearch" style="display: none; cursor: pointer;">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div class="pb-3">
                 <label class="form-label">Category</label>
@@ -115,7 +123,7 @@
                             <a href="/productDetails?id=<%= item._id %>&index=0" class="text-decoration-none">
                                 <div class="card mb-4 product-wap rounded-0">
                                     <div class="card rounded-0 position-relative">
-                                        <img class="card-img rounded-0 img-fluid" src="<%= item.variant[0].images[0] && item.variant[0].images[0].startsWith('http') ? item.variant[0].images[0] : '/img/productImage/sharp/' + item.variant[0].images[0] %>" alt="<%= item.name %>">
+                                        <img class="card-img rounded-0 img-fluid" style="height: 300px; object-fit: cover;" src="<%= item.variant[0].images[0] && item.variant[0].images[0].startsWith('http') ? item.variant[0].images[0] : '/img/productImage/sharp/' + item.variant[0].images[0] %>" alt="<%= item.name %>">
                                         <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
                                             <ul class="list-unstyled">
                                                 <li><a class="btn btn-success text-white" onclick="addToWishlist('<%= item._id %>')"><i class="far fa-heart"></i></a></li>
@@ -332,7 +340,7 @@ const searchInput = document.getElementById('searchQuery');
 let debounceTimeout;
 searchInput.addEventListener('input', () => {
     clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(applyFilters, 300); // Adjust the delay as needed
+    debounceTimeout = setTimeout(applyFilters, 1000); // Adjust the delay as needed
 });
 
 function applyFilters() {
@@ -358,6 +366,47 @@ function applyFilters() {
 function resetFilters() {
     window.location.href = window.location.pathname;
 }
+
+
+// Clear Modal Search
+const modalInput = document.getElementById('inputModalSearch');
+const clearModalBtn = document.getElementById('clearModalSearch');
+
+function toggleClearButton(input, button) {
+    if (input.value.length > 0) {
+        button.style.display = 'flex';
+    } else {
+        button.style.display = 'none';
+    }
+}
+
+modalInput.addEventListener('input', () => toggleClearButton(modalInput, clearModalBtn));
+clearModalBtn.addEventListener('click', () => {
+    modalInput.value = '';
+    toggleClearButton(modalInput, clearModalBtn);
+    modalInput.focus();
+});
+
+// Clear Shop Sidebar Search
+const shopInput = document.getElementById('searchQuery');
+const clearShopBtn = document.getElementById('clearShopSearch');
+
+// Initial check for shop search (in case value comes from server)
+toggleClearButton(shopInput, clearShopBtn);
+
+shopInput.addEventListener('input', () => {
+    toggleClearButton(shopInput, clearShopBtn);
+    // existing debounce logic will handle the filter update
+});
+
+clearShopBtn.addEventListener('click', () => {
+    shopInput.value = '';
+    toggleClearButton(shopInput, clearShopBtn);
+    shopInput.focus();
+    // Trigger the debounce logic immediately to reset contents
+    clearTimeout(debounceTimeout);
+    applyFilters(); 
+});
 
 </script>
 

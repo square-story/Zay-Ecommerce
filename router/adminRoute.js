@@ -93,7 +93,16 @@ adminRoute.get('/edit-variant', adminAuth.islogin, productController.LoadeditVar
 
 // edit variant
 
-adminRoute.post('/editVariant', multer.array('images'), productController.editVariant);
+adminRoute.post(
+  '/editVariant',
+  multer.fields([
+    { name: 'image0', maxCount: 1 },
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'image3', maxCount: 1 },
+  ]),
+  productController.editVariant,
+);
 
 // load admin login
 adminRoute.get('/login', adminAuth.logged, adminController.loadLogin);

@@ -250,7 +250,12 @@ module.exports.editVariant = async (req, res) => {
     console.log(images, 'heloo');
     console.log(req.files, 'files');
     for (let i = 0; i < 4; i++) {
-      const image = req.files[i]?.path || images[i];
+      const fieldName = 'image' + i;
+      let image = images[i];
+
+      if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
+        image = req.files[fieldName][0].path;
+      }
       newImage.push(image);
     }
     console.log(newImage, 'helllssjsjjsjsjsjsjsjsjjs');

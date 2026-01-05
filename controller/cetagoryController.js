@@ -3,8 +3,8 @@ const Catagery = require('../models/cetagory');
 class CetagoryController {
   loadCategory = async (req, res) => {
     try {
-      const page = req.query.page;
-      const CetageryLength = await Catagery.find();
+      const page = parseInt(req.query.page) || 0;
+      const totalCategories = await Catagery.countDocuments();
       return Catagery.find()
         .skip(page * 4)
         .limit(4)
@@ -12,8 +12,8 @@ class CetagoryController {
           if (data) {
             res.render('Catagery', {
               cetagorys: data,
-              page: parseInt(page),
-              cetagoryLength: CetageryLength.length,
+              page: page,
+              cetagoryLength: Math.ceil(totalCategories / 4),
             });
           }
         });
@@ -102,14 +102,14 @@ class CetagoryController {
       const data = req.body.data;
 
       console.log(id, data);
-      const sameName = await Catagery.findOne({ name: data });
+      const sameName = await Catagery.findOne({ name: data.toLowerCase() });
       if (sameName) {
         return res.json({ fail: true });
       }
       if (id) {
         const update = await Catagery.updateOne(
           { _id: id },
-          { $set: { name: data } }
+          { $set: { name: data.toLowerCase() } }
         );
         if (update) {
           res.json({ updated: true });

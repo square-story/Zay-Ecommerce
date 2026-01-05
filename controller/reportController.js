@@ -4,33 +4,20 @@ const ExcelJS = require('exceljs');
 const moment = require('moment');
 const { fetchReportData } = require('../helpers/fetchReportData');
 
+// Shared query filter for completed/valid orders
+const getBaseQuery = (startDate, endDate) => ({
+  date: { $gte: startDate, $lte: endDate },
+  paymentStatus: 'completed',
+  status: { $nin: ['returned', 'canceled', 'failed'] },
+});
+
 module.exports.loadSalesReport = async (req, res) => {
   try {
-    let query = {};
     let currentPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemsPerPage = 20;
 
-    const currentDate = new Date();
-    let startDate, endDate;
-
-    if (req.query.startDate && req.query.endDate) {
-      startDate = new Date(req.query.startDate);
-      endDate = new Date(req.query.endDate);
-    } else {
-      endDate = currentDate;
-      startDate = new Date();
-      startDate.setMonth(currentDate.getMonth() - 1);
-    }
-
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      throw new Error('Invalid date format');
-    }
-
-    query = {
-      date: { $gte: startDate, $lte: endDate },
-      paymentStatus: 'completed', // Filter for completed payments only
-      status: { $nin: ['returned', 'canceled', 'failed'] }, // Exclude returned or canceled orders
-    };
+    const { startDate, endDate } = getDateRange(req.query);
+    const query = getBaseQuery(startDate, endDate);
 
     const totalOrders = await Order.countDocuments(query);
     const totalPages = Math.ceil(totalOrders / itemsPerPage);
@@ -46,8 +33,9 @@ module.exports.loadSalesReport = async (req, res) => {
       currentPage,
       totalPages,
       itemsPerPage,
-      startDate: req.query.startDate || startDate.toISOString().split('T')[0],
-      endDate: req.query.endDate || endDate.toISOString().split('T')[0],
+      // Pass back YYYY-MM-DD strings for the date inputs
+      startDate: moment(startDate).format('YYYY-MM-DD'),
+      endDate: moment(endDate).format('YYYY-MM-DD'),
     });
   } catch (error) {
     console.log(error);
@@ -57,10 +45,9 @@ module.exports.loadSalesReport = async (req, res) => {
 
 module.exports.downloadSalesReport = async (req, res) => {
   try {
-    // Date range setup
     const { startDate, endDate } = getDateRange(req.query);
 
-    // Fetch orders
+    // Fetch orders using the same consistency
     const orders = await fetchOrders(startDate, endDate);
 
     // Calculate totals
@@ -94,12 +81,20 @@ function getDateRange(query) {
   let startDate, endDate;
 
   if (query.startDate && query.endDate) {
+    // Parse input (YYYY-MM-DD) and set time boundaries
     startDate = new Date(query.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
     endDate = new Date(query.endDate);
+    endDate.setHours(23, 59, 59, 999);
   } else {
-    endDate = currentDate;
-    startDate = new Date(currentDate);
+    // Default to last 30 days
+    endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+
+    startDate = new Date();
     startDate.setMonth(currentDate.getMonth() - 1);
+    startDate.setHours(0, 0, 0, 0);
   }
 
   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
@@ -110,7 +105,8 @@ function getDateRange(query) {
 }
 
 async function fetchOrders(startDate, endDate) {
-  const query = { date: { $gte: startDate, $lte: endDate } };
+  // Use the shared base query
+  const query = getBaseQuery(startDate, endDate);
   return await Order.find(query).populate('user', 'name').sort({ date: -1 });
 }
 
@@ -332,11 +328,11 @@ module.exports.downloadInvoice = async (req, res) => {
     doc.text(
       'Total (incl. tax)',
       doc.page.margins.left +
-        columnWidths[0] +
-        columnWidths[1] +
-        columnWidths[2] +
-        columnWidths[3] +
-        5,
+      columnWidths[0] +
+      columnWidths[1] +
+      columnWidths[2] +
+      columnWidths[3] +
+      5,
       tableTop + 5,
     );
 
@@ -372,11 +368,11 @@ module.exports.downloadInvoice = async (req, res) => {
         doc.text(
           `${totalAmount.toFixed(2)}`,
           doc.page.margins.left +
-            columnWidths[0] +
-            columnWidths[1] +
-            columnWidths[2] +
-            columnWidths[3] +
-            5,
+          columnWidths[0] +
+          columnWidths[1] +
+          columnWidths[2] +
+          columnWidths[3] +
+          5,
           currentY + 5,
         );
 
@@ -403,26 +399,16 @@ module.exports.downloadInvoice = async (req, res) => {
 
 module.exports.downloadExcel = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate } = getDateRange(req.query);
 
-    // Parse and validate dates
-    const start = moment(startDate, 'YYYY-MM-DD', true);
-    const end = moment(endDate, 'YYYY-MM-DD', true);
-
-    if (!start.isValid() || !end.isValid()) {
-      throw new Error('Invalid date format');
-    }
-
-    const query = {
-      date: { $gte: start.toDate(), $lte: end.toDate() },
-    };
+    // Consistency: reuse the shared query logic
+    const query = getBaseQuery(startDate, endDate);
     const orders = await Order.find(query).populate('user').sort({ date: -1 });
 
     // Calculate total sales and total discounts
     const totalSales = orders.reduce((sum, order) => sum + order.totalAmount, 0);
     const totalDiscounts = orders.reduce((sum, order) => sum + order.discountedAmount, 0);
 
-    const ExcelJS = require('exceljs');
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sales Report');
 
@@ -440,9 +426,9 @@ module.exports.downloadExcel = async (req, res) => {
     orders.forEach((order, i) => {
       worksheet.addRow({
         index: i + 1,
-        user: order.user.name,
+        user: order.user ? order.user.name : 'Unknown',
         paymentMethod: order.paymentMethod,
-        status: order.status,
+        status: order.paymentStatus || order.status,
         totalAmount: order.totalAmount.toFixed(2),
         date: moment(order.date).format('MMM D, YYYY'),
       });

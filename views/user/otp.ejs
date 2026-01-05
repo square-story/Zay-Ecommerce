@@ -1,101 +1,50 @@
 <%- include('../layout/header.ejs') -%>
 
-<div class="wrapper">
-  <div class="" style="margin-left: 4rem; margin-bottom: 2rem">
-    <img src="assets2\img\apple-icon.png" alt="" />
-  </div>
-
-  <!-- <h2></h2> -->
-  <div class="text-center">
-    <h6>
-      Please enter the one-time password <br />
-      to verify your account
-    </h6>
-    <div>
-      <span>A code has been sent to </span>
-      <%= email %>
-    </div>
-  </div>
-
-  <%if(messages.incorrect) {%>
-
-  <div class="text text-danger" style="text-align: center; margin-top: 2rem">
-    <span><%= messages.incorrect %></span>
-  </div>
-
-  <%}%> <%if(messages.expired) {%>
-
-  <div class="text text-danger" style="text-align: center; margin-top: 2rem">
-    <span><%= messages.expired %></span>
-  </div>
-
-  <%}%> <% const route = verify ? '/otpLogin?email=' + encodeURIComponent(email)
-  : '/otp?email=' + encodeURIComponent(email); %>
-
-  <form action="<%= route %>" method="post">
-    <div class="d-flex pt-2" id="inputs">
-      <input
-        class="otp m-2 text-center form-control rounded py-4"
-        type="text"
-        name="otp1"
-        placeholder=""
-        inputmode="numeric"
-        maxlength="1"
-        required
-      />
-      <input
-        class="otp m-2 text-center form-control rounded"
-        type="text"
-        name="otp2"
-        placeholder=""
-        inputmode="numeric"
-        maxlength="1"
-        required
-      />
-      <input
-        class="otp m-2 text-center form-control rounded"
-        type="text"
-        name="otp3"
-        placeholder=""
-        inputmode="numeric"
-        maxlength="1"
-        required
-      />
-      <input
-        class="otp m-2 text-center form-control rounded"
-        type="text"
-        name="otp4"
-        placeholder=""
-        inputmode="numeric"
-        maxlength="1"
-        required
-      />
+<div class="container d-flex justify-content-center align-items-center vh-100">
+  <div class="card shadow-lg p-5" style="max-width: 500px; width: 100%; border-radius: 1rem;">
+    <div class="text-center mb-4">
+      <img src="assets2/img/apple-icon.png" alt="Logo" style="width: 50px; height: auto; margin-bottom: 1rem;">
+      <h3 class="fw-bold">OTP Verification</h3>
+      <p class="text-muted">
+        Please enter the one-time password sent to <br />
+        <strong><%= email %></strong>
+      </p>
     </div>
 
-    <div class="input-box button">
-      <input type="Submit" value="Log in" />
-    </div>
+    <% if(messages.incorrect) { %>
+      <div class="alert alert-danger text-center" role="alert">
+        <%= messages.incorrect %>
+      </div>
+    <% } %> 
+    
+    <% if(messages.expired) { %>
+      <div class="alert alert-danger text-center" role="alert">
+        <%= messages.expired %>
+      </div>
+    <% } %> 
 
-    <div
-      class="text pt-2"
-      style="
-        text-align: center;
-        margin-top: 2rem;
-        display: flex;
-        flex-direction: column;
-      "
-    >
-      <span id="timer" class="time"></span>
-      <span
-        type="button"
-        id="resend"
-        style="color: rgb(48, 94, 150); margin: 5px"
-        >Resend</span
-      >
-    </div>
-  </form>
+    <% const route = verify ? '/otpLogin?email=' + encodeURIComponent(email) : '/otp?email=' + encodeURIComponent(email); %>
+
+    <form action="<%= route %>" method="post">
+      <div class="d-flex justify-content-center mb-4" id="inputs">
+        <input class="form-control m-1 text-center border border-2 rounded" type="text" name="otp1" maxlength="1" style="width: 50px; height: 50px; font-size: 1.5rem;" required autofocus />
+        <input class="form-control m-1 text-center border border-2 rounded" type="text" name="otp2" maxlength="1" style="width: 50px; height: 50px; font-size: 1.5rem;" required />
+        <input class="form-control m-1 text-center border border-2 rounded" type="text" name="otp3" maxlength="1" style="width: 50px; height: 50px; font-size: 1.5rem;" required />
+        <input class="form-control m-1 text-center border border-2 rounded" type="text" name="otp4" maxlength="1" style="width: 50px; height: 50px; font-size: 1.5rem;" required />
+      </div>
+
+      <div class="d-grid gap-2 mb-4">
+        <button type="submit" class="btn btn-success btn-lg">Verify & Proceed</button>
+      </div>
+
+      <div class="text-center">
+        <span id="timer" class="text-muted fw-bold me-2"></span>
+        <button type="button" id="resend" class="btn btn-link text-decoration-none p-0" style="pointer-events: none; opacity: 0.5;">Resend OTP</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-<script src="js/user/otp.js"></script>
+<script src="/js/user/otp.js"></script>
 
 <%- include('../layout/footer.ejs') -%>

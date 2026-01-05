@@ -229,7 +229,7 @@
                         accept="image/*"
                         placeholder="Add image"
                         onchange="previewImage(this, 'image<%= i + 1 %>', '<%= i%>')"
-                        name="images"
+                        name="image<%= i%>"
                         value="<%= product.images[i]%>"
                         class="form-control"
                         id="file<%= i + 1 %>"
