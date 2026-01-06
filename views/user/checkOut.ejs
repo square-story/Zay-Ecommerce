@@ -56,6 +56,25 @@
                 margin-left: 10rem;
             }
         }
+
+        .checkout__input p,
+        .checkout__title,
+        .card-title,
+        label,
+        .custom-control-label {
+            color: #000000 !important;
+        }
+
+        .checkout__input input,
+        .form-control {
+            color: #000000 !important;
+            font-weight: 500 !important;
+        }
+
+        .checkout__input input::placeholder,
+        .form-control::placeholder {
+            color: #666666 !important;
+        }
     </style>
 
 
@@ -209,30 +228,22 @@
                                                                 </h5>
                                                                 <address>
                                                                     <p style="text-align: left; margin: 0;">
-
                                                                         <span style="font-weight: bold;">Name:</span>
-                                                                        <%= el.fullName %><br>
-                                                                            <span
-                                                                                style="font-weight: bold;">Country:</span>
-                                                                            <%= el.country %><br>
-                                                                                <span style="font-weight: bold;">House
-                                                                                    Name:</span>
-                                                                                <%= el.address %><br>
-                                                                                    <span
-                                                                                        style="font-weight: bold;">State:</span>
-                                                                                    <%= el.state %><br>
-                                                                                        <span
-                                                                                            style="font-weight: bold;">City:</span>
-                                                                                        <%= el.city %><br>
-                                                                                            <span
-                                                                                                style="font-weight: bold;">Pincode:</span>
-                                                                                            <%= el.pincode %><br>
-                                                                                                <span
-                                                                                                    style="font-weight: bold;">Phone:</span>
-                                                                                                <%= el.phone %><br>
-                                                                                                    <span
-                                                                                                        style="font-weight: bold;">Email:</span>
-                                                                                                    <%= el.email %><br>
+                                                                        <span style="color: #000000; font-weight: 500;"><%= el.fullName %></span><br>
+                                                                        <span style="font-weight: bold;">Country:</span>
+                                                                        <span style="color: #000000; font-weight: 500;"><%= el.country %></span><br>
+                                                                        <span style="font-weight: bold;">House Name:</span>
+                                                                        <span style="color: #000000; font-weight: 500;"><%= el.address %></span><br>
+                                                                        <span style="font-weight: bold;">State:</span>
+                                                                        <span style="color: #000000; font-weight: 500;"><%= el.state %></span><br>
+                                                                        <span style="font-weight: bold;">City:</span>
+                                                                        <span style="color: #000000; font-weight: 500;"><%= el.city %></span><br>
+                                                                        <span style="font-weight: bold;">Pincode:</span>
+                                                                        <span style="color: #000000; font-weight: 500;"><%= el.pincode %></span><br>
+                                                                        <span style="font-weight: bold;">Phone:</span>
+                                                                        <span style="color: #000000; font-weight: 500;"><%= el.phone %></span><br>
+                                                                        <span style="font-weight: bold;">Email:</span>
+                                                                        <span style="color: #000000; font-weight: 500;"><%= el.email %></span><br>
                                                                     </p>
                                                                 </address>
 

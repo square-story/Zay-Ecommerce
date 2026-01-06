@@ -4,464 +4,470 @@ const ExcelJS = require('exceljs');
 const moment = require('moment');
 const { fetchReportData } = require('../helpers/fetchReportData');
 
-// Shared query filter for completed/valid orders
-const getBaseQuery = (startDate, endDate) => ({
-  date: { $gte: startDate, $lte: endDate },
-  paymentStatus: 'completed',
-  status: { $nin: ['returned', 'canceled', 'failed'] },
-});
+class ReportController {
 
-module.exports.loadSalesReport = async (req, res) => {
-  try {
-    let currentPage = req.query.page ? parseInt(req.query.page) : 1;
-    const itemsPerPage = 20;
-
-    const { startDate, endDate } = getDateRange(req.query);
-    const query = getBaseQuery(startDate, endDate);
-
-    const totalOrders = await Order.countDocuments(query);
-    const totalPages = Math.ceil(totalOrders / itemsPerPage);
-
-    const report = await Order.find(query)
-      .populate('user')
-      .sort({ date: -1 })
-      .skip((currentPage - 1) * itemsPerPage)
-      .limit(itemsPerPage);
-
-    res.render('salesreport', {
-      report,
-      currentPage,
-      totalPages,
-      itemsPerPage,
-      // Pass back YYYY-MM-DD strings for the date inputs
-      startDate: moment(startDate).format('YYYY-MM-DD'),
-      endDate: moment(endDate).format('YYYY-MM-DD'),
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Internal Server Error');
-  }
-};
-
-module.exports.downloadSalesReport = async (req, res) => {
-  try {
-    const { startDate, endDate } = getDateRange(req.query);
-
-    // Fetch orders using the same consistency
-    const orders = await fetchOrders(startDate, endDate);
-
-    // Calculate totals
-    const { totalSales, totalDiscounts, revenue, totalItems } = calculateTotals(orders);
-
-    // Create PDF
-    const doc = createPDFDocument(res);
-
-    // Generate report content
-    generateReportContent(
-      doc,
-      orders,
-      startDate,
-      endDate,
-      totalSales,
-      totalDiscounts,
-      revenue,
-      totalItems,
-    );
-
-    // Finalize the PDF
-    doc.end();
-  } catch (error) {
-    console.error('Error generating sales report:', error);
-    res.status(500).send('Internal Server Error');
-  }
-};
-
-function getDateRange(query) {
-  const currentDate = new Date();
-  let startDate, endDate;
-
-  if (query.startDate && query.endDate) {
-    // Parse input (YYYY-MM-DD) and set time boundaries
-    startDate = new Date(query.startDate);
-    startDate.setHours(0, 0, 0, 0);
-
-    endDate = new Date(query.endDate);
-    endDate.setHours(23, 59, 59, 999);
-  } else {
-    // Default to last 30 days
-    endDate = new Date();
-    endDate.setHours(23, 59, 59, 999);
-
-    startDate = new Date();
-    startDate.setMonth(currentDate.getMonth() - 1);
-    startDate.setHours(0, 0, 0, 0);
+  // Shared query filter for completed/valid orders
+  getBaseQuery(startDate, endDate) {
+    return {
+      date: { $gte: startDate, $lte: endDate },
+      paymentStatus: 'completed',
+      status: { $nin: ['returned', 'canceled', 'failed'] },
+    };
   }
 
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    throw new Error('Invalid date format');
-  }
+  loadSalesReport = async (req, res) => {
+    try {
+      let currentPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemsPerPage = 20;
 
-  return { startDate, endDate };
-}
+      const { startDate, endDate } = this.getDateRange(req.query);
+      const query = this.getBaseQuery(startDate, endDate);
 
-async function fetchOrders(startDate, endDate) {
-  // Use the shared base query
-  const query = getBaseQuery(startDate, endDate);
-  return await Order.find(query).populate('user', 'name').sort({ date: -1 });
-}
+      const totalOrders = await Order.countDocuments(query);
+      const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
-function calculateTotals(orders) {
-  let totalSales = 0;
-  let totalDiscounts = 0;
-  let totalItems = 0;
+      const report = await Order.find(query)
+        .populate('user')
+        .sort({ date: -1 })
+        .skip((currentPage - 1) * itemsPerPage)
+        .limit(itemsPerPage);
 
-  orders.forEach((order) => {
-    totalSales += order.totalAmount || 0;
-    totalDiscounts += order.discountedAmount || 0;
-
-    if (Array.isArray(order.products)) {
-      totalItems += order.products.reduce((sum, product) => sum + (product.quantity || 0), 0);
+      res.render('salesreport', {
+        report,
+        currentPage,
+        totalPages,
+        itemsPerPage,
+        // Pass back YYYY-MM-DD strings for the date inputs
+        startDate: moment(startDate).format('YYYY-MM-DD'),
+        endDate: moment(endDate).format('YYYY-MM-DD'),
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send('Internal Server Error');
     }
-  });
+  };
 
-  const revenue = totalSales - totalDiscounts;
+  downloadSalesReport = async (req, res) => {
+    try {
+      const { startDate, endDate } = this.getDateRange(req.query);
 
-  return { totalSales, totalDiscounts, revenue, totalItems };
-}
+      // Fetch orders using the same consistency
+      const orders = await this.fetchOrders(startDate, endDate);
 
-function createPDFDocument(res) {
-  const doc = new PDFDocument({ margin: 30, size: 'A4' });
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
-  doc.pipe(res);
-  return doc;
-}
+      // Calculate totals
+      const { totalSales, totalDiscounts, revenue, totalItems } = this.calculateTotals(orders);
 
-function generateReportContent(
-  doc,
-  orders,
-  startDate,
-  endDate,
-  totalSales,
-  totalDiscounts,
-  revenue,
-  totalItems,
-) {
-  let pageNumber = 1;
-  const tableTop = 150;
-  const columnWidths = [40, 100, 100, 80, 80, 100]; // Adjusted widths
-  const columnPositions = [50, 90, 190, 290, 370, 470]; // Adjusted positions
+      // Create PDF
+      const doc = this.createPDFDocument(res);
 
-  // Header
-  drawHeader(doc, startDate, endDate);
+      // Generate report content
+      this.generateReportContent(
+        doc,
+        orders,
+        startDate,
+        endDate,
+        totalSales,
+        totalDiscounts,
+        revenue,
+        totalItems,
+      );
 
-  // Table headers
-  drawTableHeaders(doc, tableTop, columnPositions, columnWidths);
+      // Finalize the PDF
+      doc.end();
+    } catch (error) {
+      console.error('Error generating sales report:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  };
 
-  // Table rows
-  drawTableRows(doc, orders, tableTop, columnPositions, columnWidths, pageNumber);
+  getDateRange(query) {
+    const currentDate = new Date();
+    let startDate, endDate;
 
-  // Summary
-  drawSummary(doc, totalSales, totalDiscounts, revenue, totalItems);
-}
+    if (query.startDate && query.endDate) {
+      // Parse input (YYYY-MM-DD) and set time boundaries
+      startDate = new Date(query.startDate);
+      startDate.setHours(0, 0, 0, 0);
 
-function drawHeader(doc, startDate, endDate) {
-  doc.fontSize(25).font('Helvetica-Bold').text('Sales Report', { align: 'center' });
-  doc.moveDown(0.5);
-  doc
-    .fontSize(12)
-    .font('Helvetica')
-    .text(
-      `From: ${moment(startDate).format('MMM D, YYYY')} To: ${moment(endDate).format('MMM D, YYYY')}`,
-      { align: 'center' },
-    );
-  doc.moveDown(1);
-}
+      endDate = new Date(query.endDate);
+      endDate.setHours(23, 59, 59, 999);
+    } else {
+      // Default to last 30 days
+      endDate = new Date();
+      endDate.setHours(23, 59, 59, 999);
 
-function drawTableHeaders(doc, tableTop, columnPositions, columnWidths) {
-  doc.fontSize(10).font('Helvetica-Bold');
-  const headers = ['Index', 'User', 'Payment Method', 'Items', 'Amount', 'Date'];
-  headers.forEach((header, i) => {
-    doc.text(header, columnPositions[i], tableTop, {
-      width: columnWidths[i],
-      align: i === 4 ? 'right' : 'left',
-    });
-  });
-  drawLine(doc, tableTop + 15);
-}
-
-function drawTableRows(doc, orders, tableTop, columnPositions, columnWidths, pageNumber) {
-  doc.font('Helvetica').fontSize(9);
-  orders.forEach((order, index) => {
-    const position = tableTop + 30 + (index % 25) * 20;
-    if ((index + 1) % 25 === 0 && index !== orders.length - 1) {
-      drawFooter(doc, pageNumber);
-      doc.addPage();
-      pageNumber++;
-      tableTop = 50;
+      startDate = new Date();
+      startDate.setMonth(currentDate.getMonth() - 1);
+      startDate.setHours(0, 0, 0, 0);
     }
 
-    const itemCount = Array.isArray(order.products)
-      ? order.products.reduce((sum, product) => sum + (product.quantity || 0), 0)
-      : 'N/A';
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      throw new Error('Invalid date format');
+    }
 
-    const rowData = [
-      (index + 1).toString(),
-      order.user ? order.user.name : 'N/A',
-      order.paymentMethod || 'N/A',
-      itemCount.toString(),
-      `Rs ${order.totalAmount ? order.totalAmount.toFixed(2) : '0.00'}`,
-      order.date ? moment(order.date).format('DD/MM/YYYY') : 'N/A',
-    ];
+    return { startDate, endDate };
+  }
 
-    rowData.forEach((data, i) => {
-      doc.text(data, columnPositions[i], position, {
+  async fetchOrders(startDate, endDate) {
+    // Use the shared base query
+    const query = this.getBaseQuery(startDate, endDate);
+    return await Order.find(query).populate('user', 'name').sort({ date: -1 });
+  }
+
+  calculateTotals(orders) {
+    let totalSales = 0;
+    let totalDiscounts = 0;
+    let totalItems = 0;
+
+    orders.forEach((order) => {
+      totalSales += order.totalAmount || 0;
+      totalDiscounts += order.discountedAmount || 0;
+
+      if (Array.isArray(order.products)) {
+        totalItems += order.products.reduce((sum, product) => sum + (product.quantity || 0), 0);
+      }
+    });
+
+    const revenue = totalSales - totalDiscounts;
+
+    return { totalSales, totalDiscounts, revenue, totalItems };
+  }
+
+  createPDFDocument(res) {
+    const doc = new PDFDocument({ margin: 30, size: 'A4' });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
+    doc.pipe(res);
+    return doc;
+  }
+
+  generateReportContent(
+    doc,
+    orders,
+    startDate,
+    endDate,
+    totalSales,
+    totalDiscounts,
+    revenue,
+    totalItems,
+  ) {
+    let pageNumber = 1;
+    let tableTop = 150;
+    const columnWidths = [40, 100, 100, 80, 80, 100]; // Adjusted widths
+    const columnPositions = [50, 90, 190, 290, 370, 470]; // Adjusted positions
+
+    // Header
+    this.drawHeader(doc, startDate, endDate);
+
+    // Table headers
+    this.drawTableHeaders(doc, tableTop, columnPositions, columnWidths);
+
+    // Table rows
+    this.drawTableRows(doc, orders, tableTop, columnPositions, columnWidths, pageNumber);
+
+    // Summary
+    this.drawSummary(doc, totalSales, totalDiscounts, revenue, totalItems);
+  }
+
+  drawHeader(doc, startDate, endDate) {
+    doc.fontSize(25).font('Helvetica-Bold').text('Sales Report', { align: 'center' });
+    doc.moveDown(0.5);
+    doc
+      .fontSize(12)
+      .font('Helvetica')
+      .text(
+        `From: ${moment(startDate).format('MMM D, YYYY')} To: ${moment(endDate).format('MMM D, YYYY')}`,
+        { align: 'center' },
+      );
+    doc.moveDown(1);
+  }
+
+  drawTableHeaders(doc, tableTop, columnPositions, columnWidths) {
+    doc.fontSize(10).font('Helvetica-Bold');
+    const headers = ['Index', 'User', 'Payment Method', 'Items', 'Amount', 'Date'];
+    headers.forEach((header, i) => {
+      doc.text(header, columnPositions[i], tableTop, {
         width: columnWidths[i],
         align: i === 4 ? 'right' : 'left',
       });
     });
-  });
-  drawLine(doc, doc.y + 15);
-}
-
-function drawSummary(doc, totalSales, totalDiscounts, revenue, totalItems) {
-  doc.moveDown(2);
-  doc.fontSize(12).font('Helvetica-Bold');
-  doc.text(`Total Items Sold: ${totalItems}`, 50, doc.y, { width: 250, align: 'left' });
-  doc.moveDown(0.5);
-  doc.text(`Total Sales: Rs ${totalSales.toFixed(2)}`, 50, doc.y, { width: 250, align: 'left' });
-  doc.moveDown(0.5);
-  doc.text(`Total Discounts: Rs ${totalDiscounts.toFixed(2)}`, 50, doc.y, {
-    width: 250,
-    align: 'left',
-  });
-  doc.moveDown(0.5);
-  doc.text(`Net Revenue: Rs ${revenue.toFixed(2)}`, 50, doc.y, { width: 250, align: 'left' });
-}
-
-function drawLine(doc, y) {
-  doc.lineWidth(1).moveTo(50, y).lineTo(550, y).stroke();
-}
-
-function drawFooter(doc, pageNumber) {
-  const footerTop = 750;
-  doc
-    .fontSize(10)
-    .font('Helvetica-Oblique')
-    .text('Zay E-Commerce Website', 50, footerTop, { align: 'left' })
-    .text(`Page ${pageNumber}`, 550, footerTop, { align: 'right' });
-}
-
-module.exports.downloadInvoice = async (req, res) => {
-  try {
-    const { orderId } = req.query;
-    const order = await Order.findOne({ _id: orderId })
-      .populate('user')
-      .populate('products.productId');
-
-    if (!order || !order.products || order.products.length === 0) {
-      return res.status(404).send('Order not found or no products in order');
-    }
-
-    const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 10 });
-
-    // Set response headers
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
-
-    // Pipe the PDF into the response
-    doc.pipe(res);
-
-    // Add content to the PDF
-    doc.fontSize(25).text('GST Invoice', { align: 'center' });
-
-    // Bill To
-    doc.fontSize(10).text('Bill To:', { underline: true });
-    doc.text(
-      `Zay Fashion\nCalicut, Kerala, 673001\nEmail: Zay e-commerce\nPhone: +91-90488-34867\nGSTIN: 29ABCDE1234F2Z5`,
-    );
-
-    // Ship To
-    doc.moveDown();
-    doc.fontSize(10).text('Ship To:', { underline: true });
-    doc.text(
-      `${order.user.name}\n${order.deliveryDetails.address}\n${order.deliveryDetails.city}, ${order.deliveryDetails.state} ${order.deliveryDetails.pincode}, ${order.deliveryDetails.country}\nPhone: ${order.deliveryDetails.phone}\nEmail: ${order.deliveryDetails.email}`,
-    );
-
-    // Invoice Details
-    doc.moveDown();
-    doc.fontSize(10).text('Invoice Details:', { underline: true });
-    doc.text(`Invoice Number: ${order._id}`);
-    const invoiceDate = new Date(order.date);
-    const formattedDate = invoiceDate.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-    doc.text(`Invoice Date: ${formattedDate}`);
-
-    // Table Header
-    doc.moveDown();
-    doc.fontSize(18).text('Products:', { underline: true });
-    doc.fontSize(14);
-
-    const tableTop = doc.y;
-    const tableMargin = 20;
-    const rowHeight = 30;
-    const columnWidths = [300, 100, 200, 100, 200]; // Adjust column widths for landscape
-    const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
-
-    // Draw table header
-    doc.rect(doc.page.margins.left, tableTop, tableWidth, rowHeight).stroke();
-    doc.text('Name', doc.page.margins.left + 5, tableTop + 5);
-    doc.text('Quantity', doc.page.margins.left + columnWidths[0] + 5, tableTop + 5);
-    doc.text(
-      'Unit Price (excl. tax)',
-      doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
-      tableTop + 5,
-    );
-    doc.text(
-      'TAX (18%)',
-      doc.page.margins.left + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5,
-      tableTop + 5,
-    );
-    doc.text(
-      'Total (incl. tax)',
-      doc.page.margins.left +
-      columnWidths[0] +
-      columnWidths[1] +
-      columnWidths[2] +
-      columnWidths[3] +
-      5,
-      tableTop + 5,
-    );
-
-    doc.moveDown();
-    let currentY = tableTop + rowHeight;
-
-    let subTotal = 0; // Accumulate subtotal
-    let totalTax = 0; // Accumulate total tax
-
-    // Draw table rows
-    order.products.forEach((product) => {
-      if (product.status !== 'returned' && product.status !== 'canceled') {
-        const unitPrice = product.price / 1.18; // Remove 18% tax
-        const taxAmount = (product.price - unitPrice) * product.quantity;
-        const totalAmount = product.price * product.quantity;
-
-        subTotal += unitPrice * product.quantity;
-        totalTax += taxAmount;
-
-        doc.rect(doc.page.margins.left, currentY, tableWidth, rowHeight).stroke();
-        doc.text(product.productId.name, doc.page.margins.left + 5, currentY + 5);
-        doc.text(product.quantity, doc.page.margins.left + columnWidths[0] + 5, currentY + 5);
-        doc.text(
-          `${unitPrice.toFixed(2)}`,
-          doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
-          currentY + 5,
-        );
-        doc.text(
-          `${taxAmount.toFixed(2)}`,
-          doc.page.margins.left + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5,
-          currentY + 5,
-        );
-        doc.text(
-          `${totalAmount.toFixed(2)}`,
-          doc.page.margins.left +
-          columnWidths[0] +
-          columnWidths[1] +
-          columnWidths[2] +
-          columnWidths[3] +
-          5,
-          currentY + 5,
-        );
-
-        currentY += rowHeight;
-      }
-    });
-
-    // Draw table footer
-    doc.moveDown();
-    doc.y = currentY + 10;
-
-    // Final amounts
-    const totalAmountText = `Subtotal (excluding tax): ${subTotal.toFixed(2)}\nTotal Tax: ${totalTax.toFixed(2)}\nTotal Amount (including tax): ${(subTotal + totalTax).toFixed(2)}`;
-
-    doc.fontSize(18).text(totalAmountText, doc.page.margins.left, doc.y);
-
-    // Finalize the PDF
-    doc.end();
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while generating the invoice');
+    this.drawLine(doc, tableTop + 15);
   }
-};
 
-module.exports.downloadExcel = async (req, res) => {
-  try {
-    const { startDate, endDate } = getDateRange(req.query);
+  drawTableRows(doc, orders, tableTop, columnPositions, columnWidths, pageNumber) {
+    doc.font('Helvetica').fontSize(9);
+    orders.forEach((order, index) => {
+      const position = tableTop + 30 + (index % 25) * 20;
+      if ((index + 1) % 25 === 0 && index !== orders.length - 1) {
+        this.drawFooter(doc, pageNumber);
+        doc.addPage();
+        pageNumber++;
+        tableTop = 50;
+      }
 
-    // Consistency: reuse the shared query logic
-    const query = getBaseQuery(startDate, endDate);
-    const orders = await Order.find(query).populate('user').sort({ date: -1 });
+      const itemCount = Array.isArray(order.products)
+        ? order.products.reduce((sum, product) => sum + (product.quantity || 0), 0)
+        : 'N/A';
 
-    // Calculate total sales and total discounts
-    const totalSales = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-    const totalDiscounts = orders.reduce((sum, order) => sum + order.discountedAmount, 0);
+      const rowData = [
+        (index + 1).toString(),
+        order.user ? order.user.name : 'N/A',
+        order.paymentMethod || 'N/A',
+        itemCount.toString(),
+        `Rs ${order.totalAmount ? order.totalAmount.toFixed(2) : '0.00'}`,
+        order.date ? moment(order.date).format('DD/MM/YYYY') : 'N/A',
+      ];
 
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Sales Report');
-
-    // Add headers
-    worksheet.columns = [
-      { header: 'Index', key: 'index', width: 10 },
-      { header: 'User', key: 'user', width: 20 },
-      { header: 'Payment Method', key: 'paymentMethod', width: 20 },
-      { header: 'Payment Status', key: 'status', width: 15 },
-      { header: 'Total Amount', key: 'totalAmount', width: 15 },
-      { header: 'Date', key: 'date', width: 15 },
-    ];
-
-    // Add data to worksheet
-    orders.forEach((order, i) => {
-      worksheet.addRow({
-        index: i + 1,
-        user: order.user ? order.user.name : 'Unknown',
-        paymentMethod: order.paymentMethod,
-        status: order.paymentStatus || order.status,
-        totalAmount: order.totalAmount.toFixed(2),
-        date: moment(order.date).format('MMM D, YYYY'),
+      rowData.forEach((data, i) => {
+        doc.text(data, columnPositions[i], position, {
+          width: columnWidths[i],
+          align: i === 4 ? 'right' : 'left',
+        });
       });
     });
-
-    // Add total amount and discount rows
-    worksheet.addRow({});
-    worksheet.addRow({
-      index: '',
-      user: '',
-      paymentMethod: '',
-      status: 'Total Sales',
-      totalAmount: totalSales.toFixed(2),
-    });
-    worksheet.addRow({
-      index: '',
-      user: '',
-      paymentMethod: '',
-      status: 'Total Discounts',
-      totalAmount: totalDiscounts.toFixed(2),
-    });
-
-    // Write Excel file to response
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    );
-    res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
-    await workbook.xlsx.write(res);
-    res.end();
-  } catch (error) {
-    console.error('Error generating Excel file:', error.message);
-    console.error(error.stack);
-    res.status(500).send('Error generating Excel file');
+    this.drawLine(doc, doc.y + 15);
   }
-};
+
+  drawSummary(doc, totalSales, totalDiscounts, revenue, totalItems) {
+    doc.moveDown(2);
+    doc.fontSize(12).font('Helvetica-Bold');
+    doc.text(`Total Items Sold: ${totalItems}`, 50, doc.y, { width: 250, align: 'left' });
+    doc.moveDown(0.5);
+    doc.text(`Total Sales: Rs ${totalSales.toFixed(2)}`, 50, doc.y, { width: 250, align: 'left' });
+    doc.moveDown(0.5);
+    doc.text(`Total Discounts: Rs ${totalDiscounts.toFixed(2)}`, 50, doc.y, {
+      width: 250,
+      align: 'left',
+    });
+    doc.moveDown(0.5);
+    doc.text(`Net Revenue: Rs ${revenue.toFixed(2)}`, 50, doc.y, { width: 250, align: 'left' });
+  }
+
+  drawLine(doc, y) {
+    doc.lineWidth(1).moveTo(50, y).lineTo(550, y).stroke();
+  }
+
+  drawFooter(doc, pageNumber) {
+    const footerTop = 750;
+    doc
+      .fontSize(10)
+      .font('Helvetica-Oblique')
+      .text('Zay E-Commerce Website', 50, footerTop, { align: 'left' })
+      .text(`Page ${pageNumber}`, 550, footerTop, { align: 'right' });
+  }
+
+  downloadInvoice = async (req, res) => {
+    try {
+      const { orderId } = req.query;
+      const order = await Order.findOne({ _id: orderId })
+        .populate('user')
+        .populate('products.productId');
+
+      if (!order || !order.products || order.products.length === 0) {
+        return res.status(404).send('Order not found or no products in order');
+      }
+
+      const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 10 });
+
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
+
+      // Pipe the PDF into the response
+      doc.pipe(res);
+
+      // Add content to the PDF
+      doc.fontSize(25).text('GST Invoice', { align: 'center' });
+
+      // Bill To
+      doc.fontSize(10).text('Bill To:', { underline: true });
+      doc.text(
+        `Zay Fashion\nCalicut, Kerala, 673001\nEmail: Zay e-commerce\nPhone: +91-90488-34867\nGSTIN: 29ABCDE1234F2Z5`,
+      );
+
+      // Ship To
+      doc.moveDown();
+      doc.fontSize(10).text('Ship To:', { underline: true });
+      doc.text(
+        `${order.user.name}\n${order.deliveryDetails.address}\n${order.deliveryDetails.city}, ${order.deliveryDetails.state} ${order.deliveryDetails.pincode}, ${order.deliveryDetails.country}\nPhone: ${order.deliveryDetails.phone}\nEmail: ${order.deliveryDetails.email}`,
+      );
+
+      // Invoice Details
+      doc.moveDown();
+      doc.fontSize(10).text('Invoice Details:', { underline: true });
+      doc.text(`Invoice Number: ${order._id}`);
+      const invoiceDate = new Date(order.date);
+      const formattedDate = invoiceDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      doc.text(`Invoice Date: ${formattedDate}`);
+
+      // Table Header
+      doc.moveDown();
+      doc.fontSize(18).text('Products:', { underline: true });
+      doc.fontSize(14);
+
+      const tableTop = doc.y;
+      const rowHeight = 30;
+      const columnWidths = [300, 100, 200, 100, 200]; // Adjust column widths for landscape
+      const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
+
+      // Draw table header
+      doc.rect(doc.page.margins.left, tableTop, tableWidth, rowHeight).stroke();
+      doc.text('Name', doc.page.margins.left + 5, tableTop + 5);
+      doc.text('Quantity', doc.page.margins.left + columnWidths[0] + 5, tableTop + 5);
+      doc.text(
+        'Unit Price (excl. tax)',
+        doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
+        tableTop + 5,
+      );
+      doc.text(
+        'TAX (18%)',
+        doc.page.margins.left + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5,
+        tableTop + 5,
+      );
+      doc.text(
+        'Total (incl. tax)',
+        doc.page.margins.left +
+        columnWidths[0] +
+        columnWidths[1] +
+        columnWidths[2] +
+        columnWidths[3] +
+        5,
+        tableTop + 5,
+      );
+
+      doc.moveDown();
+      let currentY = tableTop + rowHeight;
+
+      let subTotal = 0; // Accumulate subtotal
+      let totalTax = 0; // Accumulate total tax
+
+      // Draw table rows
+      order.products.forEach((product) => {
+        if (product.status !== 'returned' && product.status !== 'canceled') {
+          const unitPrice = product.price / 1.18; // Remove 18% tax
+          const taxAmount = (product.price - unitPrice) * product.quantity;
+          const totalAmount = product.price * product.quantity;
+
+          subTotal += unitPrice * product.quantity;
+          totalTax += taxAmount;
+
+          doc.rect(doc.page.margins.left, currentY, tableWidth, rowHeight).stroke();
+          doc.text(product.productId.name, doc.page.margins.left + 5, currentY + 5);
+          doc.text(product.quantity, doc.page.margins.left + columnWidths[0] + 5, currentY + 5);
+          doc.text(
+            `${unitPrice.toFixed(2)}`,
+            doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
+            currentY + 5,
+          );
+          doc.text(
+            `${taxAmount.toFixed(2)}`,
+            doc.page.margins.left + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5,
+            currentY + 5,
+          );
+          doc.text(
+            `${totalAmount.toFixed(2)}`,
+            doc.page.margins.left +
+            columnWidths[0] +
+            columnWidths[1] +
+            columnWidths[2] +
+            columnWidths[3] +
+            5,
+            currentY + 5,
+          );
+
+          currentY += rowHeight;
+        }
+      });
+
+      // Draw table footer
+      doc.moveDown();
+      doc.y = currentY + 10;
+
+      // Final amounts
+      const totalAmountText = `Subtotal (excluding tax): ${subTotal.toFixed(2)}\nTotal Tax: ${totalTax.toFixed(2)}\nTotal Amount (including tax): ${(subTotal + totalTax).toFixed(2)}`;
+
+      doc.fontSize(18).text(totalAmountText, doc.page.margins.left, doc.y);
+
+      // Finalize the PDF
+      doc.end();
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('An error occurred while generating the invoice');
+    }
+  };
+
+  downloadExcel = async (req, res) => {
+    try {
+      const { startDate, endDate } = this.getDateRange(req.query);
+
+      // Consistency: reuse the shared query logic
+      const query = this.getBaseQuery(startDate, endDate);
+      const orders = await Order.find(query).populate('user').sort({ date: -1 });
+
+      // Calculate total sales and total discounts
+      const totalSales = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+      const totalDiscounts = orders.reduce((sum, order) => sum + order.discountedAmount, 0);
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Sales Report');
+
+      // Add headers
+      worksheet.columns = [
+        { header: 'Index', key: 'index', width: 10 },
+        { header: 'User', key: 'user', width: 20 },
+        { header: 'Payment Method', key: 'paymentMethod', width: 20 },
+        { header: 'Payment Status', key: 'status', width: 15 },
+        { header: 'Total Amount', key: 'totalAmount', width: 15 },
+        { header: 'Date', key: 'date', width: 15 },
+      ];
+
+      // Add data to worksheet
+      orders.forEach((order, i) => {
+        worksheet.addRow({
+          index: i + 1,
+          user: order.user ? order.user.name : 'Unknown',
+          paymentMethod: order.paymentMethod,
+          status: order.paymentStatus || order.status,
+          totalAmount: order.totalAmount.toFixed(2),
+          date: moment(order.date).format('MMM D, YYYY'),
+        });
+      });
+
+      // Add total amount and discount rows
+      worksheet.addRow({});
+      worksheet.addRow({
+        index: '',
+        user: '',
+        paymentMethod: '',
+        status: 'Total Sales',
+        totalAmount: totalSales.toFixed(2),
+      });
+      worksheet.addRow({
+        index: '',
+        user: '',
+        paymentMethod: '',
+        status: 'Total Discounts',
+        totalAmount: totalDiscounts.toFixed(2),
+      });
+
+      // Write Excel file to response
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      console.error('Error generating Excel file:', error.message);
+      console.error(error.stack);
+      res.status(500).send('Error generating Excel file');
+    }
+  };
+}
+
+module.exports = new ReportController();
