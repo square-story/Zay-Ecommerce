@@ -260,21 +260,25 @@ class CartController {
       // Get the current date
       const currentDate = new Date();
 
-      // Fetch and filter valid coupons
-      const coupons = await Coupon.find();
+      // Fetch valid coupons from DB: active and meets minimum order value
+      const coupons = await Coupon.find({
+        activationDate: { $lte: currentDate },
+        expiresDate: { $gt: currentDate },
+        minimumOrderValue: { $lte: finalAmount },
+      });
+
+      // Filter coupons based on usage limits
       const validCoupons = coupons.filter((coupon) => {
-        // Check if the coupon is currently active
-        const isActive = coupon.activationDate <= currentDate && coupon.expiresDate > currentDate;
+        // Check if global limit is reached (if limit is not -1)
+        const isGlobalLimitReached =
+          coupon.limit !== -1 && coupon.userUsed.length >= coupon.limit;
 
-        // Check if the coupon is applicable to the current final amount
-        const meetsMinOrderValue = coupon.minimumOrderValue <= finalAmount;
+        // Check if the user has already used this coupon
+        const isUsedByUser = coupon.userUsed.some(
+          (id) => id.toString() === userId.toString(),
+        );
 
-        // Check if the coupon has not been used by the current user
-        const hasNotBeenUsedByUser = !coupon.userUsed.includes(userId);
-
-        const haveLimit = coupon.limit >= 1;
-
-        return isActive && meetsMinOrderValue && hasNotBeenUsedByUser && haveLimit;
+        return !isGlobalLimitReached && !isUsedByUser;
       });
 
       res.render('checkOut', {
