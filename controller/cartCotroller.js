@@ -272,7 +272,9 @@ class CartController {
         // Check if the coupon has not been used by the current user
         const hasNotBeenUsedByUser = !coupon.userUsed.includes(userId);
 
-        return isActive && meetsMinOrderValue && hasNotBeenUsedByUser;
+        const haveLimit = coupon.limit > 1;
+
+        return isActive && meetsMinOrderValue && hasNotBeenUsedByUser && haveLimit;
       });
 
       res.render('checkOut', {
