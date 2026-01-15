@@ -211,6 +211,9 @@ class ProductController {
       console.log(id);
       console.log(index);
       if (id) {
+        // Fetch categories to populate the dropdown
+        const categories = await Catagery.find({ isListed: true });
+
         return Product.findOne({ _id: id })
           .then((data) => {
             console.log(data);
@@ -222,6 +225,7 @@ class ProductController {
               id: id,
               index: index,
               data,
+              categories, // Pass categories to the view
             });
           })
           .catch((err) => console.log(err));
@@ -239,9 +243,12 @@ class ProductController {
       const id = req.body.id;
       const name = req.body.pname;
       const description = req.body.description;
+      const categoryId = req.body.cetagory; // Extract category from body
       const index = req.body.index;
+
       if (name) await Product.updateOne({ _id: id }, { $set: { name: name } });
       if (description) await Product.updateOne({ _id: id }, { $set: { description: description } });
+      if (categoryId) await Product.updateOne({ _id: id }, { $set: { cetagory: categoryId } }); // Update category
 
       const newImage = [];
       const product = await Product.findById({ _id: id });
