@@ -64,6 +64,21 @@
                       id="product_name"
                     />
                   </div>
+                  
+                  <div class="mb-4">
+                      <label class="form-label">Category</label>
+                      <select class="form-select" name="cetagory"> <!-- Name 'cetagory' matches controller expectation -->
+                          <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                              <% categories.forEach(category => { %>
+                                  <option value="<%= category._id %>" <%= data.cetagory && data.cetagory.toString() === category._id.toString() ? 'selected' : '' %>>
+                                      <%= category.name %>
+                                  </option>
+                              <% }) %>
+                          <% } else { %>
+                              <option value="">No categories available</option>
+                          <% } %>
+                      </select>
+                  </div>
                   <div class="mb-4">
                     <label class="form-label">Full description</label>
                     <textarea

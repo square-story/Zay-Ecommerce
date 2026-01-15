@@ -245,7 +245,7 @@
                     <td><%= offer.type %></td>
                     <td class="text-end">
                       <div class="btn-group">
-                        <button class="btn btn-primary" onclick="editOffer('<%= offer._id %>', '<%= offer.name %>', '<%= offer.adate %>', '<%= offer.edate %>', '<%= offer.damount %>')" data-bs-toggle="modal" data-bs-target="#editOfferModal">Edit</button>
+                        <button class="btn btn-primary" onclick="editOffer('<%= offer._id %>', '<%= offer.name %>', '<%= offer.adate %>', '<%= offer.edate %>', '<%= offer.damount %>', '<%= offer.type %>', <%= JSON.stringify(offer.applicableToProducts) %>, <%= JSON.stringify(offer.applicableToCategories) %>)" data-bs-toggle="modal" data-bs-target="#editOfferModal">Edit</button>
                         <button class="btn btn-danger" onclick="deleteOffer('<%= offer._id %>')">Delete</button>
                       </div>
                     </td>
