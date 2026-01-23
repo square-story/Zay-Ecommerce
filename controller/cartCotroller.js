@@ -1,8 +1,8 @@
-const Product = require('../models/product');
-const Cart = require('../models/cartModel');
-const Address = require('../models/address');
-const Wallet = require('../models/walletModel');
-const Coupon = require('../models/couponModel');
+import Product from '../models/product.js';
+import Cart from '../models/cartModel.js';
+import Address from '../models/address.js';
+import Wallet from '../models/walletModel.js';
+import Coupon from '../models/couponModel.js';
 
 class CartController {
   loadCart = async (req, res) => {
@@ -298,5 +298,5 @@ class CartController {
   }
 }
 
-module.exports = new CartController();
+export default new CartController();
 

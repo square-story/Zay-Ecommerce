@@ -1,25 +1,33 @@
-const express = require('express');
-const session = require('express-session');
-const userRoute = express();
-const userController = require('../controller/userController');
-const productController = require('../controller/product');
-userRoute.set('view engine', 'ejs');
-userRoute.set('views', './views/user');
-const shopController = require('../controller/shop');
-const User = require('../models/userModel');
-const cartController = require('../controller/cartCotroller');
-const orderController = require('../controller/orderController');
-const review_Controller = require('../controller/reviewContoller');
-const couponController = require('../controller/couponController');
-const wishlistController = require('../controller/wishlistController');
-const reportController = require('../controller/reportController');
-const userMiddleware = require('../middleware/userAuth');
-const passport = require('passport');
-const nocache = require('nocache');
-const fetchCartMiddleware = require('../middleware/fetchCartMiddleware');
-const checkBlockedStatus = require('../middleware/checkBlockedStatus');
+import express, { Router } from 'express';
+import session from 'express-session';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import userController from '../controller/userController.js';
+import productController from '../controller/product.js';
 
-require('../passport');
+import shopController from '../controller/shop.js';
+import User from '../models/userModel.js';
+import cartController from '../controller/cartCotroller.js';
+import orderController from '../controller/orderController.js';
+import review_Controller from '../controller/reviewContoller.js';
+import couponController from '../controller/couponController.js';
+import wishlistController from '../controller/wishlistController.js';
+import reportController from '../controller/reportController.js';
+import { userAuth, isLogined } from '../middleware/userAuth.js';
+import passport from 'passport';
+import nocache from 'nocache';
+import fetchCartMiddleware from '../middleware/fetchCartMiddleware.js';
+import checkBlockedStatus from '../middleware/checkBlockedStatus.js';
+import path from 'node:path';
+import '../passport.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+
+
+const userRoute = Router();
+
 
 userRoute.use(nocache());
 
@@ -28,7 +36,6 @@ userRoute.use((req, res, next) => {
   next();
 });
 
-const path = require('node:path');
 userRoute.use(express.static(path.join(__dirname, 'image/product')));
 
 userRoute.use(
@@ -51,8 +58,6 @@ userRoute.use(express.urlencoded({ extended: true }));
 
 userRoute.use(async (req, res, next) => {
   const id = req.session.user?._id;
-  console.log(id, 'middleware');
-
   const user = await User.findOne({ _id: id });
 
   if (user) {
@@ -77,16 +82,16 @@ userRoute.use((req, res, next) => {
 userRoute.get('/', userController.loadHome);
 
 // load login
-userRoute.get('/login', userMiddleware.isLogined, userController.loadLogin);
+userRoute.get('/login', isLogined, userController.loadLogin);
 
 //post for login details to check
 userRoute.post('/login', userController.userLogin);
 
 // load register
-userRoute.get('/signUp', userMiddleware.isLogined, userController.loadRegister);
+userRoute.get('/signUp', isLogined, userController.loadRegister);
 
 // load otp
-userRoute.get('/otp', userMiddleware.isLogined, userController.loadotp);
+userRoute.get('/otp', isLogined, userController.loadotp);
 
 // otp post || verify
 
@@ -98,7 +103,7 @@ userRoute.post('/signUp', userController.insertUser);
 // login with otp
 userRoute.post('/otpLogin', userController.otpLogin);
 // load login with otp page
-userRoute.get('/otpLogin', userMiddleware.isLogined, userController.OTPlogin);
+userRoute.get('/otpLogin', isLogined, userController.OTPlogin);
 
 // send otp for login
 userRoute.post('/send-otp', userController.sendOtpForLogin);
@@ -145,16 +150,16 @@ userRoute.post('/forget', userController.forgetVerify);
 
 userRoute.get(
   '/change-password/:userId/:token',
-  userMiddleware.isLogined,
+  isLogined,
   userController.verifyUser,
 );
 userRoute.post('/change-password', userController.resetPassword);
 
 //account details section
-userRoute.get('/account', userMiddleware.userAuth, userController.loadMyAccount);
+userRoute.get('/account', userAuth, userController.loadMyAccount);
 
 //user cart render
-userRoute.get('/cart', userMiddleware.userAuth, cartController.loadCart);
+userRoute.get('/cart', userAuth, cartController.loadCart);
 
 //add procuct into cart
 userRoute.post('/add-cart', cartController.addToCart);
@@ -166,13 +171,13 @@ userRoute.post('/removeFormCart', cartController.removeFromCart);
 userRoute.post('/counter', cartController.changeQuantity);
 
 //user cart check-out
-userRoute.get('/check-out', userMiddleware.userAuth, cartController.proceedToCheckout);
+userRoute.get('/check-out', userAuth, cartController.proceedToCheckout);
 
-userRoute.get('/my-order', userMiddleware.userAuth, orderController.loadMyOrder);
+userRoute.get('/my-order', userAuth, orderController.loadMyOrder);
 
 userRoute.post('/retry-payment', orderController.retryPayment);
 
-userRoute.get('/single-product', userMiddleware.userAuth, orderController.loadSingleProduct);
+userRoute.get('/single-product', userAuth, orderController.loadSingleProduct);
 
 userRoute.post('/add-Address', orderController.addAddress);
 
@@ -187,7 +192,7 @@ userRoute.post('/order-cancel', orderController.orderCancellation);
 
 userRoute.get('/single-orderDetails', orderController.getOrderDetails);
 
-userRoute.get('/wishlist', userMiddleware.userAuth, wishlistController.loadWhislist);
+userRoute.get('/wishlist', userAuth, wishlistController.loadWhislist);
 userRoute.post('/addWishlist', wishlistController.addTOWhishlist);
 userRoute.post('/remove-wishlist', wishlistController.removeFromWishlist);
 
@@ -219,4 +224,4 @@ userRoute.get('/transactions', userController.transactionHistroy);
 
 userRoute.get('/downloadInvoice', reportController.downloadInvoice);
 
-module.exports = userRoute;
+export default userRoute;

@@ -1,4 +1,4 @@
-const Review = require('../models/reviewModal');
+import Review from '../models/reviewModal.js';
 
 class ReviewController {
   addReview = async (req, res) => {
@@ -48,4 +48,4 @@ class ReviewController {
 
 }
 
-module.exports = new ReviewController();
+export default new ReviewController();

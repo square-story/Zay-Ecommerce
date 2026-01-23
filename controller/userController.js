@@ -1,13 +1,13 @@
-const User = require('../models/userModel');
-const Wallet = require('../models/walletModel');
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const axios = require('axios');
-const verifyOtp = require('../models/otpVerification');
-const Product = require('../models/product');
-const Address = require('../models/address');
-const Review = require('../models/reviewModal');
-require('dotenv').config();
+import User from '../models/userModel.js';
+import Wallet from '../models/walletModel.js';
+import bcrypt from 'bcrypt';
+import axios from 'axios';
+import verifyOtp from '../models/otpVerification.js';
+import Product from '../models/product.js';
+import Address from '../models/address.js';
+import Review from '../models/reviewModal.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 class UserController {
 
@@ -851,4 +851,4 @@ class UserController {
   };
 }
 
-module.exports = new UserController();
+export default new UserController();

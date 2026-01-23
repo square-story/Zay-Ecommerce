@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const couponSchema = new mongoose.Schema({
   name: String,
@@ -12,4 +12,4 @@ const couponSchema = new mongoose.Schema({
   userUsed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 
-module.exports = mongoose.model('Coupon', couponSchema);
+export default mongoose.model('Coupon', couponSchema);

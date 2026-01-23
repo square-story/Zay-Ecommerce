@@ -1,4 +1,4 @@
-const Catagery = require('../models/cetagory');
+import Catagery from '../models/cetagory.js';
 
 class CetagoryController {
   loadCategory = async (req, res) => {
@@ -125,4 +125,4 @@ class CetagoryController {
   };
 }
 
-module.exports = new CetagoryController();
+export default new CetagoryController();

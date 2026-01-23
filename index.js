@@ -1,15 +1,20 @@
-const express = require('express');
-require('dotenv').config();
-const session = require('express-session');
-const mongoose = require('mongoose');
-const methodOverride = require('method-override');
-const flash = require('express-flash');
-const path = require('node:path');
-const moment = require('moment');
+import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
+import session from 'express-session';
+import mongoose from 'mongoose';
+import methodOverride from 'method-override';
+import flash from 'express-flash';
+import path from 'node:path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import moment from 'moment';
+import userRoute from './router/userRoute.js';
+import adminRoute from './router/adminRoute.js';
+import Wishlist from './models/wishlistModel.js';
 
-const userRoute = require('./router/userRoute');
-const adminRoute = require('./router/adminRoute');
-const Wishlist = require('./models/wishlistModel');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 

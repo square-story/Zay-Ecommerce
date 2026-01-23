@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const wishlistSchema = mongoose.Schema({
   user: {
@@ -22,4 +22,4 @@ const wishlistSchema = mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model('Wishlist', wishlistSchema);
+export default mongoose.model('Wishlist', wishlistSchema);

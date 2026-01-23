@@ -1,6 +1,6 @@
-const Catagery = require('../models/cetagory');
-const Product = require('../models/product');
-const Review = require('../models/reviewModal');
+import Catagery from '../models/cetagory.js';
+import Product from '../models/product.js';
+import Review from '../models/reviewModal.js';
 
 class ShopController {
   //products page rendering
@@ -165,4 +165,4 @@ class ShopController {
   };
 }
 
-module.exports = new ShopController();
+export default new ShopController();

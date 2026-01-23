@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const transactionSchema = new mongoose.Schema({
   type: { type: String, required: true }, // 'credit' or 'debit'
@@ -13,4 +13,4 @@ const walletSchema = new mongoose.Schema({
   transactions: [transactionSchema],
 });
 
-module.exports = mongoose.model('Wallet', walletSchema);
+export default mongoose.model('Wallet', walletSchema);

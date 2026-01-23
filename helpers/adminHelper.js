@@ -1,5 +1,5 @@
-const Order = require('../models/order');
-const Cetagory = require('../models/cetagory');
+import Order from '../models/order.js';
+import Cetagory from '../models/cetagory.js';
 
 function bestSelling(sort) {
   try {
@@ -65,7 +65,7 @@ async function mapCategory(cetagory) {
   }
 }
 
-module.exports = {
+export default {
   bestSelling,
   mapCategory,
 };

@@ -1,12 +1,10 @@
-const User = require('../models/userModel');
-const Catagery = require('../models/cetagory');
-const bcrypt = require('bcrypt');
-const product = require('../models/product');
-const Order = require('../models/order');
-const Wallet = require('../models/walletModel');
-const adminHelpers = require('../helpers/adminHelper');
-const { updateWallet } = require('./walletController');
-const Coupon = require('../models/couponModel');
+import User from '../models/userModel.js';
+import Catagery from '../models/cetagory.js';
+import product from '../models/product.js';
+import Order from '../models/order.js';
+import adminHelpers from '../helpers/adminHelper.js';
+import { updateWallet } from './walletController.js';
+import Coupon from '../models/couponModel.js';
 
 class AdminController {
   // load admin home page
@@ -536,4 +534,4 @@ class AdminController {
   };
 }
 
-module.exports = new AdminController();
+export default new AdminController();

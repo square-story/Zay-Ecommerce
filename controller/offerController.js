@@ -1,7 +1,7 @@
-const cron = require('node-cron');
-const Offer = require('../models/offerModel');
-const Product = require('../models/product');
-const Category = require('../models/cetagory');
+import cron from 'node-cron';
+import Offer from '../models/offerModel.js';
+import Product from '../models/product.js';
+import Category from '../models/cetagory.js';
 
 const formatDate = (date) => {
   const d = new Date(date);
@@ -275,4 +275,4 @@ class OfferController {
   };
 }
 
-module.exports = new OfferController();
+export default new OfferController();

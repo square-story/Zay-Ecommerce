@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema({
   user: {
@@ -129,4 +129,4 @@ const orderSchema = new mongoose.Schema({
   couponMinimumAmount: { type: Number, default: 0 }, // New field
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+export default mongoose.model('Order', orderSchema);

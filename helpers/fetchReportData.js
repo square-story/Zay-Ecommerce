@@ -1,5 +1,5 @@
 // Assuming you have a function to fetch report data based on date range
-const Order = require('../models/order'); // Adjust path as needed
+import Order from '../models/order.js'; // Adjust path as needed
 
 async function fetchReportData(startDate, endDate) {
   try {
@@ -24,4 +24,4 @@ async function fetchReportData(startDate, endDate) {
   }
 }
 
-module.exports = { fetchReportData }; // Export the function
+export default { fetchReportData }; // Export the function

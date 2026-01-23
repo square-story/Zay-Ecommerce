@@ -1,8 +1,6 @@
-const Product = require('../models/product');
-const Review = require('../models/reviewModal');
-const Catagery = require('../models/cetagory');
-const path = require('node:path');
-const sharp = require('sharp');
+import Product from '../models/product.js';
+import Review from '../models/reviewModal.js';
+import Catagery from '../models/cetagory.js';
 
 class ProductController {
 
@@ -357,4 +355,4 @@ class ProductController {
   };
 }
 
-module.exports = new ProductController();
+export default new ProductController();

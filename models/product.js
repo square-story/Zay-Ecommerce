@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const ProductSchema = mongoose.Schema({
   name: {
@@ -59,4 +59,5 @@ const ProductSchema = mongoose.Schema({
 function arrayLimit(val) {
   return val.length <= 4;
 }
-module.exports = mongoose.model('Product', ProductSchema);
+
+export default mongoose.model('Product', ProductSchema);

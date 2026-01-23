@@ -1,4 +1,4 @@
-const User = require('../models/userModel'); // Adjust the path as needed
+import User from '../models/userModel.js'; // Adjust the path as needed
 
 const checkBlockedStatus = async (req, res, next) => {
   if (req.session.user) {
@@ -29,4 +29,4 @@ const checkBlockedStatus = async (req, res, next) => {
   }
 };
 
-module.exports = checkBlockedStatus;
+export default checkBlockedStatus;

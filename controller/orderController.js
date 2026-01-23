@@ -1,15 +1,16 @@
-const Address = require('../models/address');
-const Cart = require('../models/cartModel');
-const Order = require('../models/order');
-const Product = require('../models/product');
-const Review = require('../models/reviewModal');
-const Wallet = require('../models/walletModel');
-const Coupon = require('../models/couponModel');
-const { updateWallet } = require('./walletController');
-const Razorpay = require('razorpay');
+import Address from '../models/address.js';
+import Cart from '../models/cartModel.js';
+import Order from '../models/order.js';
+import Product from '../models/product.js';
+import Review from '../models/reviewModal.js';
+import Wallet from '../models/walletModel.js';
+import Coupon from '../models/couponModel.js';
+import { updateWallet } from './walletController.js';
+import Razorpay from 'razorpay';
 
-const crypto = require('crypto');
-require('dotenv').config();
+import crypto from 'crypto';
+import dotenv from 'dotenv';
+dotenv.config();
 
 class OrderController {
   constructor() {
@@ -643,4 +644,4 @@ class OrderController {
   }
 }
 
-module.exports = new OrderController();
+export default new OrderController();

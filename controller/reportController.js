@@ -1,8 +1,7 @@
-const PDFDocument = require('pdfkit');
-const Order = require('../models/order'); // Your Order model
-const ExcelJS = require('exceljs');
-const moment = require('moment');
-const { fetchReportData } = require('../helpers/fetchReportData');
+import PDFDocument from 'pdfkit';
+import Order from '../models/order.js'; // Your Order model
+import ExcelJS from 'exceljs';
+import moment from 'moment';
 
 class ReportController {
 
@@ -470,4 +469,4 @@ class ReportController {
   };
 }
 
-module.exports = new ReportController();
+export default new ReportController();

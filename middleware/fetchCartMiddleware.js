@@ -1,4 +1,4 @@
-const Cart = require('../models/cartModel');
+import Cart from '../models/cartModel.js';
 
 const fetchCartMiddleware = async (req, res, next) => {
   if (req.session.user) {
@@ -16,4 +16,4 @@ const fetchCartMiddleware = async (req, res, next) => {
   next();
 };
 
-module.exports = fetchCartMiddleware;
+export default fetchCartMiddleware;

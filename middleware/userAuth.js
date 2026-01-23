@@ -1,4 +1,4 @@
-module.exports.userAuth = (req, res, next) => {
+export const userAuth = (req, res, next) => {
   try {
     if (req.session.user) {
       next();
@@ -12,7 +12,7 @@ module.exports.userAuth = (req, res, next) => {
   }
 };
 
-module.exports.isLogined = (req, res, next) => {
+export const isLogined = (req, res, next) => {
   try {
     if (req.session.user) {
       res.redirect('/');

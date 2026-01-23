@@ -1,5 +1,5 @@
-const Wishlist = require('../models/wishlistModel');
-const Wallet = require('../models/walletModel');
+import Wishlist from '../models/wishlistModel.js';
+import Wallet from '../models/walletModel.js';
 
 class WishlistController {
   loadWhislist = async (req, res) => {
@@ -105,4 +105,4 @@ class WishlistController {
   };
 }
 
-module.exports = new WishlistController();
+export default new WishlistController();

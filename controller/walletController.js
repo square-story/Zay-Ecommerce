@@ -1,4 +1,4 @@
-const Wallet = require('../models/walletModel');
+import Wallet from '../models/walletModel.js';
 
 class WalletController {
   // Function to update wallet balance
@@ -44,4 +44,8 @@ class WalletController {
   };
 }
 
-module.exports = new WalletController();
+const walletController = new WalletController();
+
+// Export both named and default for compatibility
+export const { updateWallet } = walletController;
+export default walletController;
