@@ -2,7 +2,10 @@ import express, { Router } from 'express';
 import session from 'express-session';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import userController from '../controller/user.controller.js';
+import userAuthController from '../controller/user.auth.controller.js';
+import userProfileController from '../controller/user.profile.controller.js';
+import userAddressController from '../controller/user.address.controller.js';
+import homeController from '../controller/home.controller.js';
 import productController from '../controller/product.controller.js';
 
 import shopController from '../controller/shop.controller.js';
@@ -79,40 +82,40 @@ userRoute.use((req, res, next) => {
 });
 
 // load home
-userRoute.get('/', userController.loadHome);
+userRoute.get('/', homeController.loadHome);
 
 // load login
-userRoute.get('/login', isLogined, userController.loadLogin);
+userRoute.get('/login', isLogined, userAuthController.loadLogin);
 
 //post for login details to check
-userRoute.post('/login', userController.userLogin);
+userRoute.post('/login', userAuthController.userLogin);
 
 // load register
-userRoute.get('/signUp', isLogined, userController.loadRegister);
+userRoute.get('/signUp', isLogined, userAuthController.loadRegister);
 
 // load otp
-userRoute.get('/otp', isLogined, userController.loadotp);
+userRoute.get('/otp', isLogined, userAuthController.loadotp);
 
 // otp post || verify
 
-userRoute.post('/otp', userController.verifyOTP);
+userRoute.post('/otp', userAuthController.verifyOTP);
 
 // register form sumbit
-userRoute.post('/signUp', userController.insertUser);
+userRoute.post('/signUp', userAuthController.insertUser);
 
 // login with otp
-userRoute.post('/otpLogin', userController.otpLogin);
+userRoute.post('/otpLogin', userAuthController.otpLogin);
 // load login with otp page
-userRoute.get('/otpLogin', isLogined, userController.OTPlogin);
+userRoute.get('/otpLogin', isLogined, userAuthController.OTPlogin);
 
 // send otp for login
-userRoute.post('/send-otp', userController.sendOtpForLogin);
+userRoute.post('/send-otp', userAuthController.sendOtpForLogin);
 
 // Logout the user
-userRoute.post('/logout', userController.userLogout);
+userRoute.post('/logout', userAuthController.userLogout);
 
 //the resend the otp again for create another request to generate the new otp
-userRoute.post('/resend', userController.resend);
+userRoute.post('/resend', userAuthController.resend);
 
 //Google Auth
 userRoute.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
@@ -127,36 +130,36 @@ userRoute.get(
 );
 
 // Success
-userRoute.get('/success', userController.successGoogleLogin);
+userRoute.get('/success', userAuthController.successGoogleLogin);
 
 // failure
-userRoute.get('/failure', userController.failureGoogleLogin);
+userRoute.get('/failure', userAuthController.failureGoogleLogin);
 
 userRoute.get('/productDetails', productController.productdetiles);
 
 userRoute.get('/shop', shopController.loadShop);
 
-userRoute.post('/checkSession', userController.checkSession);
+userRoute.post('/checkSession', userAuthController.checkSession);
 
 // ==================================================================== //
-userRoute.get('/about', userController.loadAbout);
+userRoute.get('/about', homeController.loadAbout);
 
-userRoute.get('/contact', userController.loadContact);
+userRoute.get('/contact', homeController.loadContact);
 
 //forget
-userRoute.get('/forget-password', userController.loadForget);
+userRoute.get('/forget-password', userAuthController.loadForget);
 
-userRoute.post('/forget', userController.forgetVerify);
+userRoute.post('/forget', userAuthController.forgetVerify);
 
 userRoute.get(
   '/change-password/:userId/:token',
   isLogined,
-  userController.verifyUser,
+  userAuthController.verifyUser,
 );
-userRoute.post('/change-password', userController.resetPassword);
+userRoute.post('/change-password', userAuthController.resetPassword);
 
 //account details section
-userRoute.get('/account', userAuth, userController.loadMyAccount);
+userRoute.get('/account', userAuth, userProfileController.loadMyAccount);
 
 //user cart render
 userRoute.get('/cart', userAuth, cartController.loadCart);
@@ -196,7 +199,7 @@ userRoute.get('/wishlist', userAuth, wishlistController.loadWhislist);
 userRoute.post('/addWishlist', wishlistController.addTOWhishlist);
 userRoute.post('/remove-wishlist', wishlistController.removeFromWishlist);
 
-userRoute.get('/manage-address', userController.loadManageAddress);
+userRoute.get('/manage-address', userAddressController.loadManageAddress);
 
 // ==================================================================== //
 
@@ -206,21 +209,21 @@ userRoute.post('/verify-payment', orderController.verifyPayment);
 
 userRoute.post('/product-return', orderController.productReturn);
 
-userRoute.post('/check-coupon', couponController.checkCoupon);
+// userRoute.post('/check-coupon', couponController.checkCoupon);
 
 userRoute.get('/my-coupon', couponController.loadMyCoupon);
 
 userRoute.get('/invoice', orderController.loadInvoice);
 
-userRoute.put('/edit-address', userController.editAddress);
+userRoute.put('/edit-address', userAddressController.editAddress);
 
-userRoute.delete('/delete-address/:index', userController.deleteAddress);
+userRoute.delete('/delete-address/:index', userAddressController.deleteAddress);
 
-userRoute.put('/change-password', userController.changePassword);
+userRoute.put('/change-password', userProfileController.changePassword);
 
-userRoute.post('/change-details', userController.personalDetails);
+userRoute.post('/change-details', userProfileController.personalDetails);
 
-userRoute.get('/transactions', userController.transactionHistroy);
+userRoute.get('/transactions', userProfileController.transactionHistroy);
 
 userRoute.get('/downloadInvoice', reportController.downloadInvoice);
 
