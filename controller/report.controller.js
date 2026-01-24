@@ -1,5 +1,5 @@
 import PDFDocument from 'pdfkit';
-import Order from '../models/order.js'; // Your Order model
+import Order from '../models/order.model.js'; // Your Order model
 import ExcelJS from 'exceljs';
 import moment from 'moment';
 

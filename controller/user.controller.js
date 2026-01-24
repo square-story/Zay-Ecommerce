@@ -1,78 +1,17 @@
-import User from '../models/userModel.js';
-import Wallet from '../models/walletModel.js';
+import User from '../models/user.model.js';
+import Wallet from '../models/wallet.model.js';
 import bcrypt from 'bcrypt';
-import axios from 'axios';
-import verifyOtp from '../models/otpVerification.js';
-import Product from '../models/product.js';
-import Address from '../models/address.js';
-import Review from '../models/reviewModal.js';
+
+import Product from '../models/product.model.js';
+import Address from '../models/address.model.js';
+import Review from '../models/review.model.js';
 import dotenv from 'dotenv';
+import { sentOtp } from '../helpers/send.otp.helper.js';
+import { generateResetToken } from '../helpers/reset.token.generation.helper.js';
+import { sendVerificationEmail } from '../helpers/verification.mail.helper.js';
 dotenv.config();
 
 class UserController {
-
-  // ================================== Helper Functions ===============================================\\
-
-  sendEmailViaBrevo = async (toEmail, subject, htmlContent) => {
-    try {
-      const response = await axios.post(
-        'https://api.brevo.com/v3/smtp/email',
-        {
-          sender: { email: process.env.SMTP_USER },
-          to: [{ email: toEmail }],
-          subject: subject,
-          htmlContent: htmlContent,
-        },
-        {
-          headers: {
-            'api-key': process.env.BREVO_API_KEY,
-            'Content-Type': 'application/json',
-            'accept': 'application/json',
-          },
-        }
-      );
-      console.log('Email sent successfully via Brevo API:', response.data);
-      return true;
-    } catch (error) {
-      console.error('Error sending email via Brevo API:', error.response ? error.response.data : error.message);
-      return false;
-    }
-  };
-
-  sentOtp = async (email) => {
-    try {
-      console.log('Sending OTP via Brevo API...');
-      const createdOTP = `${Math.floor(1000 + Math.random() * 9000)}`;
-      const htmlContent = `<p>Your otp is ${createdOTP}</p>`;
-
-      await this.sendEmailViaBrevo(email, 'OTP Verification', htmlContent);
-
-      const hashOTP = await bcrypt.hash(createdOTP, 10);
-      const otp = new verifyOtp({
-        Email: email,
-        otp: hashOTP,
-      });
-
-      await otp.save();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  generateResetToken() {
-    return Math.random().toString(20).substring(2, 12); // Example for illustration
-  }
-
-  sendVerificationEmail = async (user, token) => {
-    const htmlContent = `
-      <p>Click on the link below to verify your account:</p>
-      <a href="${process.env.PROJECT_URL}/change-password/${user._id}/${token}">Verify Account</a>
-    `;
-
-    await this.sendEmailViaBrevo(user.email, 'Account Verification', htmlContent);
-  }
-
-  // ================================== User Controllers ===============================================\\
 
   // load home page
   loadHome = async (req, res) => {
@@ -236,7 +175,7 @@ class UserController {
       const savedUser = await user.save();
 
       if (savedUser) {
-        await this.sentOtp(user.email);
+        await sentOtp(user.email);
         res.redirect(`/otp?email=${user.email}`);
       } else {
         console.log('User not saved.');
@@ -294,7 +233,7 @@ class UserController {
 
       // Clean up old OTPs and send new one
       await verifyOtp.deleteMany({ Email: email });
-      await this.sentOtp(email);
+      await sentOtp(email);
 
       res.redirect(`/otp?email=${email}`);
 
@@ -466,7 +405,7 @@ class UserController {
       console.log(email);
       if (email) {
         await verifyOtp.deleteMany({ Email: email });
-        await this.sentOtp(email);
+        await sentOtp(email);
         res.json({ ok: true });
       } else {
         console.log("Email is Doesn't Recived");
@@ -569,10 +508,10 @@ class UserController {
       const user = await User.findOne({ email: email });
 
       if (user) {
-        const resetToken = this.generateResetToken();
+        const resetToken = generateResetToken();
         user.passwordResetToken = resetToken;
         await user.save();
-        await this.sendVerificationEmail(user, resetToken);
+        await sendVerificationEmail(user, resetToken);
         req.flash('pass', 'Password reset instructions sent to your email');
         res.redirect('/forget-password');
       } else {

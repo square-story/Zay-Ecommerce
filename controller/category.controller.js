@@ -1,4 +1,4 @@
-import Catagery from '../models/cetagory.js';
+import Catagery from '../models/category.model.js';
 
 class CetagoryController {
   loadCategory = async (req, res) => {

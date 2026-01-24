@@ -1,5 +1,5 @@
-import Order from '../models/order.js';
-import Cetagory from '../models/cetagory.js';
+import Order from '../models/order.model.js';
+import Cetagory from '../models/category.model.js';
 
 function bestSelling(sort) {
   try {

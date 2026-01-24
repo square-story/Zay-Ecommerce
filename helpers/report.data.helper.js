@@ -1,5 +1,5 @@
 // Assuming you have a function to fetch report data based on date range
-import Order from '../models/order.js'; // Adjust path as needed
+import Order from '../models/order.model.js'; // Adjust path as needed
 
 async function fetchReportData(startDate, endDate) {
   try {

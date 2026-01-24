@@ -9,9 +9,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import moment from 'moment';
-import userRoute from './router/userRoute.js';
-import adminRoute from './router/adminRoute.js';
-import Wishlist from './models/wishlistModel.js';
+import userRoute from './router/user.route.js';
+import adminRoute from './router/admin.route.js';
+import Wishlist from './models/wishlist.model.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

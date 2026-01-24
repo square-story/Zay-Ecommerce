@@ -1,6 +1,6 @@
-import Product from '../models/product.js';
-import Review from '../models/reviewModal.js';
-import Catagery from '../models/cetagory.js';
+import Product from '../models/product.model.js';
+import Review from '../models/review.model.js';
+import Catagery from '../models/category.model.js';
 
 class ProductController {
 

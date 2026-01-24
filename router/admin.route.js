@@ -1,13 +1,15 @@
 import express, { Router } from 'express';
-import adminController from '../controller/adminController.js';
-import productController from '../controller/product.js';
-import cetagoryContorller from '../controller/cetagoryController.js';
-import couponController from '../controller/couponController.js';
-import offerController from '../controller/offerController.js';
-import reportController from '../controller/reportController.js';
+import adminController from '../controller/admin.controller.js';
+import productController from '../controller/product.controller.js';
+import cetagoryContorller from '../controller/category.controller.js';
+import couponController from '../controller/coupon.controller.js';
+import offerController from '../controller/offer.controller.js';
+import reportController from '../controller/report.controller.js';
 import nocache from 'nocache';
-import { islogin, logged } from '../middleware/adminAuth.js';
-import multer from '../middleware/multer.js';
+import { islogin, logged } from '../middleware/admin.auth.middleware.js';
+import multer from '../middleware/multer.middleware.js';
+import adminAuthController from '../controller/admin.auth.controller.js';
+import returnController from '../controller/return.controller.js';
 
 const adminRoute = Router();
 
@@ -104,12 +106,12 @@ adminRoute.post(
 );
 
 // load admin login
-adminRoute.get('/login', logged, adminController.loadLogin);
+adminRoute.get('/login', logged, adminAuthController.loadLogin);
 
 // login
-adminRoute.post('/login', adminController.login);
+adminRoute.post('/login', adminAuthController.login);
 
-adminRoute.post('/logout', adminController.logout);
+adminRoute.post('/logout', adminAuthController.logout);
 
 // order
 
@@ -125,9 +127,9 @@ adminRoute.post('/change-orderStatus', adminController.changeOrderStatus);
 
 // adminRoute.post('/cancel-request', adminController.controlCancelation);
 
-adminRoute.get('/returns', islogin, adminController.loadReturns);
+adminRoute.get('/returns', islogin, returnController.loadReturns);
 
-adminRoute.post('/returns', adminController.returns);
+adminRoute.post('/returns', returnController.returns);
 
 // coupon management
 

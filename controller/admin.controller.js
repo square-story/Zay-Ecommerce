@@ -1,10 +1,10 @@
-import User from '../models/userModel.js';
-import Catagery from '../models/cetagory.js';
-import product from '../models/product.js';
-import Order from '../models/order.js';
-import adminHelpers from '../helpers/adminHelper.js';
-import { updateWallet } from './walletController.js';
-import Coupon from '../models/couponModel.js';
+import User from '../models/user.model.js';
+import Catagery from '../models/category.model.js';
+import product from '../models/product.model.js';
+import Order from '../models/order.model.js';
+import adminHelpers from '../helpers/best.selling.helper.js';
+import { updateWallet } from './wallet.controller.js';
+import Coupon from '../models/coupon.model.js';
 
 class AdminController {
   // load admin home page
@@ -92,7 +92,7 @@ class AdminController {
     }
   };
 
-  // filtering dashboard with functional graph (doesn't working now)
+  // filtering dashboard with functional graph 
   filterDashboard = async (req, res) => {
     try {
       const { data } = req.body;
@@ -135,43 +135,6 @@ class AdminController {
 
       console.log(newData);
       res.json({ newData, data });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // admin login
-  loadLogin = (req, res) => {
-    try {
-      res.render('admin-login');
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // admin checking the details where the get from admin login
-  login = async (req, res) => {
-    try {
-      const email = process.env.EMAIL;
-      const password = process.env.PASSWORD;
-
-      console.log(email, password);
-
-      if (req.body.email == email) {
-        if (req.body.password == password) {
-          req.session.admin = email;
-          console.log(req.session.admin);
-          res.redirect('/admin/');
-        } else {
-          req.flash('password', 'incorrect password');
-          res.redirect('/admin/login');
-          console.log('Incorrect password');
-        }
-      } else {
-        req.flash('email', 'Enter valid email address');
-        res.redirect('/admin/login');
-        console.log('incorrect email');
-      }
     } catch (error) {
       console.log(error);
     }
@@ -322,16 +285,6 @@ class AdminController {
     }
   };
 
-  // logout page collection
-  logout = (req, res) => {
-    try {
-      req.session.admin = null;
-      res.redirect('/admin/login');
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   loadOrder = async (req, res) => {
     try {
       const page = req.query.page || 0;
@@ -415,121 +368,6 @@ class AdminController {
     } catch (error) {
       console.log(error);
       res.status(500).json({ success: false, error: 'Internal Server Error' });
-    }
-  };
-
-  loadReturns = async (req, res) => {
-    try {
-      const order = await Order.find({ 'products.returnRequest': 'requested' })
-        .populate('user')
-        .populate('products.productId');
-      res.render('returnRequest', { order: order });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  returns = async (req, res) => {
-    console.log('returns');
-    try {
-      const { orderId, productId, index, decision } = req.body;
-
-      if (decision === 'accepted') {
-        // Fetch the order
-        const order = await Order.findById(orderId);
-
-        if (!order) {
-          return res.status(404).json({ success: false, message: 'Order not found' });
-        }
-
-        const userId = order.user;
-        const orderProduct = order.products[index];
-        const appliedCoupon = order.couponCode
-          ? await Coupon.findOne({ couponCode: order.couponCode })
-          : null;
-
-        // Update the product status to returned
-        await Order.findByIdAndUpdate(
-          { _id: orderId, 'products.productId': productId },
-          {
-            $set: {
-              [`products.${index}.returnRequest`]: decision,
-              [`products.${index}.status`]: 'returned',
-            },
-          },
-          {
-            new: true,
-          },
-        );
-
-        // Adjust the stock for the returned product
-        const quantity = orderProduct.quantity;
-        await product.findOneAndUpdate(
-          { _id: productId },
-          {
-            $inc: {
-              [`variant.${index}.stock`]: quantity,
-            },
-          },
-        );
-
-        // Calculate the remaining total amount after this product's return
-        const remainingTotal = order.products
-          .filter((prod, i) => i !== index && prod.status !== 'returned')
-          .reduce((sum, prod) => sum + (prod.totalPrice || 0), 0);
-
-        let refundAmount = orderProduct.totalPrice;
-
-        // If there's a coupon applied and the remaining total doesn't meet the minimum required amount
-        if (appliedCoupon && remainingTotal < appliedCoupon.minimumOrderValue) {
-          // Adjust the refund by removing the coupon discount
-          refundAmount -= appliedCoupon.couponAmount;
-        }
-
-        // Round the refund amount to 2 decimal places
-        refundAmount = parseFloat(refundAmount.toFixed(2));
-
-        // Refund amount to wallet or Razorpay
-        if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
-          await updateWallet(userId, refundAmount, 'credit', `Order Returned - Order id:${orderId.toString().slice(-6).toUpperCase()}`);
-        }
-
-        // If the coupon was applied and the remaining total is below the minimum amount, update the coupon's usage
-        if (order.couponCode && remainingTotal < appliedCoupon.minimumOrderValue) {
-          await Coupon.findOneAndUpdate(
-            { couponCode: order.couponCode },
-            { $pull: { userUsed: userId } },
-          );
-        }
-
-        // Check if all products in the order are returned
-        const allProductsReturned = order.products.every((prod) => prod.status === 'returned');
-
-        // If all products are returned, update the order status
-        if (allProductsReturned) {
-          await Order.findByIdAndUpdate(orderId, {
-            $set: { status: 'returned' },
-          });
-        }
-
-        res.json({ success: true });
-      } else if (decision === 'denied') {
-        // If the decision is 'denied', just update the return request status
-        await Order.findByIdAndUpdate(
-          { _id: orderId, 'products.productId': productId },
-          {
-            $set: {
-              [`products.${index}.returnRequest`]: decision,
-            },
-          },
-        );
-        res.json({ success: true });
-      } else {
-        res.status(400).json({ success: false, message: 'Invalid decision' });
-      }
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ success: false, message: 'Server error' });
     }
   };
 }

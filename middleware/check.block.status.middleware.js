@@ -1,4 +1,4 @@
-import User from '../models/userModel.js'; // Adjust the path as needed
+import User from '../models/user.model.js'; // Adjust the path as needed
 
 const checkBlockedStatus = async (req, res, next) => {
   if (req.session.user) {

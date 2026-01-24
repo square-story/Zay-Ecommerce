@@ -1,7 +1,7 @@
 import cron from 'node-cron';
-import Offer from '../models/offerModel.js';
-import Product from '../models/product.js';
-import Category from '../models/cetagory.js';
+import Offer from '../models/offer.model.js';
+import Product from '../models/product.model.js';
+import Category from '../models/category.model.js';
 
 const formatDate = (date) => {
   const d = new Date(date);

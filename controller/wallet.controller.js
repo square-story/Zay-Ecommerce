@@ -1,4 +1,4 @@
-import Wallet from '../models/walletModel.js';
+import Wallet from '../models/wallet.model.js';
 
 class WalletController {
   // Function to update wallet balance

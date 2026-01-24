@@ -1,5 +1,5 @@
-import Wishlist from '../models/wishlistModel.js';
-import Wallet from '../models/walletModel.js';
+import Wishlist from '../models/wishlist.model.js';
+import Wallet from '../models/wallet.model.js';
 
 class WishlistController {
   loadWhislist = async (req, res) => {

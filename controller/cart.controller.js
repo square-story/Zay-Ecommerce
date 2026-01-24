@@ -1,8 +1,8 @@
-import Product from '../models/product.js';
-import Cart from '../models/cartModel.js';
-import Address from '../models/address.js';
-import Wallet from '../models/walletModel.js';
-import Coupon from '../models/couponModel.js';
+import Product from '../models/product.model.js';
+import Cart from '../models/cart.model.js';
+import Address from '../models/address.model.js';
+import Wallet from '../models/wallet.model.js';
+import Coupon from '../models/coupon.model.js';
 
 class CartController {
   loadCart = async (req, res) => {

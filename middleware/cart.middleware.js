@@ -1,4 +1,4 @@
-import Cart from '../models/cartModel.js';
+import Cart from '../models/cart.model.js';
 
 const fetchCartMiddleware = async (req, res, next) => {
   if (req.session.user) {

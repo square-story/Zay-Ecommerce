@@ -1,4 +1,4 @@
-import Review from '../models/reviewModal.js';
+import Review from '../models/review.model.js';
 
 class ReviewController {
   addReview = async (req, res) => {

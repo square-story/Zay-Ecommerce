@@ -1,11 +1,11 @@
-import Address from '../models/address.js';
-import Cart from '../models/cartModel.js';
-import Order from '../models/order.js';
-import Product from '../models/product.js';
-import Review from '../models/reviewModal.js';
-import Wallet from '../models/walletModel.js';
-import Coupon from '../models/couponModel.js';
-import { updateWallet } from './walletController.js';
+import Address from '../models/address.model.js';
+import Cart from '../models/cart.model.js';
+import Order from '../models/order.model.js';
+import Product from '../models/product.model.js';
+import Review from '../models/review.model.js';
+import Wallet from '../models/wallet.model.js';
+import Coupon from '../models/coupon.model.js';
+import { updateWallet } from './wallet.controller.js';
 import Razorpay from 'razorpay';
 
 import crypto from 'crypto';

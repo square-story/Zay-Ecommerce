@@ -1,6 +1,6 @@
-import Cart from '../models/cartModel.js';
-import Coupon from '../models/couponModel.js';
-import Wallet from '../models/walletModel.js';
+import Cart from '../models/cart.model.js';
+import Coupon from '../models/coupon.model.js';
+import Wallet from '../models/wallet.model.js';
 import moment from 'moment';
 
 class CouponController {
