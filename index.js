@@ -59,7 +59,7 @@ app.use(flash());
 
 // Set view engine
 app.set('view engine', 'ejs');
-app.set('views', './views/user');
+app.set('views', ['./views/user', './views/admin']);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));

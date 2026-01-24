@@ -11,7 +11,10 @@ import productController from '../controller/product.controller.js';
 import shopController from '../controller/shop.controller.js';
 import User from '../models/user.model.js';
 import cartController from '../controller/cart.controller.js';
-import orderController from '../controller/order.controller.js';
+// import orderController from '../controller/order.controller.js';
+import orderManagementController from '../controller/order.management.controller.js';
+import orderPlacementController from '../controller/order.placement.controller.js';
+import invoiceController from '../controller/invoice.controller.js';
 import review_Controller from '../controller/review.controller.js';
 import couponController from '../controller/coupon.controller.js';
 import wishlistController from '../controller/wishlist.controller.js';
@@ -176,24 +179,24 @@ userRoute.post('/counter', cartController.changeQuantity);
 //user cart check-out
 userRoute.get('/check-out', userAuth, cartController.proceedToCheckout);
 
-userRoute.get('/my-order', userAuth, orderController.loadMyOrder);
+userRoute.get('/my-order', userAuth, orderManagementController.loadMyOrder);
 
-userRoute.post('/retry-payment', orderController.retryPayment);
+userRoute.post('/retry-payment', orderPlacementController.retryPayment);
 
-userRoute.get('/single-product', userAuth, orderController.loadSingleProduct);
+userRoute.get('/single-product', userAuth, orderManagementController.loadSingleProduct);
 
-userRoute.post('/add-Address', orderController.addAddress);
+userRoute.post('/add-Address', orderManagementController.addAddress);
 
-userRoute.post('/place-order', orderController.placeOrder);
+userRoute.post('/place-order', orderPlacementController.placeOrder);
 
-userRoute.post('/payment-failure', orderController.handlePaymentFailure);
+userRoute.post('/payment-failure', orderPlacementController.handlePaymentFailure);
 
-userRoute.get('/order-status', orderController.loadOrderSucces);
+userRoute.get('/order-status', orderManagementController.loadOrderSucces);
 
 userRoute.post('/search', shopController.filter);
-userRoute.post('/order-cancel', orderController.orderCancellation);
+userRoute.post('/order-cancel', orderManagementController.orderCancellation);
 
-userRoute.get('/single-orderDetails', orderController.getOrderDetails);
+userRoute.get('/single-orderDetails', orderManagementController.getOrderDetails);
 
 userRoute.get('/wishlist', userAuth, wishlistController.loadWhislist);
 userRoute.post('/addWishlist', wishlistController.addTOWhishlist);
@@ -205,15 +208,15 @@ userRoute.get('/manage-address', userAddressController.loadManageAddress);
 
 userRoute.post('/addReview', review_Controller.addReview);
 
-userRoute.post('/verify-payment', orderController.verifyPayment);
+userRoute.post('/verify-payment', orderPlacementController.verifyPayment);
 
-userRoute.post('/product-return', orderController.productReturn);
+userRoute.post('/product-return', orderManagementController.productReturn);
 
 // userRoute.post('/check-coupon', couponController.checkCoupon);
 
 userRoute.get('/my-coupon', couponController.loadMyCoupon);
 
-userRoute.get('/invoice', orderController.loadInvoice);
+userRoute.get('/invoice', invoiceController.loadInvoice);
 
 userRoute.put('/edit-address', userAddressController.editAddress);
 
@@ -225,6 +228,6 @@ userRoute.post('/change-details', userProfileController.personalDetails);
 
 userRoute.get('/transactions', userProfileController.transactionHistroy);
 
-userRoute.get('/downloadInvoice', reportController.downloadInvoice);
+userRoute.get('/downloadInvoice', invoiceController.downloadInvoice);
 
 export default userRoute;

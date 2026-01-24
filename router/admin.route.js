@@ -1,10 +1,15 @@
 import express, { Router } from 'express';
-import adminController from '../controller/admin.controller.js';
+// import adminController from '../controller/admin.controller.js';
+import adminDashboardController from '../controller/admin.dashboard.controller.js';
+import adminUserController from '../controller/admin.user.controller.js';
+import adminProductController from '../controller/admin.product.controller.js';
+import adminOrderController from '../controller/admin.order.controller.js';
 import productController from '../controller/product.controller.js';
 import cetagoryContorller from '../controller/category.controller.js';
 import couponController from '../controller/coupon.controller.js';
 import offerController from '../controller/offer.controller.js';
-import reportController from '../controller/report.controller.js';
+import salesReportController from '../controller/sales.report.controller.js';
+import exportController from '../controller/export.controller.js';
 import nocache from 'nocache';
 import { islogin, logged } from '../middleware/admin.auth.middleware.js';
 import multer from '../middleware/multer.middleware.js';
@@ -25,25 +30,25 @@ adminRoute.use(express.urlencoded({ extended: true }));
 
 
 // load home page
-adminRoute.get('/', islogin, adminController.loadAdmin);
+adminRoute.get('/', islogin, adminDashboardController.loadAdmin);
 
-adminRoute.post('/order-filter', adminController.filterDashboard);
+adminRoute.post('/order-filter', adminDashboardController.filterDashboard);
 
 // load user management
 
-adminRoute.get('/user', islogin, adminController.loadUser);
+adminRoute.get('/user', islogin, adminUserController.loadUser);
 
 // block user
 
-adminRoute.post('/blockUser', adminController.blockUser);
+adminRoute.post('/blockUser', adminUserController.blockUser);
 
 // load product
 
-adminRoute.get('/product', islogin, adminController.loadPoduct);
+adminRoute.get('/product', islogin, adminProductController.loadPoduct);
 
 // load add Product
 
-adminRoute.get('/addProduct', islogin, adminController.loadAddProduct);
+adminRoute.get('/addProduct', islogin, adminProductController.loadAddProduct);
 
 // load cetagory
 
@@ -115,13 +120,13 @@ adminRoute.post('/logout', adminAuthController.logout);
 
 // order
 
-adminRoute.get('/order', islogin, adminController.loadOrder);
+adminRoute.get('/order', islogin, adminOrderController.loadOrder);
 
-adminRoute.get('/single-orderDetails', islogin, adminController.loadsingleOrder);
+adminRoute.get('/single-orderDetails', islogin, adminOrderController.loadsingleOrder);
 
 // adminRoute.get('/Cancelationdetails', islogin, adminController.loadSingleCancelation);
 
-adminRoute.post('/change-orderStatus', adminController.changeOrderStatus);
+adminRoute.post('/change-orderStatus', adminOrderController.changeOrderStatus);
 
 // adminRoute.get('/cancel-request', islogin, adminController.loadCancel);
 
@@ -143,13 +148,13 @@ adminRoute.post('/check-coupon-name', couponController.checkCouponName);
 
 adminRoute.delete('/deleteCoupon', couponController.deleteCoupon);
 
-adminRoute.post('/order-filter', adminController.filterDashboard);
+adminRoute.post('/order-filter', adminDashboardController.filterDashboard);
 
-adminRoute.get('/sales-report', islogin, reportController.loadSalesReport);
+adminRoute.get('/sales-report', islogin, salesReportController.loadSalesReport);
 
-adminRoute.get('/download-sales-report', islogin, reportController.downloadSalesReport);
+adminRoute.get('/download-sales-report', islogin, exportController.downloadSalesReport);
 
-adminRoute.get('/download-sales-report-excel', islogin, reportController.downloadExcel);
+adminRoute.get('/download-sales-report-excel', islogin, exportController.downloadExcel);
 
 export default adminRoute;
 
