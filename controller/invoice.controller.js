@@ -10,27 +10,18 @@ class InvoiceController {
                 .populate('user')
                 .populate('products.productId');
 
+
             if (!order || !order.products || order.products.length === 0) {
                 return res.status(404).send('Order not found or no products in order');
             }
 
-            // Filter out products with status 'returned' or 'canceled'
-            const filteredProducts = order.products.filter(
-                (product) => product.status !== 'returned' && product.status !== 'canceled',
-            );
-            console.log(filteredProducts);
-
-            // Calculate the total amount by excluding returned products
-            const totalAmount = filteredProducts.reduce((acc, product) => {
-                return acc + product.price * product.quantity;
-            }, 0);
-
-            console.log(totalAmount);
+            // Use the model method to get invoice details
+            const invoiceDetails = order.getInvoiceDetails();
 
             res.render('invoice', {
-                order: { ...order.toObject(), products: filteredProducts, totalAmount }, // Pass filtered products
+                order: { ...order.toObject(), products: invoiceDetails.products, totalAmount: invoiceDetails.totalAmount, discount: invoiceDetails.discount, subTotal: invoiceDetails.subTotal, totalTax: invoiceDetails.totalTax },
                 deliveryAddress: order.deliveryDetails,
-                index: index || 0, // Ensure `index` is passed here
+                index: index || 0,
             });
         } catch (error) {
             console.log(error);
@@ -48,6 +39,8 @@ class InvoiceController {
             if (!order || !order.products || order.products.length === 0) {
                 return res.status(404).send('Order not found or no products in order');
             }
+
+            const invoiceDetails = order.getInvoiceDetails();
 
             const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 10 });
 
@@ -124,45 +117,37 @@ class InvoiceController {
             doc.moveDown();
             let currentY = tableTop + rowHeight;
 
-            let subTotal = 0; // Accumulate subtotal
-            let totalTax = 0; // Accumulate total tax
-
             // Draw table rows
-            order.products.forEach((product) => {
-                if (product.status !== 'returned' && product.status !== 'canceled') {
-                    const unitPrice = product.price / 1.18; // Remove 18% tax
-                    const taxAmount = (product.price - unitPrice) * product.quantity;
-                    const totalAmount = product.price * product.quantity;
+            invoiceDetails.products.forEach((product) => {
+                const unitPrice = product.price / 1.18; // Remove 18% tax
+                const taxAmount = (product.price - unitPrice) * product.quantity;
+                const totalAmount = product.price * product.quantity;
 
-                    subTotal += unitPrice * product.quantity;
-                    totalTax += taxAmount;
+                doc.rect(doc.page.margins.left, currentY, tableWidth, rowHeight).stroke();
+                doc.text(product.productId.name, doc.page.margins.left + 5, currentY + 5);
+                doc.text(product.quantity, doc.page.margins.left + columnWidths[0] + 5, currentY + 5);
+                doc.text(
+                    `${unitPrice.toFixed(2)}`,
+                    doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
+                    currentY + 5,
+                );
+                doc.text(
+                    `${taxAmount.toFixed(2)}`,
+                    doc.page.margins.left + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5,
+                    currentY + 5,
+                );
+                doc.text(
+                    `${totalAmount.toFixed(2)}`,
+                    doc.page.margins.left +
+                    columnWidths[0] +
+                    columnWidths[1] +
+                    columnWidths[2] +
+                    columnWidths[3] +
+                    5,
+                    currentY + 5,
+                );
 
-                    doc.rect(doc.page.margins.left, currentY, tableWidth, rowHeight).stroke();
-                    doc.text(product.productId.name, doc.page.margins.left + 5, currentY + 5);
-                    doc.text(product.quantity, doc.page.margins.left + columnWidths[0] + 5, currentY + 5);
-                    doc.text(
-                        `${unitPrice.toFixed(2)}`,
-                        doc.page.margins.left + columnWidths[0] + columnWidths[1] + 5,
-                        currentY + 5,
-                    );
-                    doc.text(
-                        `${taxAmount.toFixed(2)}`,
-                        doc.page.margins.left + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5,
-                        currentY + 5,
-                    );
-                    doc.text(
-                        `${totalAmount.toFixed(2)}`,
-                        doc.page.margins.left +
-                        columnWidths[0] +
-                        columnWidths[1] +
-                        columnWidths[2] +
-                        columnWidths[3] +
-                        5,
-                        currentY + 5,
-                    );
-
-                    currentY += rowHeight;
-                }
+                currentY += rowHeight;
             });
 
             // Draw table footer
@@ -170,7 +155,13 @@ class InvoiceController {
             doc.y = currentY + 10;
 
             // Final amounts
-            const totalAmountText = `Subtotal (excluding tax): ${subTotal.toFixed(2)}\nTotal Tax: ${totalTax.toFixed(2)}\nTotal Amount (including tax): ${(subTotal + totalTax).toFixed(2)}`;
+            let totalAmountText = `Subtotal (excluding tax): ${invoiceDetails.subTotal.toFixed(2)}\nTotal Tax: ${invoiceDetails.totalTax.toFixed(2)}`;
+
+            if (invoiceDetails.discount > 0) {
+                totalAmountText += `\nCoupon Discount: -${invoiceDetails.discount.toFixed(2)}`;
+            }
+
+            totalAmountText += `\nTotal Amount (including tax): ${invoiceDetails.totalAmount.toFixed(2)}`;
 
             doc.fontSize(18).text(totalAmountText, doc.page.margins.left, doc.y);
 

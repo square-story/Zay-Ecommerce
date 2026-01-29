@@ -129,4 +129,38 @@ const orderSchema = new mongoose.Schema({
   couponMinimumAmount: { type: Number, default: 0 }, // New field
 });
 
+orderSchema.methods.getInvoiceDetails = function () {
+  // Filter out products that are returned or canceled
+  const validProducts = this.products.filter(
+    (product) => product.status !== 'returned' && product.status !== 'canceled'
+  );
+
+  let subTotal = 0;
+  let totalTax = 0;
+
+  validProducts.forEach((product) => {
+    // Assuming 18% tax included in price
+    const unitPrice = product.price / 1.18;
+    const taxAmount = (product.price - unitPrice) * product.quantity;
+
+    subTotal += unitPrice * product.quantity;
+    totalTax += taxAmount;
+  });
+
+  const discount = this.discountedAmount || 0;
+  const totalAmount = subTotal + totalTax - discount;
+
+  return {
+    products: validProducts,
+    subTotal,
+    totalTax,
+    discount,
+    totalAmount,
+    deliveryDetails: this.deliveryDetails,
+    orderId: this._id,
+    date: this.date,
+    user: this.user,
+  };
+};
+
 export default mongoose.model('Order', orderSchema);

@@ -212,7 +212,7 @@ userRoute.post('/verify-payment', orderPlacementController.verifyPayment);
 
 userRoute.post('/product-return', orderManagementController.productReturn);
 
-// userRoute.post('/check-coupon', couponController.checkCoupon);
+userRoute.post('/check-coupon', couponController.checkCoupon);
 
 userRoute.get('/my-coupon', couponController.loadMyCoupon);
 

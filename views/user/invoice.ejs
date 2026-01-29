@@ -109,9 +109,12 @@
               <% } %>
             </tbody>
           </table>
-  
+          
           <hr>
-  
+          <% if (order.discount > 0) { %>
+            <h4>Sub Total: ₹<%= (order.totalAmount + order.discount).toFixed(2) %></h4>
+            <h4>Coupon Discount: -₹<%= order.discount.toFixed(2) %></h4>
+          <% } %>
           <h4>Total Amount (including tax): ₹<%= order.totalAmount.toFixed(2) %></h4>
         </div>
       </div>

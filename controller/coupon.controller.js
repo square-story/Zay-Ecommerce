@@ -173,8 +173,6 @@ class CouponController {
 
           if (coupon.percentage) {
             discount = (coupon.percentage / 100) * totalWithDelivery;
-          } else if (coupon.discountAmount) {
-            discount = coupon.discountAmount;
           }
 
           discount = Math.min(discount, coupon.maxDiscountAmount || discount); // Ensure discount doesn't exceed max discount
